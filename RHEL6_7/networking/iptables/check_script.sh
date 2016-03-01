@@ -1,0 +1,62 @@
+#!/bin/bash
+. /usr/share/preupgrade/common.sh
+check_applies_to "iptables"
+
+#END GENERATED SECTION
+
+check_root
+
+custom_scf=false
+custom_iptables=false
+custom_ip6tables=false
+
+CONFIG_FILE="/etc/sysconfig/system-config-firewall"
+if [[ -f "${CONFIG_FILE}" ]]; then
+  if ! grep -q "disabled" "${CONFIG_FILE}"; then
+    custom_scf=true
+    backup_config_file "${CONFIG_FILE}"
+  fi
+fi
+
+CONFIG_FILE="/etc/sysconfig/iptables"
+DEFAULT_CONFIG_FILE="iptables_default"
+if [[ -f "${CONFIG_FILE}" ]]; then
+  if ! cmp --quiet "${CONFIG_FILE}" "${DEFAULT_CONFIG_FILE}"; then
+    custom_iptables=true
+    backup_config_file "${CONFIG_FILE}"
+  fi
+fi
+
+CONFIG_FILE="/etc/sysconfig/ip6tables"
+DEFAULT_CONFIG_FILE="ip6tables_default"
+if [[ -f "${CONFIG_FILE}" ]]; then
+  if ! cmp --quiet "${CONFIG_FILE}" "${DEFAULT_CONFIG_FILE}"; then
+    custom_ip6tables=true
+    backup_config_file "${CONFIG_FILE}"
+  fi
+fi
+
+if service_is_enabled "iptables" || service_is_enabled "ip6tables"; then
+  POSTUPGRADE_DIR="$VALUE_TMP_PREUPGRADE/postupgrade.d/reenable-iptables"
+  if [[ ! -d "$POSTUPGRADE_DIR" ]]; then
+    log_info "Creating $POSTUPGRADE_DIR"
+    mkdir -p "$VALUE_TMP_PREUPGRADE/postupgrade.d/reenable-iptables"
+  fi
+
+  if service_is_enabled "iptables"; then
+    SCRIPT_NAME="iptables.sh"
+    POST_SCRIPT="postupgrade.d/$SCRIPT_NAME"
+    cp $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
+  fi
+
+  if service_is_enabled "ip6tables"; then
+    SCRIPT_NAME="ip6tables.sh"
+    POST_SCRIPT="postupgrade.d/$SCRIPT_NAME"
+    cp $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
+  fi
+
+  log_warning "Please read Remediation instructions."
+  exit_informational
+fi
+
+exit_pass

@@ -1,0 +1,36 @@
+#!/usr/bin/python
+
+import commands
+
+DEFAULT_GRUB="""GRUB_TIMEOUT=5
+GRUB_DISTRIBUTOR="$(sed 's, release .*$,,g' /etc/system-release)"
+GRUB_DEFAULT=saved
+GRUB_DISABLE_SUBMENU=true
+GRUB_TERMINAL_OUTPUT="ofconsole"
+GRUB_CMDLINE_LINUX="FIXME"
+GRUB_DISABLE_RECOVERY="true"
+GRUB_TERMINFO="terminfo -g 80x24 console"
+GRUB_DISABLE_OS_PROBER=true"""
+
+class DracutConverter(object):
+    def __init__(self, stream):
+        self.mapping = dict([line.strip().split() for line in stream])
+
+    def convert(self, arg):
+        return self.mapping.get(arg, arg)
+
+dc = DracutConverter(open("dracut-deprecated-args.txt"))
+
+result = commands.getstatusoutput("uname -r")
+if result[0] != 0:
+    sys.exit(1)
+kver = result[1].strip()
+
+cmdline = open("/proc/cmdline").read().strip().split()
+
+cmdline = [dc.convert(arg) for arg in cmdline
+    if not(arg.startswith("root=") or arg == "ro" or kver in arg)]
+
+cmdline = " ".join(cmdline)
+
+print DEFAULT_GRUB.replace("FIXME", cmdline)

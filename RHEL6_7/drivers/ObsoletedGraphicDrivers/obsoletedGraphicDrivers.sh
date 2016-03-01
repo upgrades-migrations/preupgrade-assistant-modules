@@ -1,0 +1,50 @@
+#! /usr/bin/env bash
+
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+
+RESULT="$RESULT_PASS"
+
+# Return N/A if no previously run X11 session was detected
+if ! test -f /var/log/Xorg.0.log; then
+	log_info "No previously run X11 session was detected"
+	exit "$RESULT_NOT_APPLICABLE"
+fi
+
+# Loaded X11 modules list
+LDM_LIST="$(cat /var/log/Xorg.0.log |grep \ LoadModule:\ |awk '{print $5}'| cut -d '"' -f 2)"
+RM_LIST=""
+DEP_LIST=""
+
+# Removed modules first
+for mod in $LDM_LIST; do
+	if grep -q -e "^$mod\$" modRemovedList; then
+		log_extreme_risk "Your last X11 session loaded module '$mod' that was removed in Red Hat Enterprise Linux 7."
+		RESULT="$RESULT_FAIL"
+		RM_LIST="$RM_LIST\n\t$mod"
+	fi
+done
+
+# Deprecated modules second
+for mod in $LDM_LIST; do
+	if grep -q -e "^$mod\$" modDeprecatedList; then
+		log_medium_risk "Your last X11 session loaded module '$mod' that was deprecated in Red Hat Enterprise Linux 7."
+		RESULT="$RESULT_FAIL"
+		DEP_LIST="$DEP_LIST\n\t$mod"
+	fi
+done
+
+# Generate solution.txt
+rm -f solution.txt
+if test -n "$RM_LIST"; then
+	echo -e \
+	"Your last X11 session loaded graphic drivers modules that were removed in Red Hat Enterprise Linux 7. You will need to use different graphic drivers or upgrade your hardware configuration in order to address this issue. The list of the removed modules follows: $RM_LIST" >> solution.txt
+fi
+
+if test -n "$DEP_LIST"; then
+	echo -e \
+	"Your last X11 session loaded graphic drivers modules that were deprecated in Red Hat Enterprise Linux 7. All the drivers have KMS drivers that are replacing them. The list of the deprecated modules follows: $DEP_LIST" >> solution.txt
+fi
+
+exit $RESULT

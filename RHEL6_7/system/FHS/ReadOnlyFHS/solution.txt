@@ -1,0 +1,1 @@
+Read-only paths in Filesystem Hierarchy Standard might cause in-place-upgrade to fail.

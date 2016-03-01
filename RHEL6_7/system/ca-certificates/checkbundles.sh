@@ -1,0 +1,54 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+check_applies_to "ca-certificates"
+check_rpm_to "" "rpm"
+
+#END GENERATED SECTION
+
+find_modified_config_files()
+{
+	#
+	# Identify which files are really modified config files
+	#
+	# "rpm --verify" outputs:
+	#   1. the status as a string of 9 chars
+	#   2. attribute which is 'c' for config files
+	#   3. the file name
+	#
+	rpm --verify $1 | while read vstatus vattr vname; do
+		if [ "$vattr" = "c" ]; then
+			case $vstatus in
+			# replaced with a link, not modified
+			....L....)
+				;;
+			# else is a modified config file
+			*)
+				echo -n "$vname "
+				;;
+			esac
+		fi
+	done
+}
+
+#
+# Identify what are config files. Note that for ca-certificates
+# many of the files are in a config limbo. They're only treated
+# as config once they're modified (ie: a CA was added)
+#
+config_files=$(find_modified_config_files ca-certificates)
+
+# Copy the config files from RHEL6 to temporary directory
+for config in $config_files; do
+	mkdir -p $VALUE_TMP_PREUPGRADE/$(dirname $config)
+	cp $config $VALUE_TMP_PREUPGRADE$config
+done
+
+# Any configured bundles means that we can't automatically update
+if [ -n "$config_files" ]; then
+    log_medium_risk "The $config_files CA certificate bundles have been modified and cannot be automatically migrated to the upgraded system."
+    exit $RESULT_FAIL
+fi
+
+exit $RESULT_PASS
+

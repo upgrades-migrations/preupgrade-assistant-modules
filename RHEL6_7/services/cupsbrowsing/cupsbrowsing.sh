@@ -1,0 +1,157 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+check_applies_to "cups"  "grep"
+switch_to_content
+#END GENERATED SECTION
+CUPSD_CONF=/etc/cups/cupsd.conf
+
+if ! [ -f "$CUPSD_CONF" ]; then
+    exit $RESULT_NOT_APPLICABLE
+fi
+
+POSTUPGRADE_DIR=$VALUE_TMP_PREUPGRADE/postupgrade.d/cupsbrowsing
+POSTUPGRADE_SCRIPT=$POSTUPGRADE_DIR/enable-cups-browsed.sh
+
+BROWSEPROTOCOLS=$(sed -ne 's,^ *BrowseProtocols *\([^#]*\) *\(#.*\)\?$,\1,p' "$CUPSD_CONF")
+BROWSELOCALPROTOCOLS=$(sed -ne 's,^ *BrowseLocalProtocols *\([^#]*\) *\(#.*\)\?$,\1,p' "$CUPSD_CONF")
+BROWSEREMOTEPROTOCOLS=$(sed -ne 's,^ *BrowseRemoteProtocols *\([^#]*\) *\(#.*\)\?$,\1,p' "$CUPSD_CONF")
+BROWSING=$(sed -ne 's,^ *Browsing *\([^#]*\) *\(#.*\)\?$,\1,p' "$CUPSD_CONF")
+BROWSEPORT=$(sed -ne 's,^ *BrowsePort *\([^#]*\) *\(#.*\)\?$,\1,p' "$CUPSD_CONF")
+BROWSESHORTNAMES=$(sed -ne 's,^ *BrowseShortNames *\([^#]*\) *\(#.*\)\?$,\1,p' "$CUPSD_CONF")
+
+if [ -z "$BROWSING" ]; then
+    BROWSING=on
+fi
+if [ -z "$BROWSEPROTOCOLS" ]; then
+    BROWSEPROTOCOLS=CUPS
+fi
+if [ -z "$BROWSELOCALPROTOCOLS" ]; then
+    BROWSELOCALPROTOCOLS="$BROWSEPROTOCOLS"
+fi
+if [ -z "$BROWSEREMOTEPROTOCOLS" ]; then
+    BROWSEREMOTEPROTOCOLS="$BROWSEPROTOCOLS"
+fi
+
+RESULT=$RESULT_FIXED
+
+if grep -qiw LDAP <(echo "$BROWSELOCALPROTOCOLS $BROWSEREMOTEPROTOCOLS"); then
+    log_high_risk "Lightweight Directory Access Protocol (LDAP) browsing is no longer available in CUPS."
+    RESULT=$RESULT_FAILED
+fi
+
+if [ -n "$BROWSEPORT" ] && [ "$BROWSEPORT" -ne 631 ]; then
+    log_high_risk "The CUPS BrowsePort directive cannot be migrated to cups-browsed."
+    RESULT=$RESULT_FAILED
+fi
+
+if [ -n "$BROWSESHORTNAMES" ]; then
+    if ! grep -qiw "$BROWSESHORTNAMES" <(echo $TRUE); then
+	log_high_risk "The "BrowseShortNames No" CUPS directive cannot be migrated to cups-browsed."
+	RESULT=$RESULT_FAILED
+    fi
+fi
+
+SEND_BROWSE=0
+RECV_BROWSE=0
+
+TRUE="true on enabled yes"
+if grep -qiw "$BROWSING" <(echo $TRUE); then
+    if grep -qiw CUPS <(echo "$BROWSELOCALPROTOCOLS"); then
+        SEND_BROWSE=1
+    fi
+fi
+
+if grep -qiw CUPS <(echo "$BROWSEREMOTEPROTOCOLS"); then
+    RECV_BROWSE=1
+fi
+
+if [ "$SEND_BROWSE$RECV_BROWSE" == "00" ]; then
+    log_none_risk "The CUPS Browsing protocol is not in use, and no CUPS Browsing configuration directives are set."
+    exit $RESULT
+fi
+
+CUPS_BROWSED_CONF="$VALUE_TMP_PREUPGRADE/cleanconf/etc/cups/cups-browsed.conf"
+mkdir -p "$VALUE_TMP_PREUPGRADE/cleanconf/etc/cups"
+cat <<EOF > "$CUPS_BROWSED_CONF"
+EOF
+
+if [ "$SEND_BROWSE" != 0 ]; then
+    echo BrowseLocalProtocols CUPS >> "$CUPS_BROWSED_CONF"
+
+    # BrowseAddress is not understood by cups-browsed.
+    if grep -i '^ *BrowseAddress ' "$CUPSD_CONF"; then
+	log_high_risk "CUPS Browsing is currently used to advertise queues. However, the BrowseAddress directive has been deprecated and cannot be migrated to the cups-browsed service."
+	RESULT=$RESULT_FAILED
+    fi
+fi
+if [ "$RECV_BROWSE" != 0 ]; then
+    echo BrowseRemoteProtocols CUPS >> "$CUPS_BROWSED_CONF"
+
+    # Only limited BrowseAllow directives are understood by
+    # cups-browsed. In particular, the "@..." syntax is not
+    # understood, so watch out for it.
+    if grep -i '^ *BrowseAllow ' "$CUPSD_CONF" | grep -q '^[^#]*@'; then
+	log_high_risk "CUPS Browsing is currently used to discover CUPS queues. However, the BrowseAllow directive has been deprecated and cannot be migrated to the cups-browsed service."
+	RESULT=$RESULT_FAILED
+    fi
+
+    # BrowseDeny is not understood at all.
+    if grep -qi '^ *BrowseDeny ' "$CUPSD_CONF"; then
+	log_high_risk "CUPS Browsing is currently used to discover CUPS queues. However, the BrowseDeny directive has been deprecated and cannot be migrated to the cups-browsed service."
+	RESULT=$RESULT_FAILED
+    fi
+
+    grep -i '^ *BrowseAllow ' "$CUPSD_CONF" | grep -v '^[^#]*@' \
+	>> "$CUPS_BROWSED_CONF"
+fi
+
+BACKGROUND="
+The Browsing and BrowsePoll configuration directives have been removed from CUPS. The cups-browsed service replaces these two directives. This module identifies possible incompatibilities in the configuration file.
+"
+
+if [ "$RESULT" == "$RESULT_FIXED" ]; then
+    # Filter out the Browse-related lines from cupsd.conf.
+    OUT="$VALUE_TMP_PREUPGRADE/cleanconf/etc/cups/cupsd.conf"
+    cp "$CUPSD_CONF" "$OUT"
+    for keyword in \
+	Browsing BrowsePoll BrowseLocalProtocols \
+	BrowseRemoteProtocols BrowseProtocols BrowseOrder BrowseAllow; do
+	sed -i -e "s,^$keyword,#$keyword,i" "$OUT"
+    done
+
+    # Create the postupgrade script to configure and enable cups-browsed.
+    mkdir -p "$POSTUPGRADE_DIR"
+    cp "$CUPS_BROWSED_CONF" "$POSTUPGRADE_DIR/cups-browsed.conf"
+    CONF=/etc/cups/cups-browsed.conf
+    cat >> "$POSTUPGRADE_SCRIPT" <<EOF
+#!/usr/bin/bash
+# Comment out default configuration.
+sed -i -e 's,^\([^# ]\),# \1,' $CONF
+
+# Append migrated directives.
+echo >> $CONF
+echo '# Migrated from cupsd.conf by preupgrade-assistant' >> $CONF
+cat cups-browsed.conf >> $CONF
+
+# Enable the service.
+systemctl enable cups-browsed.service
+EOF
+    chmod +x "$POSTUPGRADE_SCRIPT"
+
+    solution_file "$BACKGROUND
+The browsing configuration using the CUPS Browsing protocol has been migrated to the [link:cleanconf/etc/cups/cups-browsed.conf] file, and the cups-browsed service will be enabled after upgrade.
+"
+
+else
+    solution_file "$BACKGROUND
+Your configuration cannot be migrated automatically. You should either migrate to DNS-SD or, to continue to use the CUPS Browsing protocol, adjust your configuration for cups-browsed.conf.
+
+By default, CUPS uses DNS-SD to advertise print queues on the network. Discovery is performed by the applications. GTK+ applications do this as part of the print dialog implementation. To use DNS-SD, enable the \"avahi\" service and make sure to allow mDNS (UDP port 5353) through the firewall.
+
+Alternatively, you can use the cups-browsed service, which provides basic CUPS Browsing compatibility. The main browsing configuration has been moved to the [link:cleanconf/etc/cups/cups-browsed.conf] file.
+"
+
+fi
+
+exit $RESULT

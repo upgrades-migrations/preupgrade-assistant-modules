@@ -1,0 +1,61 @@
+/etc/cups/classes.conf -- man same, empty
+/etc/cups/client.conf -- some new options possible, empty
+/etc/cups/cupsd.conf -- different! -- content exists already
+/etc/cups/lpoptions -- set by root (lpoptions command), man same
+/etc/cups/printers.conf -- same manuals and empty
+/etc/cups/snmp.conf -- Address -> @LOCAL <-> no
+/etc/cups/subscriptions.conf -- same, empty
+/etc/default/nss -- same
+/etc/exports -- same, OK
+--/etc/fstab -- few contents exists already (e.g. nfsv2), but not sure if something not missing...
+--/etc/gai.conf -- same, noreplace, ghost - not verified yet
+--/etc/group -- !! - mustn't be copied to cleanconf, even when interaction isn't required, see #1261798
+--/etc/gshadow -- !! - see (!!) above
+/etc/hosts -- OK
+/etc/ident.key -- ok? (passphrase)
+/etc/inputrc -- why?
+--/etc/passwd -- !! - see (!!) above
+/etc/pki/cyrus-imapd/cyrus-imapd.pem -- OK
+/etc/pki/dovecot/certs/dovecot.pem -- OK
+/etc/pki/dovecot/private/dovecot.pem -- OK
+/etc/pki/nssdb/cert8.db -- FP
+/etc/pki/nssdb/cert9.db -- FP
+/etc/pki/nssdb/key3.db -- FP
+/etc/pki/nssdb/key4.db -- FP
+/etc/pki/nssdb/pkcs11.txt -- FP
+/etc/pki/nssdb/secmod.db -- FP
+/etc/ppp/ioptions -- OK
+/etc/prelink.conf -- OK
+/etc/publican-website.cfg -- OK
+/etc/rndc.conf -- OK
+/etc/rpc -- OK
+/etc/selinux/*/modules/active/seusers.final -- OK? contenty pro selinux
+/etc/selinux/*/modules/active/users_extra -- OK? contenty pro selinux
+/etc/selinux/*/seusers -- OK? - contenty pro selinux
+--/etc/sgml/catalog -- KO (changes ignored - always changed)
+/etc/sgml/docbook-simple.cat -- ok, same
+/etc/sgml/docbook-slides.cat -- ok
+--/etc/sgml/docbook/xmlcatalog -- ok/ko, dirty (changes ignored - always changed)
+--/etc/shadow -- !! - see (!!) above
+/etc/shells -- OK
+--/etc/sysconfig/named -- KO, dirty
+/etc/wvdial.conf -- OK
+--/etc/xml/catalog -- ok/ko (always rewritten)
+/etc/xml/docbook-5.xml -- OK, same
+/etc/yum/pluginconf.d/rhnplugin.conf -- OK
+/usr/share/info/dir -- FP
+/var/lib/arpwatch/arp.dat -- OK
+/var/lib/arpwatch/ethercodes.dat -- OK
+/var/lib/logrotate.status -- FP? (that's alternative state file)
+/var/lib/prelink/force -- FP
+/var/lib/prelink/full -- FP?
+/var/lib/prelink/quick -- FP?
+/var/log/mail/statistics -- FP
+/var/log/prelink/prelink.log -- FP
+/var/run/nscd/group -- FP (common, that's /var/run...)
+/var/run/nscd/hosts -- FP
+/var/run/nscd/nscd.pid -- FP
+/var/run/nscd/passwd -- FP
+/var/run/nscd/services -- FP
+/var/run/nscd/socket -- FP
+/var/run/udev-configure-printer/usb-uris -- FP

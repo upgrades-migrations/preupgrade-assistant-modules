@@ -1,0 +1,1 @@
+HAL (Hardware Abstraction Layer) is obsoleted, but not provided, by systemd. It is neccessary to migrate applications dependent on HAL to udev/systemd.

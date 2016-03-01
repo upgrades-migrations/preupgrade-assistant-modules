@@ -1,0 +1,239 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+#END GENERATED SECTION
+
+check_root
+
+NLOGICAL_CPU=$(nproc)
+ARCH=$(arch)
+MEMSIZE=0
+SIZES="$COMMON_DIR/pkg_sizes"
+#YUM_CACHE_DIR="/var/cache/yum"
+rm -f solution.txt
+touch solution.txt
+
+print_disk_size() {
+  df -P /boot /bin /lib /lib64 /usr /var /etc /opt /root |
+    awk '( /\// ) { print $1 " " $2 }' | sort -u |
+    awk '{ x+=$2 }END{ print x }'
+}
+
+
+find_yum_cache_dir() {
+  # deprecated - PA uses own directories
+  cat /etc/yum.conf | grep cachedir | grep -q "$YUM_CACHE_DIR"
+  [[ $? -ne 1 ]] && {
+    # cache dir is changed - try find disk with yum cache directory
+    ttmp=$( cat /etc/yum.conf | grep cachedir | cut -d "=" -f 1 --complement )
+    [[ $ttmp == "" ]] && {
+      log_error " Yum cache dir wasn't found!"
+      exit $RESULT_ERROR
+    }
+
+    echo $ttmp | grep -q '\$'
+    [ $? -eq 0 ] && {
+      YUM_CACHE_DIR=$ttmp
+      return 0
+    }
+
+    # try only partial path ('$' contains of variables is unknown)
+    ttmp=$( echo $ttmp | sed -r "s/([^$]+).*/\1/" )
+    [ ! -d $ttmp ] || {
+      ttmp=$( dirname $ttmp )
+      [ -d $( echo $ttmp ) ] && [ "$ttmp" != "/" ] && {
+        # escape from gravedigger's shovel
+        YUM_CACHE_DIR=$ttmp
+        return 0
+      }
+      log_error "Can't get full neither partial path to yum cache dir."
+      exit $RESULT_ERROR
+    }
+
+    YUM_CACHE_DIR=$ttmp
+  }
+  return 0
+}
+
+get_sizes() {
+  # it's very nice comparing, isn't it?
+  # sorted by order in second file
+  awk 'FNR==NR{a[$1]=$0;next}{if(b=a[$1]){print b}}' $SIZES \
+    <(sort $VALUE_RPM_QA) | awk '{x +=$2; y +=$3 }END{print x " " y}'
+}
+
+print_needed_free_capacity() {
+  # print needed free capacity for disk/partition where is $1
+  check_disk=$(df -P $1 | awk '( /\// ) {print $1}')
+  # size is MB in kB - little confusing - 1*$kB = 1 MB here, copy that?
+  kB=1024
+  declare -A dir_sizes
+  ## these reserves/check are the most probably pointless in light of new
+  ## knowledges and generate extra MB - I want safe minimum, but not safe
+  # "medium" space.  I keep them in  comments for possible further utilising
+  ## some of them. 
+  #dir_sizes+=( [/bin]=20480 [/sbin]=20480 )
+  #dir_sizes+=( [/root]=$[ 50*$kB ] [/home]=$[ 50*$kB ] )
+  #dir_sizes+=( [/lib64]=$[ 100*$kB ] [/lib]=$[ 100*$kB ] )
+  #dir_sizes+é( [/etc]=$[ 20*$kB ] [/opt]=$[ 50*$kB ] )
+
+  # I keep check of boot - probably pointless too, however
+  # wrong
+  dir_sizes+=( [/usr]=0 [/var]=0 [/boot]=20480 )
+  ssizes=( $(get_sizes) )
+  # 400 is hard magic contant for basic installation and dependencies
+  # there is different too due to 4kB rounding on default ext4 fs
+  # may it will be added more % to reserve in future 
+  # (see at the end of the script)
+  dir_sizes["/usr"]=$[ ${ssizes[0]} + 400*$kB ]
+  dir_sizes["/var"]=${ssizes[1]}
+
+  summary=0
+  for point in /boot /usr /var; do #  /lib /lib64 /etc /opt /root /home; do
+    # and here we transform size again and get everything in Bytes
+    [ "$(df -P $point | tail -n 1 | cut -d " " -f 1)" == "$check_disk" ] \
+      && summary=$[ $summary + ${dir_sizes[$point]} ]
+  done
+  echo $summary
+  return 0
+}
+
+get_free_size() {
+  df -P $1 | awk '( /\// ){ print $4 }'
+}
+
+get_memory_size() {
+  MEMSIZE=$(dmidecode -t 17 | awk '( /Size/ && $2 ~ /^[0-9]+$/ ) { x+=$2 } END{ print x}')
+  [ -n "$MEMSIZE" ] && return 0
+
+  #maybe virtual machine, so we can get only aroximation of real RAM size
+  log_warning "Can't get memory size with 'dmidecode'! Try 'dmesg' with 1% tolerance."
+  oo=$(dmesg | grep -ioE "System RAM:\s[0-9]+MB")
+  [ $? -eq 0 ] && {
+    MEMSIZE=$( echo "$oo" | cut -d " " -f 3 | cut -d " " -f 3 | sed s/..$// )
+    return 1
+  }
+
+  # the worst situation, really only rough estimation of real memory
+  log_error "Memory size will be get from /proc/meminfo. Tolerance is 10%. For better estimation of RAM size, reboot system and immadiately run preupg again."
+  MEMSIZE=$[ $(cat /proc/meminfo | grep MemTotal | grep -oE "[0-9]+")/1024 ]
+  return 2
+}
+
+
+# check if architecture is supported
+echo "x86_64 ppc64 s390x" | grep -q "\b${ARCH}\b"
+[ $? -eq 1 ] && {
+  log_extreme_risk "Unsupported architecture ${ARCH}!"
+  echo -e "Architecture ${ARCH} is not supported on RHEL7 systems.\n" >> solution.txt
+  exit $RESULT_FAIL
+}
+
+
+get_memory_size
+type_m=$?
+
+result=$RESULT_PASS
+result_m=0
+[[ "$ARCH" == "ppc64" ]] && MEM_MIN=2048 || MEM_MIN=1024
+
+[ $MEMSIZE -lt $MEM_MIN ] && {
+  #dmesg 1% tolerace
+  if [ $type_m -eq 1 ]; then
+    [ $[ $MEMSIZE/100+$MEMSIZE ] -lt $MEM_MIN ] && result_m=1
+  elif [ $type_m -eq 2 ]; then
+      # /proc/meminfo 10% tolerace
+    [ $[ $MEMSIZE/10+$MEMSIZE ] -lt $MEM_MIN ] && result_m=1 || {
+      log_medium_risk "Memory size is only estimated! Be sure you have at least ${MEM_MIN}MB."
+    }
+  else
+    result_m=1
+  fi
+  }
+
+[ $result_m -ne 0 ] && {
+  log_extreme_risk "Memory is lower than minimum requirements!"
+  echo "Minimum required memory is ${MEM_MIN}MB. But you have only $MEMSIZE!" >> solution.txt
+  result=$RESULT_FAIL
+}
+
+# deprecated
+#find_yum_cache_dir
+
+# check if disk(s) has at least 10GB size (in kB)
+# we can't check disk itself with fdisk -l because of partitions exists
+# already and If some space is unused, we can't count with it.
+[[ $(print_disk_size) -lt $[ 2**20*10 ] ]] && {
+  # extreme is not the best solution - set only high risk, because free space
+  # for migration will be checked by redhat-upgrade-tool and below too
+  log_high_risk "Diskspace is lower then minimum requirements for correct run of new system!"
+  echo "Minimum required diskspace is: 10GB ( $[ 2**30*10 ] B )" >> solution.txt
+  echo "Get diskspace" >> solution.txt
+  result=$RESULT_FAIL
+}
+
+# check free disk space for migration #
+usr_ncap=$(print_needed_free_capacity "/usr")
+usr_acap=$(get_free_size "/usr")
+var_ncap=$(print_needed_free_capacity "/var")
+var_acap=$(get_free_size "/var")
+
+usr_reserve=$[ $usr_ncap+($usr_ncap/100*15) ]
+var_reserve=$[ $var_ncap+($var_ncap/100*15) ]
+
+if [ $usr_acap -ge $usr_ncap ]; then 
+  [ $usr_acap -lt $usr_reserve ] && {
+    log_high_risk "There is not enough reserve of free space in /usr!"
+    echo "Free space in \"/usr\" is lesser than estimated needed free space
+for secure migration with reserve. Process can crash during migration." >> solution.txt
+    result=$RESULT_FAIL
+  }
+else
+  # it's extreme risk BUT this is checked by redhat-upgrade-tool already
+  log_high_risk "There is not enough free space in /usr for migration!"
+  echo "Free space in \"/usr\" is lesser then estimated needed free space
+for migration. Process probably will crash during migration." >> solution.txt
+  result=$RESULT_FAIL
+fi
+
+# redhat-upgrade-tool get information about packages after download
+# (if souce is --network)
+if [ $var_acap -ge $var_ncap ]; then
+  [ $var_acap -lt $var_reserve ] && {
+    log_high_risk "There is not enough reserve of free space in /var!"
+    echo "Free space in \"/var\" is lesser than estimated needed free space
+for secure migration with reserve. Process can crash during migration if you
+want download packages from network by redhat-upgrade-tool.
+
+If you can't delete some files, download right iso image of RHEL-7.x and use
+it instead of network." >> solution.txt
+  result=$RESULT_FAIL
+  }
+else
+  # it's extreme risk BUT this is checked by redhat-upgrade-tool already
+  log_high_risk "There is not enough free space in /var for migration!"
+  echo "Free space in \"/var\" is lesser then estimated needed free space
+for secure migration. Process probably will crash during migration if you want
+download new packages from network by redhat-upgrade-tool.
+
+If you can't delete some files, download right iso image of RHEL-7.x and use
+it instead of network." >> solution.txt
+  result=$RESULT_FAIL
+fi
+
+echo "
+/usr:
+(only for migration process)
+Estimated needed free space: $usr_ncap kB
+Estimated safe free space: $usr_reserve kB
+Available free space: $usr_acap kB
+
+/var:
+(only for migration process)
+Estimated needed free space: $var_ncap kB
+Estimated safe free space: $var_reserve kB
+Available free space: $var_acap kB
+" >> solution.txt
+
+exit $result
+

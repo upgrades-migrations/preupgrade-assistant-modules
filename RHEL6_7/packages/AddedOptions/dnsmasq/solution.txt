@@ -1,0 +1,172 @@
+Some options in DNSMASQ configuration were added between RHEL 6 and RHEL 7.
+Some of these changes may be helpful in your DNSAMSQ configuration.
+
+
+
+IPv6 support for DHCP has been added:
+-------------------------------------
+DNSMASQ version distributed in RHEL 7 now supports DHCPv6 protocol.
+The DHCPv6 server provides the same set of functionality as the DHCPv4
+server. In addition it supports:
+ - router advertisements
+ - feature which allows naming for clients which use DHCPv4 for IPv4 configuration,
+   and only stateless auto-configuration for IPv6 configuration.
+ - Address allocation (both DHCPv6 and Router Advertisements) from subnets
+   which are dynamically delegated via DHCPv6 prefix delegation.
+
+
+New "--bind-dynamic" dnsmasq network mode has been added:
+---------------------------------------------------------
+New network mode "bind-dynamic" has been added into DNSMASQ version
+distributed in RHEL 7.
+The new network mode which is a hybrid between --bind-interfaces and the default.
+Dnsmasq will bind to addresses of individual interfaces, allowing multiple dnsmasq
+instances. If new interfaces or addresses appear on the system, it will automatically
+bind to them and start listening (this behaviour is subject to any access-control
+configuration). This makes dynamically created interfaces work in the same way
+as the default.
+
+
+
+The following configuration options have been added:
+
+"--tag-if=set:<tag>[,set:<tag>[,tag:<tag>[,tag:<tag>]]]"
+--------------------------------------------------------
+The option "--tag-if" has been added to enable boolean operations on tags.
+Any tag appearing as 'set:<tag>' is set if all the tags which appear as
+'tag:<tag>' are set (or unset when 'tag:!<tag>' is used). If there is no
+'tag:<tag>' after 'set:<tag>', tags are set unconditionally. It is possible
+to use multiple 'set:' and 'tag:' arguments in any order.
+"--tag-if" statements ares processed in the same order they appear in the
+configuration, so if the <tag> in 'tag:<tag>' is a tag set by another
+"--tag-if" statement, the statement which sets the <tag> must precede
+the one which tests it.
+
+
+"--dhcp-proxy[=<ip addr>]..."
+-----------------------------
+!!! IPv4 ONLY option !!!
+A normal DHCP relay agent is only used to forward the initial parts of
+the DHCP interaction to the DHCP server. Once the client is fully configured,
+it communicates directly with the server.
+A full DHCP relay server can use the (RFC 5107) 'serverid-override' option
+to force the DHCP server to use the relay as a full proxy, with all packets
+passing through it.
+The option "--dhcp-proxy" has been added to provide an alternative method
+of doing the same thing, for relays which don't support RFC 5107. 
+Given alone, it manipulates the server-id for all interactions via relays.
+If a list of IP addresses is given, only interactions via relays with given
+addresses are affected.
+
+
+"--dhcp-generate-names=tag:<tag>[,tag:<tag>]"
+---------------------------------------------
+!!! IPv4 ONLY option !!!
+The option "--dhcp-generate-names" has been added, which instructs dnsmasq
+to generate a name for each DHCP client which does not otherwise have one.
+The name is generated using the MAC address expressed in hexadecimal form,
+separated by dashes.
+Note that if the host provides a name, it will be preferred to the generated
+one, unless "--dhcp-ignore-names" option is used.
+
+
+"--max-ttl=<time>"
+------------------
+The option "--max-ttl=<time>" has been added to instruct dnsmasq to set
+the maximum TTL value of the DNS answer, that will be passed to clients.
+The specified maximum TTL will be set in the DNS answer to clients instead
+of the true TTL value, if the true TTL value is higher. The true TTL value
+is however kept in the cache to avoid flooding of upstream DNS servers.
+
+
+"--rebind-localhost-ok"
+-----------------------
+The option "--rebind-localhost-ok" has been added to except 127.0.0.1/8
+address range from rebinding checks. This address range is returned by
+real-time black hole servers, so blocking it may disable these services.
+
+
+"--rebind-domain-ok=[<domain>]|[[/<domain>/[<domain>/]"
+-------------------------------------------------------
+The "--rebind-domain-ok" option has been added to disable detection
+and blocking of dns-rebind on queries to given domains. The argument
+may be either a single domain, or multiple domains surrounded and
+separated by '/'.
+
+
+"--dhcp-sequential-ip"
+----------------------
+The option "--dhcp-sequential-ip" has been added to instruct DHCP server
+to assign IP addresses to DHCP clients sequentially. The address allocation
+starts from the lowest available address.
+Note that in the sequential mode, clients which allow their lease to expire
+are much more likely to get their IP address changed.
+
+
+"--add-mac"
+-----------
+The option "--add-mac" has been added to enable adding the MAC address of the
+DNS client to DNS queries which are forwarded to upstream servers. This may
+be used for filtering purposes by the upstream server. The MAC address can
+be added only if the DNS client is on the same subnet as the dnsmasq server.
+Note that the mechanism used to achieve this (an EDNS0  option) is  not  yet
+standardised, therefore it should be considered experimental. Also note that
+exposing MAC addresses in this way may have SECURITY and PRIVACY implications.
+
+
+"--tftp-lowercase"
+------------------
+The option "--tftp-lowercase" instructs the TFTP server to convert filenames
+in TFTP requests to lowercase. This is useful for requests from machines which
+use case-insensitive filesystem. 
+
+
+"--dhcp-client-update"
+----------------------
+By default dnsmasq sets a flag in the FQDN option, when giving a DHCP lease,
+to tell the client not to attempt a DDNS update with its name and IP address.
+This flag disables this default behaviour.
+
+
+"--dhcp-duid=<enterprise-id>,<uid>"
+-----------------------------------
+!!! IPv6 ONLY option !!!
+The option "--dhcp-duid" has been added to enable specification of the persistent
+UID used by DHCPv6 server. This option is not normally required as dnsmasq creates
+a DUID automatically when first needed. If used, this option provides dnsmasq
+the data required to create a DUID-EN type DUID. The <enterprise-id> is assigned
+by IANA, and the <uid> is a string of hexadecimal octets unique to a particular device.
+
+
+"--host-record=<name>[,<name>....],[<IPv4-address>],[<IPv6-address>]"
+--------------------------------------------------------------------
+The option "--host-record" enables the user to add A, AAAA and PTR records to the DNS.
+It adds one or more names to the DNS with associated IPv4 (A) and/or IPv6 (AAAA) records.
+The same name may appear in multiple host-record statements. This will result in assignment
+of multiple addresses to the same name. Only the first address creates a PTR record
+linking the address to the name.
+
+
+"--dns-rr=<name>,<RR-number>,[<hex data>]"
+------------------------------------------
+The option "--dns-rr" enabled dnsmasq to return an arbitrary DNS Resource Record.
+The <RR-number> is the type of the record (which is always of the IN class). The value
+of the record is given by the <hex data>, which may be of the form "01:23:45"
+or "01 23 45" or "012345" or any mixture of these.
+
+
+"--max-cache-ttl=<time>"
+------------------------
+The option "--max-cache-ttl" can be used to set the maximum TTL value of cached
+DNS answers.
+
+
+"--ipset=/<domain>/[domain/]<ipset>[,<ipset>]"
+----------------------------------------------
+The option "--ipset" can be used to place the resolved IP addresses of queries
+for specified domains in the specified netfilter ipsets. These ipsets must already exist.
+For more information please see ipset manpage ('man 8 ipset').
+
+
+
+For more information, please see the DNSMASQ man page ('man 8 dnsmasq').

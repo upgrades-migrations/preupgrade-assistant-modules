@@ -1,0 +1,50 @@
+#!/usr/bin/python
+
+import sys
+import commands
+
+status = commands.getstatusoutput("man dracut.cmdline")
+
+if status[0] != 0:
+    sys.exit(1)
+
+man_dracut_cmdline = status[1].split("\n")
+
+
+new=""
+old=""
+first_indent=0
+not_yet = True
+deprecated_args = {}
+for line in man_dracut_cmdline:
+    if "Deprecated, renamed Options" == line.strip():
+        not_yet = False
+        continue
+    if "Configuration in the Initramfs" == line.strip():
+        break
+    if not_yet or len(line) == 0:
+        continue
+    if line.strip().startswith("Here is a list"):
+        continue
+
+    indent = len(line) - len(line.lstrip())
+
+    if first_indent == 0:
+        first_indent = indent
+        old = line.strip()
+        new = ""
+        continue
+
+    if indent == first_indent:
+        print "%s\t%s" % (old, new)
+        old = line.strip()
+        new = ""
+    else:
+        new = line.strip()
+
+print
+print "This is supposed to be run on RHEL-7 and returns deprecated dracut args"
+print "DON'T FORGET TO REVIEW RESULT CAREFULLY!"
+print "These records are known to be wrong:"
+print "  rd_NO_MULTIPATH"
+print "  rdinitdebug rdnetdebug"

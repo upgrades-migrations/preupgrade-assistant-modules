@@ -1,0 +1,7 @@
+Some options were removed from netstat binary of net-tools package between
+RHEL 6 and RHEL 7. This may break functionality of some of your scripts.
+All option removals with solutions are listed bellow.
+
+netstat : -T/--notrim renamed to -W/--wide
+
+Please check that your scripts are aware of these changes.

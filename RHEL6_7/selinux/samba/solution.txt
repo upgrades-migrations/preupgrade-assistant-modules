@@ -1,0 +1,1 @@
+We found some samba shared directories. These should be labelled as samba_shared_t, unless they are system directories, which should carry some another label. Since autorelabel will be performed after upgrade, please check if they are labelled correctly on the upgraded system.

@@ -1,0 +1,232 @@
+#!/usr/bin/python
+# -*- Mode: Python; python-indent: 8; indent-tabs-mode: t -*-
+
+import sys, os #, errno
+#import datetime
+import subprocess
+import re
+
+from preup.script_api import *
+
+
+"""Preupgrade assistant performs system upgradability assessment
+and gathers information required for successful operating system upgrade.
+Copyright (C) 2013 Red Hat Inc.
+Frantisek Kluknavsky <fkluknav@redhat.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>."""
+check_applies_to (check_applies="hal")
+set_component("hal")
+#END GENERATED SECTION
+# exit functions are exit_{pass,not_applicable, fixed, fail, etc.}
+# logging functions are log_{error, warning, info, etc.}
+# for logging in-place risk use functions log_{extreme, high, medium, slight}_risk
+
+def splitFilename(filename):
+    """ 
+    Pass in a standard style rpm fullname 
+    
+    Return a name, version, release, epoch, arch, e.g.::
+        foo-1.0-1.i386.rpm returns foo, 1.0, 1, i386
+        1:bar-9-123a.ia64.rpm returns bar, 9, 123a, 1, ia64
+
+    This function is copied from rpmutils.
+    Dead code right now as rpm -qa --filesbypkg writes name without version, --queryformat is safer and simpler.
+    """
+
+    if filename[-4:] == '.rpm':
+        filename = filename[:-4]
+    
+    archIndex = filename.rfind('.')
+    arch = filename[archIndex+1:]
+
+    relIndex = filename[:archIndex].rfind('-')
+    rel = filename[relIndex+1:archIndex]
+
+    verIndex = filename[:relIndex].rfind('-')
+    ver = filename[verIndex+1:relIndex]
+
+    epochIndex = filename.find(':')
+    if epochIndex == -1: 
+        epoch = ''
+    else:
+        epoch = filename[:epochIndex]
+    
+    name = filename[epochIndex + 1:verIndex]
+    return name, ver, rel, epoch, arch
+
+def main():
+	"""read VALUE_EXECUTABLES, ignore those from Red Hat and check if they are linked against hal-libs."""
+	"""check if any package depends on hal, again ignore Red Hat"""
+
+	def is_elf(file_path):
+		"""check for elf magic number, true for match"""
+		try:
+			f = open(file_path, "rb")
+		except IOError:
+			#solution_file("can not open " + file_path + "\n")
+			return False
+		pattern = "\x7FELF"
+		try:
+			char = f.read(4)
+			if char != pattern:
+				#solution_file("Not matched " + file_path+ "\n")
+				return False
+		except IOError:
+			#solution_file("can not read " + file_path+ "\n")
+			return False
+		finally:
+			f.close()
+		#solution_file("matched " + file_path + "\n")
+		return True
+
+	def run_command(cmd):
+		"""run external command specified as a list of argv, return status code and output as a list of lines"""
+		output = os.tmpfile()
+        	try:
+        		return_code = subprocess.Popen(cmd,
+							stdout=output,
+							stderr=subprocess.STDOUT,
+							close_fds=True,
+							shell=False,
+							creationflags=0).wait()
+		except:
+			output.seek(0)
+			log_error(output.read())
+			log_error("Could not invoke external command " + str(cmd))
+			exit_error()
+		output.seek(0)
+		return (return_code, output.read())
+
+	def get_package(file_path):
+		"""ask rpm if the file belongs to a package, return its name"""
+		cmd = ["rpm", "-qf", file_path]
+		(return_code, output) = run_command(cmd)
+		if return_code !=  0:
+			return None
+		return output.strip()
+
+	def is_redhat(file_path, redhat_list, filetopkgdict):
+		"""check if the executable is from red hat signed package, those are covered elsewhere."""
+		"""expects redhat_list - list of redhat package names"""
+		"""expects filetopkgdict - dict of file to package mapping"""
+		try:
+			return filetopkgdict[file_path] in redhat_list
+		except KeyError:
+			return False
+		#return pkg in redhat_list
+		
+		#pkg = get_package(file_path)
+		#if not pkg:
+		#	return False
+		#(name, ver, rel, epoch, arch) = splitFilename(pkg))
+
+		#for rhlist_item in redhat_list:
+		#	if name == rhlist_item:
+		#		return True
+		#return  False
+		#if pkg:
+		#	log_error(file_path + "  " + pkg)
+		#else:
+		#	log_error(file_path + "    SSSSSSSSSSSSSSSSS")
+		#return 0
+
+	def debug_write_list(list):
+		"""for debugging purposes only, dead code"""
+		for item in list:
+			solution_file(item.strip()+"\n")
+
+	def ldd(file_path):
+		"""run ldd and return output as a list of words if successful"""
+        	cmd = ["ldd", file_path]
+		(return_code, output) = run_command(cmd)
+		if return_code !=  0:
+			log_warning("Could not run ldd on " + file_path + "\n")
+			return ""
+		return output.split()
+
+	def filesbypkg():
+		"""run 'rpm -qa --filesbypkg' and make a dict file->package"""
+		cmd = ["rpm", "-qa", "--filesbypkg"]
+		(return_code, output) = run_command(cmd)
+		if return_code != 0:
+			log_error(output)
+			log_error("Error while invoking rpm -qa --filesbypkg")
+			exit_error()
+		output = output.split("\n")
+		filetopkgdict = {}
+		for line in output:
+			tmp = line.split()
+			if len(tmp) != 2:
+				#log_error("Error while parsing output from 'rpm -qa --filesbypkg'")
+				#log_error("line is:"+line+":\n")
+				#exit_error()
+				continue
+			filetopkgdict[tmp[1]] = tmp[0]
+		#log_error(str(filetopkgdict))
+		#exit_error()
+		return filetopkgdict
+
+	failed = False
+	#create a list of executables
+	with open(VALUE_EXECUTABLES, "r") as f:
+		filelist = f.readlines()
+	filelist = tuple(filelist)
+	#strip newlines
+	#filelist = map(lambda x: x[:-1], filelist)
+	filelist = map(lambda x: x.strip(), filelist)
+	#ignore symlinks
+	filelist = filter(lambda x: not os.path.islink(x), filelist)
+	#ignore pipes and other weirdness
+	filelist = filter(os.path.isfile, filelist)
+	#take only elf
+	filelist = filter(is_elf, filelist)
+	#ignore red hat packages, first create dict of all files to packages
+	filetopkgdict = filesbypkg()
+	#list of redhat packages
+	#we need only package names in this list
+	#much faster to find members in set than in list
+	redhat_list = set(get_dist_native_list())
+	filelist = filter(lambda x: not is_redhat(x, redhat_list, filetopkgdict), filelist)
+	
+	hal_lib_list = ["/usr/lib64/libhal-storage.so.1", "/usr/lib64/libhal-storage.so.1.0.0", "/usr/lib64/libhal.so.1", "/usr/lib64/libhal.so.1.0.0"]
+	for file in filelist:
+		libs = ldd(file)
+		for hal_lib in hal_lib_list:
+			if hal_lib in libs:
+				log_high_risk(file + " is linked against " + hal_lib)
+				failed = True
+				break
+
+	#check for rpm packages dependent on hal, hal-libs
+	(return_code, output) = run_command(["rpm", "-qa", "--whatrequires", "hal", "hal-libs", "--queryformat", "%{NAME}\n"])
+	#log_error(output)
+	if return_code == 0:
+		for pkg in output.split("\n"):
+			pkgstrip = pkg.strip()
+			if pkgstrip and (pkgstrip not in redhat_list):
+				log_high_risk("Found non-Red Hat rpm package dependent on HAL:" + pkg)
+				failed = True
+	
+	return failed
+
+if __name__ == "__main__":
+	if os.geteuid() != 0:
+		sys.stdout.write("Need to be root.\n")
+		log_slight_risk("The script needs to be run under root account")
+		exit_error()
+	if main():
+		exit_fail()
+	else:
+		exit_pass()

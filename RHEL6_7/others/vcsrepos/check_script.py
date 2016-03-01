@@ -1,0 +1,115 @@
+#!/usr/bin/python
+# -*- Mode: Python; python-indent: 8; indent-tabs-mode: t -*-
+
+import sys
+import os
+import re
+
+from preup.script_api import *
+
+check_applies_to (check_applies="filesystem")
+
+#END GENERATED SECTION
+component = "vcsrepos"
+# exit functions are exit_{pass,not_applicable, fixed, fail, etc.}
+# logging functions are log_{error, warning, info, etc.}
+# for logging in-place risk use functions log_{extreme, high, medium, slight}_risk
+
+def get_file_content(filename):
+    f = open(filename, "r")
+    lines = f.readlines()
+    f.close()
+    return lines
+
+def update_solution_file(path, suffix):
+    solution_file(path[:-len(suffix)]+"\n")
+
+def git_repository(path, suffix):
+    try:
+        gitconfig = get_file_content(os.path.join(path, "config"))
+        if gitconfig:
+            update_solution_file(path, suffix)
+            for line in gitconfig:
+                url = re.match(r"\s*url\s*=\s*(.*)", line)
+                if url:
+                    addr = re.match(r"(ftp://|https?://)(.*)", url.group(1))
+                    if addr:
+                        solution_file("url = [link: " + url.group(1) + "]\n")
+                    else:
+                        solution_file(line)
+    except IOError:
+        pass
+
+
+def bzr_repository(path, suffix):
+    try:
+        config = get_file_content(os.path.join(path, "branch", "branch.conf"))
+        if config:
+            update_solution_file(path, suffix)
+            for line in config:
+                addr = re.match(r"\s*parent_location\s*=\s*(.*)", line)
+                if addr:
+                    if re.match(r"(https?|ftp)://", addr.group(1)):
+                        solution_file("url = [link: " + addr.group(1) + "]\n")
+                    else:
+                        solution_file("url = " + addr.group(1) + "\n")
+    except IOError:
+        pass
+
+
+def svn_repository(path, suffix):
+    try:
+        config = get_file_content(os.path.join(path, "entries"))
+        if config:
+            update_solution_file(path, suffix)
+            line = config[4]
+            if re.match(r"\s*(https?|ftp)://", line):
+                solution_file("url = [link: " + line[:-1] + "]\n")
+            else:
+                solution_file("url = " + line)
+    except IOError:
+        pass
+
+def cvs_repository(path, suffix):
+    try:
+        config = get_file_content(os.path.join(path, "Root"))
+        if config:
+            update_solution_file(path, suffix)
+            for line in config:
+                solution_file(line)
+    except IOError:
+        pass
+
+
+def main():
+    if os.geteuid() != 0:
+        sys.stdout.write("Need to be root.\n")
+        log_slight_risk("The script needs to be run under root account")
+        exit_error()
+    messages = {'/.git': "GIT", '/.svn': "SUBVERSION", '/.bzr': "BAZAAR", '/CVS': "CVS"}
+    fnc_dict = {'/.git': git_repository,
+                '/.svn': svn_repository,
+                '/.bzr': bzr_repository,
+                '/CVS': cvs_repository}
+    homefiles = get_file_content(VALUE_ALLMYFILES)
+    paths = filter(lambda x: x.startswith("/home/") or x.startswith("/root"), homefiles)
+    if paths:
+        for suffix in fnc_dict.iterkeys():
+            repo_paths = filter(lambda x: x.strip().endswith(suffix), paths)
+            if repo_paths:
+                solution_file("Found %s repositories\n" % messages[suffix])
+                for path in paths:
+                    path = path.strip()
+                    try:
+                        fnc_dict[suffix](path, suffix)
+                    except Exception:
+                        solution_file(path[:-len(suffix)]+"\n")
+                solution_file("\n")
+    else:
+        solution_file("VCS repositories not found.")
+
+
+if __name__ == "__main__":
+    set_component(component)
+    main()
+    exit_informational()

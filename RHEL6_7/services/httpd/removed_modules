@@ -1,0 +1,3 @@
+modules\\/mod_authn_alias.so
+modules\\/mod_authn_default.so
+modules\\/mod_authz_default.so

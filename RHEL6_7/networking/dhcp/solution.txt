@@ -1,0 +1,8 @@
+The files "/etc/sysconfig/[dhcpd|dhcpd6|dhcrelay]" used for specifying user's 
+customization arguments are deprecated in RHEL7. Instead, these arguments can
+be specified in "[dhcpd|dhcpd6|dhcrelay].service" files on "ExecStart" line.
+
+The specified arguments are automatically moved from /etc/sysconfig/*
+files into *.service files during upgrade. Please check if they are moved
+correctly and everything works as expected.
+

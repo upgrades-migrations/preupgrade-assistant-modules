@@ -1,0 +1,7 @@
+On RHEL-6 systems listens to only IPv4 by default. Switching listen=NO
+and listen_ipv6=YES causes the daemon listens to only IPv6.
+
+But on RHEL-7 listens to IPv6 as well as IPv4 by default. Be default listening
+on the IPv6 'any' address will accept connections from both (IPv6 and IPv4)
+clients. If you want listen on specific adresses then you must run two copies
+of vsftpd with two configuration files. For more details see man 5 vsftpd.conf.

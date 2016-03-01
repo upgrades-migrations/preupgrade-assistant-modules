@@ -1,0 +1,75 @@
+#!/bin/bash
+. /usr/share/preupgrade/common.sh
+#END GENERATED SECTION
+
+check_root
+
+# The RHEL6 ntp and ntpdate configuration can be used without changes on RHEL7.
+# Some configuration files are not copied to the cleanconf directory
+# automatically by other scripts as they are marked with %verify(not md5 size
+# mtime) or are not tracked by rpm at all. Check for such files in this script.
+
+save_files=""
+
+# Check if ntp.conf was modified, but ignore servers added by dhclient.
+
+ntpconf=/etc/ntp.conf
+
+if [ -f $ntpconf ] && \
+	! grep -v '^server.*#.*dhclient' $ntpconf | \
+            cmp default.ntp.conf - &> /dev/null; then
+    save_files+=$ntpconf
+fi
+
+# Check if step-tickers was modified.
+
+steptickers=/etc/ntp/step-tickers
+
+if [ -f $steptickers ] && \
+        ! cmp default.step-tickers $steptickers &> /dev/null; then
+    save_files+=" $steptickers"
+fi
+
+# Find Autokey files
+
+save_files+=" $(find /etc/ntp/crypto -type f -not -name 'pw' -or -type l)"
+
+# If no files were found, there is nothing to do.
+[[ $save_files == */* ]] || exit_pass
+
+cat > $SOLUTION_FILE <<-EOF
+The RHEL6 ntp and ntpdate configuration can be used without changes on RHEL7.
+The following configuration files are modified, but not tracked by rpm,
+or not included in the packages:
+
+EOF
+
+# Backup the files.
+
+save_dir="$VALUE_TMP_PREUPGRADE/cleanconf"
+
+for f in $save_files; do
+    dir_name=$(dirname $f)
+    mkdir -p "$save_dir/$dir_name" || exit_error
+
+    # Make sure keys are not world readable
+    if [ "$dir_name" = "/etc/ntp/crypto" ]; then
+         chmod 750 "$save_dir/$dir_name" || exit_error
+         chown root:ntp "$save_dir/$dir_name" || exit_error
+    fi
+
+    cp -aP $f "$save_dir/$f" || exit_error
+    echo $f >> $SOLUTION_FILE
+done
+
+cat >> $SOLUTION_FILE <<-EOF
+
+The files have been saved to /root/preupgrade/cleanconf.
+Configuration files tracked by rpm are saved to the same directory by rule
+"Store modified config files for packages with unchanged version".
+
+Please note that the NTP package installed by default in RHEL7 is chrony.
+To switch back to ntp, run "yum install ntp" and "yum remove chrony".
+EOF
+
+exit_informational

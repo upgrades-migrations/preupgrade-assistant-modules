@@ -1,0 +1,13 @@
+A number of options and binary files have been removed from the coreutils packages in Red Hat Enterprise Linux 7. The functionality of some scripts can be affected.
+
+This is a complete list of removed options and binary files, including the solutions and new options:
+
+* For the "factor" invocation, the "--verbose" option has been renamed to "--debug".
+* For the "install" invocation, the "--preserve_context" option has been removed. The "--preserve-context" option can be used instead.
+* For the "nl" invocation, the "--page-increment" option, which was deprecated in Red Hat Enterprise Linux 6, has been removed. The "--line-increment" option can be used instead.
+* The "runuser" and "su" binaries have been moved to the util-linux package.
+* For the "stat" invocation, the "--context" option and its short form, "-Z", have been removed. SELinux context is now a part of the stat default output format.
+* For the "mkdir", "mknod", "mkfifo", "cp", and "install" invocations, the "-Z" option no longer accepts any arguments and automatically sets the default SELinux setting context. To set a specific context, the "--context=[context]" option has to be used.
+* For the "touch" invocation, the deprecated "--file" option has been removed. The "--reference" option can be used instead.
+
+Please verify that your scripts have been updated to work with these changes.

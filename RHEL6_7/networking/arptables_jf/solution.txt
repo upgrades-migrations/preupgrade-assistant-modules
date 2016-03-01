@@ -1,0 +1,56 @@
+The names of some basic chains have changed, for example, the IN and OUT chains in arptables_jf have become INPUT and OUTPUT in arptables.
+
+The output of the "arptables -L" command is different: in arptables_jf, the rules are listed in a human-readable tabular form, while in arptables, each rule is written as a list of "arptables -A chain ..." command-line options and values, which should be used to add the rule.
+
+The arptables-save utility has been modified. In arptables_jf, arptables-save is a binary that accepts several command-line options and which produces output of rules in the form of a parameter list that can be used to add the rule and includes time stamps and COMMIT in the last line. In arptables, arptables-save is a Perl script that accepts no command-line options. The script runs the "arptables -t filter -L -n" command and modifies its output to look similar to the output of arptables-save in arptables_jf, but without time stamps and COMMIT in the last line."
+
+In arptables_jf, the arptables-restore utility is a binary, while in arptables, the utility is a Perl script.
+
+Also, the arptables packages contain an extension to classify an arp packet.
+
+The following list provides an overview of the changes to option names between arptables_jf and arptables.
+
+arptables_jf: -s --source --src
+arptables:    -s --source-ip --src-ip
+
+arptables_jf: -d --destination --dst --target --tgt
+arptables:    -d --destination-ip --dst-ip
+
+arptables_jf: -z --source-hw --source-mac --src-hw --src-mac
+arptables:    --source-mac --src-mac
+
+arptables_jf: -y --target-hw --target-mac --tgt-mac --tgt-hw --dst-hw
+arptables:    --destination-mac --dst-mac
+
+arptables_jf: --mangle-hw-s
+arptables:    --mangle-mac-s
+
+arptables_jf: --mangle-hw-d
+arptables:    --mangle-mac-d
+
+The following options also differ in the form of the value:
+
+In arptables_jf, the value is always in hexadecimal form (without '0x'), while in arptables the form of the value can differ.
+
+arptables_jf: -a --arhln
+arptables:    -l --h-length (only a decimal value, an invalid value always inserts '0')
+
+arptables_jf: -p --arpop
+arptables:    --opcode (only a decimal value)
+
+arptables_jf: -H --arphrd
+arptables:    --h-type (always hexadecimal, either with '0x' or without)
+
+arptables_jf: -w --arpro
+arptables:    --proto-type (if prefixed '0x' then hexadecimal, otherwise decimal)
+
+The following parameters are included only in arptables_jf:
+
+-c --set-counters
+
+The following parameters are included only in arptables:
+
+   --p-length (not supported though)
+-m --match
+-V --version
+   --set-class

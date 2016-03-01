@@ -1,0 +1,18 @@
+Some options were renamed at quota tools between Red Hat Enterprise Linux
+6 and 7. This may break functionality of some of your scripts. The changes
+are:
+
+/usr/bin/quota: Option --nfs-all was corrected to --all-nfs in the usage help
+output. Both versions still recognize the --all-nfs option.
+
+/usr/sbin/quota_nld: Option --no-daemon was renamed to --foreground. Short
+option -F is unchanged. This is not an issue if you run quota_nld as daemon,
+e.g. via init script.
+
+/usr/sbin/repquota: Option --batch-translation was corrected to --cache in the
+usage help output. Both versions still recognize the --cache option.
+
+/usr/sbin/repquota: Option --no-batch-translation was corrected to --no-cache
+in the usage help output. Both versions still recognize the --no-cache option.
+
+Please check that your scripts are aware of these changes.

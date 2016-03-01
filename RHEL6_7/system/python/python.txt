@@ -1,0 +1,5 @@
+This solution text contains a list of packages that need to be rebuilt for Python 2.7.5, which is shipped with Red Hat Enterprise Linux 7.
+
+Red Hat Enterprise Linux 7 contains Python version 2.7.5. For information about the differences from older versions and for further details, see [link:https://access.redhat.com/site/articles/676453]. 
+
+The files and directories listed below are not owned by any RPM package or are owned by an RPM package that is not signed by Red Hat. These packages need to be rebuilt and reinstalled in order to work with Python 2.7.5. You can find more details at [link:https://access.redhat.com/site/articles/676453].

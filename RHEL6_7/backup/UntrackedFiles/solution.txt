@@ -1,0 +1,15 @@
+Some user data, such as user home directories and temporary files, are not tracked by the RPM database. This data will [bold:not] be automatically migrated. To assist you with migrating the data, this module has generated the following three files.
+
+* The [link:./kickstart/untrackedsystem] file lists the regular files on the system that will not be migrated. The list does not contain files mounted over the network, files created by runtime system operations, files in temporary locations, and user files in the /home/ or /root/ directory.
+
+* The [link:./kickstart/untrackeduser] file lists the regular local files in the /home/ and /root/ directories that will not be migrated. If the /home/ and /root/ directories are on a file system mounted over the network, this file can be empty.
+
+* The [link:./kickstart/untrackedexpected] file lists the regular files and symlinks created by runtime system operations (for example handling runlevels, alternatives and active SELinux modules). Most likely you don't need to care about them, list is available just for completeness.
+
+* The [link:./kickstart/untrackedtemporary] file lists all temporary local files on the system that will not be migrated. This is essentially everything in the /cgroup/, /tmp/, and /var/ directories. Most likely you don't need to care about them, list is available just for completeness.
+
+It is recommended that you backup all data before proceeding with the upgrade to Red Hat Enterprise Linux 7. This data can be quite large.
+
+If you are performing an in-place upgrade, this data should remain in its current location after the upgrade. Configuration files and other data should be reviewed to determine if any modifications are needed for use with Red Hat Enterprise Linux 7. You should verify that all data was successfully maintained.
+
+If you are performing a migration upgrade, this data [bold:must] be backed up to another storage medium. You will need to copy the data you wish to have on the new installation back into place after the upgrade is complete. Configuration files and other data should be reviewed to determine if any modifications are needed for use with Red Hat Enterprise Linux 7.

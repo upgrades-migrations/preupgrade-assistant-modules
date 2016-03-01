@@ -1,0 +1,173 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+
+INITSCRIPTS="not_handled.txt"
+rm -f $INITSCRIPTS
+
+LEVEL=$(runlevel | awk '{ print $2 }')
+COMPONENT="initscripts"
+DISABLED_SERVICES="disabled.log"
+ENABLED_SERVICES="enabled.log"
+POSTUPGRADE_SCRIPT="services.py"
+PRESET_FILE="90-default.preset"
+MATRIX="$COMMON_DIR/matrix"
+if [ ! -f "$PRESET_FILE" ]; then
+    log_error "File $PRESET_FILE is required for the content."
+    exit_error
+fi
+if [ ! -f "$MATRIX" ]; then
+    log_error "File $MATRIX is required for the content."
+    exit_error
+fi
+
+rm -f "$DISABLED_SERVICES"
+rm -f "$ENABLED_SERVICES"
+
+RESULT=0
+SERVICE="initscript"
+SERVICE=""
+
+NOT_FOUND_SYSTEMD=0
+function get_systemd_names {
+    NAMES=""
+    for x in `echo "$SYSTEMD_PART" | tr "," " "`
+    do
+        SYSTEMD_NAME=`basename $x`
+        NAMES="$NAMES $SYSTEMD_NAME"
+    done
+}
+function get_init_name {
+    LINE="$1"
+    FULL_NAME=`echo "$LINE" | cut -f2 -d'|'`
+    ARR=`echo "$FULL_NAME" | tr "," " "`
+    for part in $ARR
+    do
+        NAMES=""
+        BASE_NAME=`basename $part`
+        SYSTEMD_PART=`echo "$LINE" | cut -f3 -d'|'`
+        if [ x"$SYSTEMD_PART" == "x" ]; then
+            NOT_FOUND_SYSTEMD=1
+            continue
+        fi
+        RET=`echo "$SYSTEMD_PART" | grep "$BASE_NAME.service"`
+        if [ x"$RET" == "x" ]; then
+            get_systemd_names "$LINE"
+            if [ x"$NAMES" != "x" ]; then
+                log_medium_risk "The $SERVICE name $BASE_NAME was changed on RHEL 7 to one of these services: $NAMES"
+            fi
+        fi
+    done
+}
+
+function detection_name_change {
+    NAME="$1"
+    grep $NAME $MATRIX > /dev/null 2>/dev/null
+    if [ $? -eq 0 ]; then
+        for line in `cat $MATRIX | grep ^$NAME`
+        do
+            get_init_name "$line"
+        done
+    fi
+}
+
+for i in `chkconfig --list --type sysv | grep "$LEVEL:on" | awk '{print $1}'`
+do
+    NOT_FOUND_SYSTEMD=0
+    RPM=`rpm -qf /etc/init.d/$i`
+    if [ $? -ne 0 ]; then
+        log_medium_risk "The service $i is not handled by any package and will not be automatically enabled after in-place upgrade."
+        RESULT=1
+        continue
+    fi
+    RPM_NAME=`rpm -q --qf "%{NAME}" $RPM`
+    is_dist_native "$RPM_NAME"
+    if [ $? -ne 0 ]; then
+        log_medium_risk "The service $i is not installed by RedHat signed packages and will not be automatically enabled after in-place upgrade."
+        continue
+    fi
+    grep "/etc/init.d/$i" $VALUE_CONFIGCHANGED > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        log_slight_risk "The service $i was modified."
+    fi
+    detection_name_change "$i"
+    if [ $NOT_FOUND_SYSTEMD -eq 0 ]; then
+        grep "enable $i." $PRESET_FILE > /dev/null 2>/dev/null
+        if [ $? -ne 0 ]; then
+            log_high_risk "The service $i on RHEL 7 is disabled by default. Enable them via commands: systemctl enable $i && systemctl start $i.service ."
+        fi
+    fi
+    echo "$i" >> $ENABLED_SERVICES
+done
+
+SERVICE="xinetd"
+for i in `chkconfig --list --type xinetd | cut -f1 -d':' | awk '{print $1}'`
+do
+    NOT_FOUND_SYSTEMD=0
+    if [ ! -f "/etc/xinetd.d/$i" ]; then
+        continue
+    fi
+    RPM=`rpm -qf /etc/xinetd.d/$i`
+    if [ $? -ne 0 ]; then
+        log_medium_risk "The service $i is not handled by any package and will not be automatically enabled after in-place upgrade."
+        RESULT=1
+        continue
+    fi
+    RPM_NAME=`rpm -q --qf "%{NAME}" $RPM`
+    is_dist_native "$RPM_NAME"
+    if [ $? -ne 0 ]; then
+        log_medium_risk "The service $i is not installed by RedHat signed packages and will not be automatically enabled after in-place upgrade."
+        continue
+    fi
+    grep "/etc/xinetd.d/$i" $VALUE_CONFIGCHANGED > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        log_slight_risk "The service $i was modified."
+    fi
+    detection_name_change "$i"
+    if [ $NOT_FOUND_SYSTEMD -eq 0 ]; then
+        grep "enable $i." $PRESET_FILE > /dev/null 2>/dev/null
+        if [ $? -ne 0 ]; then
+            log_high_risk "The service $i on RHEL 7 is disabled by default. Enable them via commands: systemctl enable $i && systemctl start $i.service ."
+        fi
+    fi
+    echo "$i" >> $ENABLED_SERVICES
+done
+SERVICE="initscript"
+for i in `chkconfig --list --type sysv | grep "$LEVEL:off" | awk '{print $1}'`
+do
+    NOT_FOUND_SYSTEMD=0
+    RPM=`rpm -qf /etc/init.d/$i`
+    if [ $? -ne 0 ]; then
+        log_medium_risk "The service $i is disabled and not handled by any package. It will be disabled after an in-place upgrade."
+        RESULT=1
+        continue
+    fi
+    RPM_NAME=`rpm -q --qf "%{NAME}" $RPM`
+    is_dist_native "$RPM_NAME"
+    if [ $? -ne 0 ]; then
+        log_medium_risk "The service $i is disabled and not installed by RedHat signed packages. It will be disabled after an in-place upgrade."
+        RESULT=1
+        continue
+    fi
+    grep "/etc/init.d/$i" $VALUE_CONFIGCHANGED > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        log_slight_risk "The service $i is disabled and was modified."
+        RESULT=1
+    fi
+    detection_name_change "$i"
+    echo "$i" >> $DISABLED_SERVICES
+done
+
+mkdir -p $POSTUPGRADE_DIR/initscripts
+cp -a $ENABLED_SERVICES $POSTUPGRADE_DIR/initscripts/$ENABLED_SERVICES
+cp -a $DISABLED_SERVICES $POSTUPGRADE_DIR/initscripts/$DISABLED_SERVICES
+cp -a postupgrade.d/$POSTUPGRADE_SCRIPT $POSTUPGRADE_DIR/initscripts/$POSTUPGRADE_SCRIPT
+chmod a+x $POSTUPGRADE_DIR/initscripts/$POSTUPGRADE_SCRIPT
+
+if [ $RESULT -eq 1 ]; then
+    exit_fail
+fi
+
+exit_fail

@@ -1,0 +1,3 @@
+Identity, Policy and Audit (IPA) installations that use a Certificate Authority (CA) provided by the pki-ca package are not able to be upgraded in-place between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This module verifies whether there is an IPA CA installed, in which case you need to upgrade the IPA installation manually.
+
+For detailed instructions on how to upgrade an IPA installation, please refer to the following Knowledge Base article: [link:https://access.redhat.com/site/articles/894063]

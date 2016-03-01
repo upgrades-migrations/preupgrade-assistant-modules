@@ -1,0 +1,39 @@
+--- Makefile	2013-11-29 10:17:57.234584980 +0100
++++ Makefile	2013-11-29 10:17:21.978560273 +0100
+@@ -22,6 +22,14 @@ B=
+ # /var/yp/ypservers.
+ NOPUSH=true
+ 
++# yppush copies updated NIS databases (or maps) from the master NIS server 
++# to the slave servers within a NIS domain and listens for their answer. 
++# yppush will ask portmap to assign it a random port number to listen on 
++# by default. To specify a fixed port number or any aditional options, 
++# edit variable YPPUSH_ARGS.
++# e.g. YPPUSH_ARGS = --port 836
++YPPUSH_ARGS = 
++
+ # We do not put password entries with lower UIDs (the root and system
+ # entries) in the NIS password database, for security. MINUID is the
+ # lowest uid that will be included in the password maps. If you
+@@ -29,8 +37,10 @@ NOPUSH=true
+ # the passwd file. If no entry is found, this shadow entry is
+ # ignored.
+ # MINGID is the lowest gid that will be included in the group maps.
+-MINUID=500
+-MINGID=500
++# You can either set values directly (e.g. MINUID=1000) or pick up
++# current values from /etc/login.defs
++MINUID=$(shell TMP=`egrep '^UID_MIN\s+[0-9]+' /etc/login.defs|sed -e 's/^UID_MIN//'` ; [ -n "$$TMP" ] && echo "$$TMP" || echo 1000)
++MINGID=$(shell TMP=`egrep '^GID_MIN\s+[0-9]+' /etc/login.defs|sed -e 's/^GID_MIN//'` ; [ -n "$$TMP" ] && echo "$$TMP" || echo 1000)
+ 
+ # Don't export this uid/guid (nfsnobody).
+ # Set to 0 if you want to
+@@ -128,7 +138,7 @@ all:  passwd group hosts rpc services ne
+ 
+ DBLOAD = $(YPBINDIR)/makedbm -c -m `$(YPBINDIR)/yphelper --hostname`
+ MKNETID = $(YPBINDIR)/mknetid
+-YPPUSH = $(YPSBINDIR)/yppush
++YPPUSH = $(YPSBINDIR)/yppush $(YPPUSH_ARGS)
+ MERGER = $(YPBINDIR)/yphelper
+ DOMAIN = `basename \`pwd\``
+ LOCALDOMAIN = `/bin/domainname`

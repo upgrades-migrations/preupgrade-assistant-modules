@@ -1,0 +1,6 @@
+The content is valid only on PPC64 architecture.
+The content checks if yaboot is installed on PPC64 machine.
+
+Yaboot can not boot Red Hat Enterprise Linux 7. Redhat-upgrade-tool will install grub2 during the upgrade. It is necessary to create /etc/default/grub before running redhat-upgrade-tool to ensure correct grub2 configuration. Misconfiguration can make the system unbootable.
+
+File /etc/default/grub has been created for this system. Kernel command-line options were converted to new RHEL-7 format and put into /etc/default/grub.

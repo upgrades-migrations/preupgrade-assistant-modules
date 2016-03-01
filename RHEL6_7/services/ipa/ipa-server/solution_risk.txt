@@ -1,0 +1,5 @@
+This machine has Identity Management Server (IPA) configured. Unfortunatelly, IPA does not support in-place upgrade between RHEL 6 and RHEL 7 major versions and needs to be migrated.
+
+Please refer to the following Knowledge Base article for detailed instructions how to migrate Identity Management Server:
+
+[link: https://access.redhat.com/site/articles/894063]

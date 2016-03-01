@@ -1,0 +1,5 @@
+Red Hat Enterprise Linux 7 contains Ruby version 2.0.0. The system paths for libraries and gems have changed from Red Hat Enterprise Linux 6.
+
+The files and directories listed below are not owned by any RPM package or are owned by an RPM package that is not signed by Red Hat. These packages need to be rebuilt and reinstalled in order to work with Ruby 2.0.0.
+
+For information on how to migrate Ruby from Red Hat Enterprise Linux 6 to Red Hat Enterprise Linux 7, please refer to the following Knowledge Base article: [link:https://access.redhat.com/site/articles/790123]

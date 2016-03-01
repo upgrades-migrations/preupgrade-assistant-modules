@@ -1,0 +1,17 @@
+---------------------------------+---------------------------------------+----------------------------------------------------------------------------------------------
+australian_timezones
+bgwriter_all_maxpages
+bgwriter_all_percent
+bgwriter_lru_percent
+explain_pretty_print
+krb_server_hostname
+max_fsm_pages
+max_fsm_relations
+preload_libraries
+redirect_stderr
+stats_block_level
+stats_command_string
+stats_reset_on_server_start
+stats_row_level
+stats_start_collector
+(164 rows)

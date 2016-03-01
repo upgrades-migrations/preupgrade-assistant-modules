@@ -1,0 +1,6 @@
+Either you have installed some packages from some of the Red Hat Enterprise Linux 6
+'optional' repositories on your system which are still available on Red Hat Enterprise Linux 7
+system outside of 'base' repositories, or you have installed some packages
+which have been moved from "base" to "optional" repository in Red Hat Enterprise
+Linux 7.  This will very likely cause fail during upgrade of your system.
+

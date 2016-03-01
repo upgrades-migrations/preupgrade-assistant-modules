@@ -1,0 +1,16 @@
+In previous versions of Red Hat Enterprise Linux, system administrators built
+custom cgroup hierarchies with use of the cgconfig command from the libcgroup
+package. This package is now deprecated. There is only special situation,
+in which libgroups should be used.
+
+Red Hat Enterprise Linux 7 moves the resource management settings from the
+process level to the application level by binding the cgroup hierarchy
+with the systemd unit hierarchy. Therefore, you can manage the cgroup tree
+with systemctl commands.
+
+For more details see Red Hat Enterprise Linux 7 Resource Management Guide,
+Chapter 2 (Using Control Groups):
+[link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Resource_Management_Guide/chap-Using_Control_Groups.html]
+Chapter 3 (Using libcgroup Tools):
+[link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Resource_Management_Guide/chap-Using_libcgroup_Tools.html]
+

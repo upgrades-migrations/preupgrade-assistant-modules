@@ -1,0 +1,14 @@
+The service name for qemu-guest-agent was modified in Red Hat Enterprise Linux 7 from qemu-ga to qemu-guest-agent. Please make sure that you modify the scripts that might use the old service name.
+
+The main hook script location was modified in Red Hat Enterprise Linux 7 from /usr/libexec/qemu-ga/fsfreeze-hook to /etc/qemu-ga/fsfreeze-hook.
+
+The default hook log file location was modified in Red Hat Enterprise Linux 7 from /var/log/qemu-ga/fsfreeze-hook.log to /var/log/qemu-ga/fsfreeze-hook.log.
+
+The app-specific hook script directory location was modified in Red Hat Enterprise Linux 7 from /usr/libexec/qemu-ga/fsfreeze-hook.d to the following three locations listed in the decreasing order of precedence:
+/run/qemu-ga/fsfreeze-hook.d
+/etc/qemu-ga/fsfreeze-hook.d
+/lib/qemu-ga/fsfreeze-hook.d
+
+The format of guest agent config file /etc/sysconfig/qemu-ga was modified in Red Hat Enterprise Linux 7 from shell script to systemd environment file. Only the BLACKLIST_RPC and FSFREEZE_HOOK_PATHNAME options remain valid. The option FSFREEZE_HOOK_ENABLE was merged with the FSFREEZE_HOOK_PATHNAME settings. The port settings for virtio-serial were moved to /usr/lib/systemd/system/qemu-guest-agent.service and /usr/lib/udev/rules.d/99-qemu-guest-agent.rules files -- the systemd daemon needs to be reloaded with 'systemctl daemon-reload' command in order to apply the changes. The option for PID file was removed as with the systemd, there is no longer any need for PID files. The option for log file was removed as the systemd journal is used for logging purposes.
+
+Please note the new locations of all the files and configuration options and update your scripts that use the old locations accordingly.

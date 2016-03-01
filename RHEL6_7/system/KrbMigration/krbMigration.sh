@@ -1,0 +1,48 @@
+#! /usr/bin/env bash
+
+. /usr/share/preupgrade/common.sh
+check_applies_to "krb5-server"
+
+#END GENERATED SECTION
+
+# This check can be used if you need root privilegues
+check_root
+
+KRB_SYSCONFIG_FILE=/etc/sysconfig/krb5kdc
+
+KRB5REALM=""
+
+if ! test -s "$KRB_SYSCONFIG_FILE"; then
+	# Nothing to modify
+	exit "$RESULT_NOT_APPLICABLE"
+fi
+
+if ! grep -q "KRB5REALM" "$KRB_SYSCONFIG_FILE"; then
+	# Nothing to do, no KRB5REALM in the config file
+	exit "$RESULT_NOT_APPLICABLE"
+fi
+
+# Otherwise, fix the config
+
+TARGET_DIR="$VALUE_TMP_PREUPGRADE/cleanconf/$(dirname $KRB_SYSCONFIG_FILE)/"
+
+# Create the directory structure
+mkdir -p "$TARGET_DIR"
+
+# Remove the variables from the config file (keeping things like comments intact)
+grep -v -e KRB5KDC_ARGS\= -e KRB5REALM\= "$KRB_SYSCONFIG_FILE" > "$TARGET_DIR/krb5kdc"
+
+# The file exists for sure at this moment and this is the simplest way to get the values of KRB5REALM and KRB5KDC_ARGS
+. "$KRB_SYSCONFIG_FILE"
+
+# Convert KRB5REALM to KRB5KDC_ARGS if it is of non-zero length
+if test -n "$KRB5REALM"; then
+	KRB5KDC_ARGS="-r $KRB5REALM $KRB5KDC_ARGS"
+fi
+
+# write out the new modified config option
+echo "KRB5KDC_ARGS=\"$KRB5KDC_ARGS\"" >> "$TARGET_DIR/krb5kdc"
+
+# log risk and exit
+log_none_risk "The config file /etc/sysconfig/krb5kdc has been converted for use in Red Hat Enterprise Linux 7."
+exit "$RESULT_FIXED"

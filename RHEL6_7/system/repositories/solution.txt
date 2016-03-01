@@ -1,0 +1,4 @@
+The content stores enabled repositories for kickstart issues in file [link:./kickstart/available-repos]
+
+During kickstart generation these repositories are added to kickstart script.
+

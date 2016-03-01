@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+my $rpm_qa_file = $ARGV[0];
+
+# downgraded packages
+my $packages = {};
+
+for (<stdin>) {
+    chomp;
+    $packages->{$_} = 1;
+}
+
+open my $f, '<', $rpm_qa_file or die "no file '$rpm_qa_file'\n";
+
+my $rv = 0;
+
+for my $installed (<$f>) {
+    chomp $installed;
+
+    $installed =~ s/\t.*//;
+
+    if (defined $packages->{$installed}) {
+        print "$installed\n";
+        $rv = 1;
+    }
+}
+
+exit $rv;

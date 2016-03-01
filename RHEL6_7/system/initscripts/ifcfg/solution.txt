@@ -1,0 +1,5 @@
+Red Hat Enterprise Linux 7 still offers possibility to specifying names for network interface by setting DEVICE and HWADDR options in /etc/sysconfig/network-scripts/ifcfg-* configuration files. Unfortunally udev does not support swapping interface names anymore. In the case that you set ethX names to multiple network card and kernel discovers them in different order, udev rule 60-net.rules will most likely fail.
+
+It is highly recommended to rename such interfaces or remove DEVICE line from ifcfg configuration files.
+
+Red Hat Enterprise Linux 7 also introduces predictable network interface device names: http://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/

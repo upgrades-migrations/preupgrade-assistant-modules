@@ -1,0 +1,31 @@
+#!/bin/bash
+. /usr/share/preupgrade/common.sh
+#END GENERATED SECTION
+
+check_root
+
+POSTUPGRADE_DIR=$VALUE_TMP_PREUPGRADE/postupgrade.d/lvm2-services
+POSTUPGRADE_UNIT_LIST=units_to_enable
+POSTUPGRADE_SCRIPT=enable_units.sh
+POSTUPGRADE_SCRIPT_PATH=$POSTUPGRADE_DIR/$POSTUPGRADE_SCRIPT
+
+# Check if lvm2-monitor service is enabled and if yes, make sure it's
+# also enabled after upgrade where systemd is used instead of initscripts.
+if service_is_enabled "lvm2-monitor"; then
+	log_info "The lvm2-monitor service is enabled."
+	echo "lvm2-monitor.service" >> $POSTUPGRADE_UNIT_LIST
+fi
+
+# Create postupgrade script to enable lvm2 services which are needed.
+mkdir -p $POSTUPGRADE_DIR
+cp $POSTUPGRADE_UNIT_LIST $POSTUPGRADE_DIR
+cat >> $POSTUPGRADE_SCRIPT_PATH << EOF
+#!/usr/bin/bash
+test -f $POSTUPGRADE_UNIT_LIST || exit 0
+for unit in \$(cat $POSTUPGRADE_UNIT_LIST); do
+	systemctl enable \$unit
+done
+EOF
+chmod +x $POSTUPGRADE_SCRIPT_PATH
+
+exit $RESULT_FIXED

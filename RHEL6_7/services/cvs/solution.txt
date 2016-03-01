@@ -1,0 +1,7 @@
+The Concurrent Versions System (CVS) server and client have not been changed significantly and should be fully compatible. However, some tools and documentation have been moved to other packages which could concern some users. 
+
+The rcs2log and contrib utilities have been moved into the new cvs-contrib packages in order to remove the cvs packages dependency on perl and reduce the size of the cvs packages. If you require the rcs2log and contrib tools, you can install the packages manually by running the "yum install cvs-contrib" command as root.
+
+Additional documentation, such as books concerning CVS tools in the PDF format and revision control system (RCS) specification files, has been moved into the new cvs-doc package to reduce the size of the cvs packages. If you want to access this additional documentation, install the package manually by running the "yum install cvs-doc" command as root. The manual and Texinfo pages are still included in the cvs packages.
+
+These utilities and the supplemental documentation are not used by the CVS client or server. Their absence does not pose a risk when upgrading the cvs packages.

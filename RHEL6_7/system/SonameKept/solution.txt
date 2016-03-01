@@ -1,0 +1,5 @@
+Applications developed in the C programming language can use dynamic libraries (.so files) to reuse common functions and symbols in the binary. When the library changes its soname in a major version, the binaries normally need to be rebuilt for the new system. Some libraries have not changed their soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 so it could be possible to reuse third party applications which use only these libraries without rebuilding.
+
+You can find the list of the unchanged dynamic libraries and their package names in the following file: [link:./kickstart/NoSonameBumpLibs]
+
+If it is not clear what libraries the third party binary or RPM uses, it is possible to use the ldd utility for the C binary, or run the "rpm -q --whatrequires SONAME" command for the whole RPM package. No problems are expected to occur if there are only .so files listed in the NoSonameBumpLibs file and unversioned shared libraries.

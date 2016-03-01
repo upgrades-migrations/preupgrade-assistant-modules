@@ -1,0 +1,13 @@
+aic7xxx
+aic94xx
+cciss
+imm
+ips
+megaraid_mbox
+megaraid_mm
+mptfc
+mptlan
+ppa
+scsi_wait_scan
+sym53c8xx
+3w-xxxx

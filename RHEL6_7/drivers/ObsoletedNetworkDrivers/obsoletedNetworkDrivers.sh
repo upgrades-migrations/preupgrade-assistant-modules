@@ -1,0 +1,75 @@
+#! /usr/bin/env bash
+
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+
+RESULT="$RESULT_PASS"
+
+declare -A drivers
+declare -A modules
+
+for i in /sys/bus/*/devices/*/driver; do
+	_driver=$(readlink -f $i | cut -d '/' -f 6)
+	_bus=$(echo $i | cut -d '/' -f 4)
+	_id=$(echo $i | cut -d '/' -f 6)
+	drivers[$_driver]="${drivers[$_driver]} $_bus|$_id"
+done
+for i in /sys/bus/*/devices/*/driver/module; do
+	_module=$(readlink -f $i | cut -d '/' -f 4)
+	_bus=$(echo $i | cut -d '/' -f 4)
+	_id=$(echo $i | cut -d '/' -f 6)
+	modules[$_module]="${modules[$_module]} $_bus|$_id"
+done
+
+for _driver in "${!drivers[@]}"; do
+	# Remove the driver from modules list, no need to repeat the same piece of information twice
+	unset modules["$_driver"]
+	if grep -q -e "^$_driver\$" modRemovedList; then
+		log_extreme_risk "The kernel driver '$_driver' required to service hardware present in your system is not available in Red Hat Enterprise Linux 7. This suggests that your system contains hardware that is not supported in Red Hat Enterprise Linux 7 release."
+		RESULT="$RESULT_FAIL"
+		continue
+	fi
+	# Remove the key from hash table if it is not on the list
+	unset drivers["$_driver"]
+done
+
+for _module in "${!modules[@]}"; do
+	if grep -q -e "^$_module\$" modRemovedList; then
+		log_extreme_risk "The kernel module '$_module' required to service hardware present in your system is not available in Red Hat Enterprise Linux 7. This suggests that your system contains hardware that is not supported in Red Hat Enterprise Linux 7 release."
+		RESULT="$RESULT_FAIL"
+		continue
+	fi
+	# Remove the key from hash table if it is not on the list
+	unset modules["$_module"]
+done
+
+# Generate new solution.txt
+rm -f solution.txt
+if test ${#drivers[@]} -ge 1 -o ${#modules[@]} -ge 1; then
+	echo -e \
+"The script detected a presence of hardware serviced by kernel network drivers that were removed in Red Hat Enterprise Linux 7. This means that the use of the hardware that was serviced by these drivers will not be possible after the upgrade. You need to modify your hardware configuration in order to address this issue. The list of the hardware that requires these drivers follows:\n" >> solution.txt
+	for _driver in "${!drivers[@]}"; do
+		echo "Driver: $_driver" >> solution.txt
+		for _desc in ${drivers["$_driver"]}; do
+			_bus=$(echo "$_desc" | cut -d '|' -f 1)
+			_id=$(echo "$_desc" | cut -d '|' -f 2)
+			echo -e "\tBus: '$_bus, Id: '$_id'" >> solution.txt
+		done
+		echo "" >> solution.txt
+		unset modules["$_driver"]
+	done
+	for _module in "${!modules[@]}"; do
+		echo "Module: $_module" >> solution.txt
+		for _desc in ${modules["$_module"]}; do
+			_bus=$(echo "$_desc" | cut -d '|' -f 1)
+			_id=$(echo "$_desc" | cut -d '|' -f 2)
+			echo -e "\tBus: '$_bus, Id: '$_id'" >> solution.txt
+		done
+		echo "" >> solution.txt
+	done
+	echo -e \
+"More information on the hardware can be found in /sys/bus/<bus>/devices/<id>/ or with the tools that gather information about devices using a specific bus. These include lspci for pci, lsusb for usb and lspcmcia for pcmcia." >> solution.txt
+fi
+
+exit $RESULT

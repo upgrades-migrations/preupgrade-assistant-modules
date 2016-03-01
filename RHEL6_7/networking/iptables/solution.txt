@@ -1,0 +1,7 @@
+If you are migrating from Red Hat Enterprise Linux 6 to Red Hat Enterprise Linux 7, verify whether you have the iptables-services packages installed after performing the upgrade by running the "rpm -q iptables-services" command as root. Also, verify that iptables and ip6tables services are enabled by running the "systemctl is-enabled iptables" and "systemctl is-enabled ip6tables" commands as root.
+
+For more details about migrating the firewall service from Red Hat Enterprise Linux 6, see the section about the firewalld service in the Red Hat Enterprise Linux 7 Migration Planning guide at [link:https://access.redhat.com/site/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Migration_Planning_Guide/].
+
+If you perform a clean installation of Red Hat Enterprise Linux 7, the firewalld service will be installed on your system instead of iptables and ip6tables.
+
+For further details about the firewalld service, see the section about firewalls in Red Hat Enterprise Linux 7 Security Guide. You can access the guide at [link:https://access.redhat.com/site/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/].

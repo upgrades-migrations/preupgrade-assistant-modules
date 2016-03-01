@@ -1,0 +1,88 @@
+#!/usr/bin/python
+# -*- Mode: Python; python-indent: 8; indent-tabs-mode: t -*-
+
+from preup.script_api import *
+component = "filesystem"
+
+check_applies_to (check_applies="filesystem")
+set_component("filesystem")
+#END GENERATED SECTION
+
+import sys, os
+import subprocess
+
+# exit functions are exit_{pass,not_applicable, fixed, fail, etc.}
+# logging functions are log_{error, warning, info, etc.}
+# for logging in-place risk use functions log_{extreme, high, medium, slight}_risk
+
+
+
+def find_removable():
+	"""ask lsblk for removable devices and warn if they are in fstab without 'nofail'"""
+	
+	def nofail_flag(fstab_flags):
+		fstab_flags = fstab_flags.split(",")
+		for flag in fstab_flags:
+			if flag == "nofail":
+				return True			
+		return False
+
+	def run_command(cmd):
+		"""run external command specified as a list of argv, return status code and output as a list of lines"""
+		output = os.tmpfile()
+		try:
+			return_code = subprocess.Popen(cmd,
+							stdout=output,
+							stderr=subprocess.STDOUT,
+							close_fds=True,
+							shell=False,
+							creationflags=0).wait()
+		except:
+			output.seek(0)
+			log_error(output.read())
+			log_error("Could not invoke external command " + str(cmd))
+			exit_error()
+		output.seek(0)
+		return (return_code, output.read())
+	
+	def lsblk_removables():
+		"""ask lsblk, return list of removable media"""
+		#lsblk in rhel 6 does not have --paths option ;-(
+		cmd = ["lsblk", "--all", "--list", "--output", "NAME,RM"]
+		(return_code, output) = run_command(cmd)
+		if return_code !=  0:
+			log_error("lsblk failed")
+			log_error(output)
+			exit_fail()
+		output = output.split('\n')
+		ret = []
+		for line in output:
+			tmp=line.split()
+			#mind possible empty line and/or multiword name
+			if tmp and tmp[len(tmp)-1] == "1":
+				ret.append(tmp[0])
+		return ret
+
+
+	ret = False
+	lsblk_list = lsblk_removables()
+	with open(r"/etc/fstab", "r") as fstab_tmp:
+		fstab = []
+		for line in fstab_tmp.readlines():
+			fstab.append(line.split())
+	for device in lsblk_list:
+		for fstab_line in fstab:
+			#lsblk in rhel6 does not give full path, search for a substring corresponding to partial path
+			if fstab_line and fstab_line[0].find(device) != -1  and not nofail_flag(fstab_line[3]):
+				log_extreme_risk("It seems that you have a removable device " + device + " in /etc/fstab entry " + fstab_line[0] + " without nofail flag")
+				ret = True
+	return ret
+
+if __name__ == "__main__":
+	if os.geteuid() != 0:
+		log_error("The script needs to be run under root account")
+		exit_error()
+	if find_removable():
+		exit_fail()
+	else:
+		exit_informational()

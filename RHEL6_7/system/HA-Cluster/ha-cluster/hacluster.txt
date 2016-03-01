@@ -1,0 +1,1 @@
+Changes to the entire HA solution, ranging from on-wire network protocols to resource management, core engines, makes it impossible to migrate from RHEL 6 to RHEL 7.

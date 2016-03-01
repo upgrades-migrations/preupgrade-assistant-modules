@@ -1,0 +1,65 @@
+#!/bin/bash
+. /usr/share/preupgrade/common.sh
+#END GENERATED SECTION
+
+check_root
+
+# Check if any of lvm cluster services are enabled.
+if service_is_enabled "clvmd"; then
+	clvmd_service_enabled=1
+	log_debug "The clvmd service is enabled."
+fi
+
+if service_is_enabled "cmirrord"; then
+	cmirrord_service_enabled=1
+	log_debug "The cmirrord service is enabled."
+fi
+
+if [ x$clvmd_service_enabled == "x1" -o x$cmirrord_service_enabled == "x1" ]; then
+	# If clvmd/cmirrord system service is enabled, the user needs
+	# to set up the clvm cluster resource instead of that now.
+	exit $RESULT_FAIL
+fi
+
+# If lvm.conf does not exist, default is used which means no cluster locking!
+test -f /etc/lvm/lvm.conf || $RESULT_PASS
+
+# Also check for global/locking_type=3 in lvm configuration.
+locking_configured=$(lvm dumpconfig global/locking_type 2>err)
+
+if [ $? -ne 0 ]; then
+	grep "Configuration node global/locking_type not found" err
+	if [ $? -eq 0 ]; then
+		# If global/locking_type not found, default is used
+		# and default for this setting is never a cluster locking!
+		# So we're OK here - surely, no clustering is used.
+		exit $RESULT_PASS
+	fi
+	# lvm dumpconfig failed - we can't do any proper decision now.
+	log_warning "Unable to check LVM configuration."
+	exit $RESULT_FAIL
+fi
+
+eval $locking_configured
+
+if [ $locking_type -eq 3 ]; then
+	log_debug "Internal cluster locking set in LVM configuration (global/locking_type=3)."
+
+	# Check if there is the 'clvm' resource installed already - it's still
+	# possible this functionality is provided as an optional variant besides
+	# running the clvmd/cmirrord via initscript in RHEL6.
+	if which pcs >/dev/null 2>&1; then
+		if pcs resource describe "ocf:heartbeat:clvm" >/dev/null 2>&1; then
+			log_debug "Description for ocf:heartbeat:clvm cluster resource found."
+			if pcs resource show clvm >/dev/null 2>&1; then
+				log_debug "The clvm cluster resource configured."
+				exit $RESULT_PASS
+			fi
+		fi
+	fi
+
+	exit $RESULT_FAIL
+fi
+
+exit $RESULT_PASS
+

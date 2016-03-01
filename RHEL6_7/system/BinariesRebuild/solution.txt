@@ -1,0 +1,4 @@
+This content generates the list of binaries which needs to be rebuilt
+
+You can find the list at:
+[link: kickstart/binaries]

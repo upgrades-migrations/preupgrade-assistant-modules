@@ -1,0 +1,3 @@
+GMP 6 is compatible with GMP 4 in major features. Incompatible changes affect only functions, which should not be used by user applications at all:
+ - mpn_bdivmod function
+ - BSDMP-like interface libmp.so

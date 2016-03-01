@@ -1,0 +1,13 @@
+Some options were removed from gawk package binaries between RHEL 6
+and RHEL 7. This may break functionality of some of your scripts.
+All option removals with solutions are listed bellow.
+
+awk/gawk/pgawk: --compat - option was removed, alternative is
+                  --traditional
+                --copyleft - option was removed, alternative is
+                  --copyright/-C
+                --gen-po - option was replaced by --gen-pot option
+                --usage
+                -D - short form of --parsedebug was changed to -Y
+
+Please check that your scripts are aware of these changes.

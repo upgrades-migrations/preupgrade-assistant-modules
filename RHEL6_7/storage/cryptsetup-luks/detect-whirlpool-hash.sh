@@ -1,0 +1,149 @@
+#!/bin/bash
+. /usr/share/preupgrade/common.sh
+#END GENERATED SECTION
+
+check_root
+
+CONFIG_FILE=/etc/crypttab
+
+BLKID=$(which blkid)
+BLKID=${BLKID:-/sbin/blkid}
+
+CRYPTSETUP=$(which cryptsetup)
+CRYPTSETUP=${CRYPTSETUP:-/sbin/cryptsetup}
+
+GREP=$(which grep)
+GREP=${GREP:-/bin/grep}
+
+CUT=$(which cut)
+CUT=${CUT:-/bin/cut}
+
+STR_IFS=$IFS
+IFS=" $(echo -n -e '\t')"
+
+function wrap_exit
+{
+	IFS=$STR_IFS
+
+	exit $1
+}
+
+test -r $CONFIG_FILE || wrap_exit $RESULT_NOT_APPLICABLE
+test -x $CRYPTSETUP || wrap_exit $RESULT_NOT_APPLICABLE
+test -x $GREP || wrap_exit $RESULT_NOT_APPLICABLE
+test -x $CUT || wrap_exit $RESULT_NOT_APPLICABLE
+
+mkdir -p $VALUE_TMP_PREUPGRADE/$(dirname $CONFIG_FILE)
+cp $CONFIG_FILE $VALUE_TMP_PREUPGRADE$CONFIG_FILE || wrap_exit $RESULT_ERROR
+
+# $1 device uuid in format UUID=blah
+function uuid_to_dev()
+{
+	$BLKID -l -o device -t $1 2>/dev/null
+} 
+
+# $1 device
+function detect_whirlpool_hash()
+{
+	log_debug "Checking hash spec for device $1"
+
+	local hash=$($CRYPTSETUP luksDump $1 2>/dev/null | $GREP "Hash spec:" | $CUT -f 2)
+
+	test -n "$hash" || {
+		log_error "cryptsetup hash spec parsing failed for device $1"
+		wrap_exit $RESULT_ERROR
+	}
+
+	log_debug "Detected hash spec: $hash"
+
+	test "$hash" = "whirlpool"
+}
+
+function is_crypt_device()
+{
+	local dtype=$($BLKID $1 -s TYPE -o udev 2>/dev/null)
+
+	test "${dtype##ID_FS_TYPE=}" = "crypto_LUKS"
+}
+
+# $1 device path or device identified by UUID=
+function check_device()
+{
+	local device
+
+	device=$1
+
+	if [ "${device%%=*}" = "UUID" ]; then
+		log_debug "Translating $device to device path"
+		device=$(uuid_to_dev $device)
+		test -n $device || {
+			log_error "UUID translation to device path failed"
+			wrap_exit $RESULT_ERROR 
+		}
+	fi
+
+	test -b $device || return 0
+	is_crypt_device $device || return 0
+
+	detect_whirlpool_hash "$device" && return 1
+	return 0
+}
+
+function check_crypttab()
+{
+	local src dst tmp
+
+	log_info "Checking devices in $VALUE_TMP_PREUPGRADE$CONFIG_FILE"
+
+	while read -r dst src tmp;
+	do
+		log_debug "dm-crypt device: '$dst', backing device: '$src'"
+
+		test -z "$dst" && continue
+		test "${dst#\#}" = "$dst" || continue
+
+		log_debug "Going to check device identified by: '$src'"
+
+		check_device $src
+		if [ $? -ne 0 ]; then
+			log_error "Whirlpool hash spec detected in a LUKS device ($src) specified in crypttab"
+			log_high_risk "In place upgrade can not proceed further. The system with such LUKS device in crypttab risks to be left unbootable after an upgrade"
+			wrap_exit $RESULT_FAILED
+		fi
+	done < $VALUE_TMP_PREUPGRADE$CONFIG_FILE
+}
+
+function list_crypt_devices()
+{
+	$BLKID -o device -t TYPE="crypto_LUKS" 2>/dev/null
+}
+
+function check_remaining_devices()
+{
+	local count=0
+	local dev
+
+	log_info "Check remaining devices in system using blkid"
+
+	IFS=$'\n'
+
+	for dev in $(list_crypt_devices) ; do
+		log_debug "Checking device '$dev'"
+		check_device "$dev"
+		if [ $? -ne 0 ]; then
+			count=$[count+1]
+			log_warning "LUKS device $dev uses Whirlpool hash spec. The device can't be unlocked in an upgraded system."
+		fi
+	done
+
+	test $count -eq 0 || {
+		log_warning "The preupgrade script detected $count LUKS device(s) with Whirlpool hash spec."
+		return 1
+	}
+}
+
+check_crypttab
+
+check_remaining_devices || wrap_exit $RESULT_INFORMATIONAL
+
+wrap_exit $RESULT_PASS

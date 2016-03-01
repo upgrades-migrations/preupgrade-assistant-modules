@@ -1,0 +1,19 @@
+#! /usr/bin/env bash
+
+. /usr/share/preupgrade/common.sh
+check_applies_to "qemu-guest-agent"
+
+#END GENERATED SECTION
+
+chkconfig qemu-ga
+E_CHK=$?
+service qemu-ga status > /dev/null 2> /dev/null
+E_SRV=$?
+if test $E_CHK -eq 0 -o $E_SRV -eq 0; then
+	# This is more critical if the service is in fact enabled or running
+	log_medium_risk "Several qemu guest agent files and filenames were modified in Red Hat Enterprise Linux 7."
+	exit "$RESULT_FAIL"
+else
+	log_slight_risk "Several qemu guest agent files and filenames were modified in Red Hat Enterprise Linux 7."
+	exit "$RESULT_INFORMATIONAL"
+fi

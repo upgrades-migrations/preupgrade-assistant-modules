@@ -1,0 +1,7 @@
+For upgrade from RHEL 6 to RHEL 7 perform following steps:
+
+1) Uninstall all Red Hat Software Collections packages
+2) Upgrade system
+3) Update Red Hat Software Collections repo
+4) Install your collections again
+

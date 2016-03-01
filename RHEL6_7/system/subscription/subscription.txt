@@ -1,0 +1,3 @@
+Red Hat Network Classic is not supported in Red Hat Enterprise Linux 7. If your system is registered with Red Hat Network Classic, you will need to migrate to the certificate-based Red Hat Network.
+
+You can find instructions on how to migrate from Red Hat Network Classic to the certificate-based Red Hat Network using Red Hat Subscription Manager in the Knowledge Base article available at [link:https://access.redhat.com/site/solutions/129723].

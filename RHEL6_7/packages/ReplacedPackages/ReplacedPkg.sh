@@ -1,0 +1,318 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+switch_to_content
+#END GENERATED SECTION
+
+_NOAUTO_POSTSCRIPT="noauto_postupgrade.d/install_rpmlist.sh"
+_DST_NOAUTO_POSTSCRIPT="$VALUE_TMP_PREUPGRADE/kickstart/$_NOAUTO_POSTSCRIPT"
+
+[ ! -f "$VALUE_RPM_RHSIGNED" ] && \
+  log_error "Signed RPM list not found, please contact support." && \
+  exit $RESULT_ERROR
+
+[ ! -r "$COMMON_DIR" ] || [ ! -r "$_NOAUTO_POSTSCRIPT" ] && \
+  log_error "Directory for common files not found, please contact support." && \
+  exit $RESULT_ERROR
+
+ReplacedPkgs=$(mktemp .replacedpkgsXXX --tmpdir=/tmp)
+MoveReplacedPkgs=$(mktemp .mvreplacedpkgsXXX --tmpdir=/tmp)
+#RemovedOrObsoletedPkgs=$(mktemp .removedpkgsXXX --tmpdir=/tmp)
+NotBasePkgs=$(mktemp .notbasepkgsXXX --tmpdir=/tmp)
+cat $COMMON_DIR/default*_*replaced* | cut -f1,3 -d' ' | tr ' ' '|' | sort | uniq >"$ReplacedPkgs"
+# without move to base channel - hasn't benefit for us
+grep -Hr "..*" $COMMON_DIR/default*_moved-replaced_?* | sed -r "s|^$COMMON_DIR/([^:]+):([^[:space:]]*).*$|\2 \1|" | sort | uniq >"$MoveReplacedPkgs"
+grep -Hr "..*" $COMMON_DIR/default-*_replaced | sed -r "s|^$COMMON_DIR/([^:]+):([^[:space:]]*).*$|\2 \1|" | sort | uniq >"$NotBasePkgs"
+#cat $COMMON_DIR/default*_removed $COMMON_DIR/default*_*obsolete* \
+#    | cut -f1 -d' ' | sort | uniq > "$RemovedOrObsoletedPkgs"
+
+[ ! -r "$COMMON_DIR/ProvidesonlyMissing" ] \
+       || [ ! -r "$COMMON_DIR/BothMissing" ] \
+       || [ ! -r "$COMMON_DIR/default_nreponames" ] \
+       || [ ! -r "$ReplacedPkgs" ] \
+       || [ ! -r "$MoveReplacedPkgs" ] \
+       || [ ! -r "$NotBasePkgs" ] && {
+  log_error "Package change lists not found, please contact support."
+  rm -f "$ReplacedPkgs" "$MoveReplacedPkgs" "$NotBasePkgs"
+  exit $RESULT_ERROR
+}
+
+found=0
+optional=0
+notprovided=0
+other_repositories=""
+removeme=""
+statuscode=$RESULT_INFORMATIONAL # PASS is separated on the bottom
+rm -f "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced"* >/dev/null
+rm -f solution.txt
+
+mkdir -p "$(dirname $_DST_NOAUTO_POSTSCRIPT)"
+cp "$_NOAUTO_POSTSCRIPT" "$_DST_NOAUTO_POSTSCRIPT"
+
+echo \
+"Between RHEL 6 and RHEL 7, some packages have either been replaced or
+renamed.  Replacement packages are compatible with previous versions.
+In some cases, preupgrade assistant will migrate the package after the
+upgrade has completed.
+
+Please Note: This tool will not check debug repositories.  Red Hat
+recommends that all debuginfo packages are removed before upgrade and
+manually reinstalled as required on the upgraded system.
+
+The following packages were replaced:" >solution.txt
+
+###################################
+
+#Check for package replacements in the packages
+while read line
+do
+  orig_pkg=$(echo "$line" | cut -f1 )
+
+  replaced_line=$(grep -e "^$orig_pkg|" "$ReplacedPkgs")
+  [ -z "$replaced_line" ] && {
+    # this could be obsoleted or removed package
+    # in that case just skip it
+    # grep "^$orig_pkg$" "$RemovedOrObsoletedPkgs" >/dev/null && continue
+
+    # or it could be kept package, which we want totally install if we can.
+    # Kept packages are handled by content notbase-channels
+    # (originally labeled optionnal-channel) which is more suitable for this
+    # so skip it too
+    continue
+  }
+
+
+  repl_pkgs=$(echo "$replaced_line" | cut -d'|' -f2 )
+  is_moved=0
+  is_not_base=0
+  msg_channel=""
+  msg_req=" (required by Non Red Hat signed package(s):"
+  for k in $(rpm -q --whatrequires $orig_pkg | grep -v "^no package requires" \
+    | rev | cut -d'-' -f3- | rev )
+  do
+    grep -q "^$k[[:space:]]" $VALUE_RPM_QA || continue
+    is_dist_native $k || msg_req="${msg_req}$k "
+  done
+  msg_req="${msg_req% })"
+  [ "$msg_req" == " (required by Non Red Hat signed package(s):)" ] && msg_req=""
+  channel="$(grep "^$orig_pkg[[:space:]]" "$MoveReplacedPkgs" | rev | cut -d "_" -f 1 | rev)"
+
+  func_log_risk=log_high_risk
+  #packages from *debug repositories aren't important - ignore them (at least for now)
+  # below
+  #[[ "$channel" =~ debug$ && -z "$msg_req" ]] && func_log_risk=log_slight_risk
+
+  if [ -n "$channel" ]; then
+    [[ "$channel" =~ debug$ ]] && continue
+    is_moved=1
+  else
+    channel=$(grep "^$orig_pkg[[:space:]]" "$NotBasePkgs" | sed -r "s/^.*default-(.*)_replaced$/\1/" )
+    [[ "$channel" =~ debug$ ]] && continue
+    [ -n "$channel" ] && is_not_base=1
+  fi
+
+
+  if [[ $is_moved -eq 1 || $is_not_base -eq 1 ]]; then
+    [ "$channel" == "optional" ] && optional=1 || {
+      [ $UPGRADE -eq 1] && func_log_risk=log_high_risk
+    }
+    other_repositories="${other_repositories}$channel "
+    msg_channel="($channel channel in RHEL 7)"
+    statuscode=$RESULT_FAILED
+    echo "$repl_pkgs $channel" >>"$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase"
+  else
+    echo "$repl_pkgs" >>"$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced"
+  fi
+
+  removeme="$removeme $orig_pkg"
+
+  # logs / prints
+  [ -n "$msg_req" ] && log_slight_risk "Package $orig_pkg $msg_req replaced between RHEL 6 and RHEL 7"
+  [ $is_moved -eq 1 ] && $func_log_risk "Package $orig_pkg replacement moved to $channel channel between RHEL 6 and RHEL 7. You need to enable this channel for upgrade."
+  [ $is_not_base -eq 1 ] && $func_log_risk "Package $orig_pkg replacement is part of $channel channel on RHEL 7. You need to enable this channel for upgrade."
+  echo "${orig_pkg}$msg_req was replaced by $repl_pkgs $msg_channel" >>solution.txt
+  found=1
+done < <(get_dist_native_list)
+
+echo \
+"
+If a Non Red Hat signed package requires these packages, you may want
+to monitor them closely. Although the replacement should be compatible,
+it may have some minor differences, even in the case of common
+application lifecycles." >>solution.txt
+
+[ -n "$other_repositories" ] && {
+  echo -n "
+One or more replacement packages are available only in other repositories.
+You need to provide these repositories to make the upgrade or migration successful." >>solution.txt
+[ $UPGRADE -eq 1 ] && echo -n "
+Be aware, that for in-place upgrades, only the optional repository is supported.
+Packages from other repositories should be removed first." >> solution.txt
+
+ [ $optional -eq 1 ] && [ $UPGRADE -eq 1 ] && echo "
+For this purpose, if you want to upgrade, use the following additional option
+to redhat-upgrade-tool:
+
+    --addrepo rhel-7-optional=<path to the optional repository>
+
+Alternatively, you could remove all packages where the replacement is
+part of the RHEL 7 Optional repository before you start the system upgrade." >> solution.txt
+# another channels could be added when we support addons
+
+  [ $MIGRATE -eq 1 ] && {
+    #migrate_repos="$(echo "${other_repositories% }" | tr ' ' '\n' | sort | uniq \
+    #                  | sed -r "s/^(.+)$/rhel-7-\1=baseurl=<RHEL-7-\1>/")"
+    regexp_part="$(echo "${other_repositories}" | tr ' ' '|' | sed -e "s/^|*//" -e "s/|*$//" | sort | uniq )"
+    migrate_repos="$(grep -E "^[^-]*($regexp_part)?;" < "$COMMON_DIR/default_nreponames")"
+    repos_texts="$(echo "$migrate_repos" | cut -d ";" -f4 )"
+
+    echo "
+If you want to migrate, you will need register your machine with subscription-manager
+after the first boot of your new system and attach subscriptions that provide:
+$repos_texts
+
+Then you must enable any equivalent repositories (if they are disabled) and
+install any needed packages.
+For this purpose, you can run a prepared script:
+$_DST_NOAUTO_POSTSCRIPT $VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase
+
+which will install any remaining packages from these repositories.
+
+Please Note: The repositories listed above may not be exhaustive and we
+are unable to confirm whther further repositories are needed for some
+packages.  This problem is already under consideration for a future fix.
+" >> solution.txt
+  }
+}
+rm -f "$ReplacedPkgs" "$MoveReplacedPkgs" "$NotBasePkgs"
+
+[ $UPGRADE -eq 1 ] && {
+  #Relevant only for in-place upgrade. It's not important for migration
+
+  #Packages not handled properly according to http://fedoraproject.org/wiki/Packaging:Guidelines#Renaming.2FReplacing_Existing_Packages
+  # -> Package should have both obsoletes and provides, otherwise it can cause troubles during the update.
+  l=""
+  for i in $(get_dist_native_list)
+  do
+    # For now, handle them same way, we want them installed...
+    # Notice: not-base channel are important mainly for migration, where
+    # not-base channels are not available during system installation. In-place
+    # upgrade can update these packages directly, so keep here we will
+    # check all replaced packages.
+    m=$(grep "^$i|" "$COMMON_DIR/ProvidesonlyMissing")
+    [ -n "$m" ] || m=$(grep "^$i|" "$COMMON_DIR/BothMissing")
+    [ -z "$m" ] && continue
+    replacement=$(echo $m | cut -d'|' -f2)
+    notprovided=1
+    log_debug "Package $i is not in the RPM 'provides' directives of the replacement; $replacement. In-place upgrade might not work properly and will be finished by postupgrade script!"
+    l="$l $m"
+  done
+
+  #Create a postupgrade script which ensures that the replacement packages are installed
+  mkdir $VALUE_TMP_PREUPGRADE/postupgrade.d/replacedpkg 2>/dev/null
+  cat <<\EOF >$VALUE_TMP_PREUPGRADE/postupgrade.d/replacedpkg/fixreplaced.sh
+#!/bin/bash
+
+#Generated file, part of preupgrade-assistant content, should not be used
+#separately, see preupgrade-assistant license for licensing details
+#Do the upgrade for the packages with potentially broken obsoletes/provides
+
+prep_source_right() {
+  # return 0 - mounted successfully
+  # return 1 - nothing to do
+  # return 2 - mount failed
+
+  RHELUP_CONF="/root/preupgrade/upgrade.conf"
+  mount_path="$(grep "^device" "$RHELUP_CONF" | sed -r "s/^.*rawmnt='([^']+)', .*$/\1/")"
+  iso_path="$(grep "^iso" "$RHELUP_CONF" | cut -d " " -f 3- | grep -vE "^None$")"
+  device_line="$(grep "^device" "$RHELUP_CONF"  | cut -d " " -f 3- | grep -vE "^None$")"
+  device_path="$(echo "$device_line"  | sed -r "s/^.*dev='([^']+)',.*/\1/")"
+  fs_type="$(echo "$device_line" | grep -o "type='[^']*'," | sed -r "s/^type='(.*)',$/\1/" )"
+  m_opts="$(echo "$device_line" | grep -o "opts='[^']*'," | sed -r "s/^opts='(.*)',$/\1/" )"
+
+  # is used iso or device? if not, return 1
+  [ -n "$mount_path" ] && { [ -n "$iso_path" ] || [ -n "$device_path" ]; } || return 1
+  mountpoint -q "$mount_path" && return 1 # is already mounted
+  if [ -n "$iso_path" ]; then
+    mount -t iso9660 -o loop,ro "$iso_path"  "$mount_path" || return 2
+  else
+    # device
+    [ -n "$fs_type" ] && fs_type="-t $fs_type"
+    [ -n "$m_opts" ] && m_opts="-o $m_opts"
+    mount $fs_type $m_opts "$device_path" "$mount_path" || return 2
+  fi
+
+  return 0
+}
+
+
+for i in $(echo "SEDMEHERE")
+do
+  old="$(echo $i | cut -d'|' -f1)"
+  new="$(echo $i | cut -d'|' -f2 | tr ',' ' ')"
+  #we want to remove the old package if still present
+  rpm -q $old 2>/dev/null >/dev/null && {
+  #Store the modified files as .preupsave
+  for j in $(rpm -V $old | rev | cut -d' ' -f1 | rev | grep -v "(replaced)")
+  do
+    cp $j $j.preupsave
+    echo "Storing modified file $j from $old as $j.preupsave"
+  done
+  #deinstall the old package
+  rpm -e $old --nodeps
+  echo "Package $old uninstalled"
+  }
+  #do we already have all new installed? Skip it...
+  rpm -q $new >/dev/null && continue
+  yum install -y $new || {
+    prep_source_right && \
+      yum install -y $new
+  }
+  rpm -q $new 2>/dev/null >/dev/null && echo "Package(s) $new installed" && continue
+  #when we are here, installation got wrong and we should warn the user.
+  echo  "Installation of package(s) $new failed, you must install it manually!"
+done
+for old in $(echo "SEDME2HERE")
+do
+  #we want to remove the old package if still present
+  rpm -q $old 2>/dev/null >/dev/null && {
+  #Store the modified files as .preupsave
+  for j in $(rpm -V $old | rev | cut -d' ' -f1 | rev | grep -v "(replaced)")
+  do
+    cp $j $j.preupsave
+    echo "Storing modified file $j from $old as $j.preupsave"
+  done
+  #deinstall the old package
+  rpm -e $old --nodeps
+  echo "Package $old uninstalled"
+  }
+done
+EOF
+  sed -i -e "s/SEDMEHERE/$l/" $VALUE_TMP_PREUPGRADE/postupgrade.d/replacedpkg/fixreplaced.sh
+  sed -i -e "s/SEDME2HERE/$removeme/" $VALUE_TMP_PREUPGRADE/postupgrade.d/replacedpkg/fixreplaced.sh
+  chmod +x $VALUE_TMP_PREUPGRADE/postupgrade.d/replacedpkg/fixreplaced.sh
+}
+
+# TBD Do the comps groups replacements (when someone had full yum group
+# on RHEL 6, assume he wants it on RHEL 7 as well, rather than having only
+# limited set of packages)
+
+#remove the duplicates from rhel7rpmlist caused by replacements
+cat "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced" | sort | uniq > "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced.bak"
+cat "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase" | sort | uniq > "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase.bak"
+mv "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced.bak"  "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced"
+mv "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase.bak"  "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase"
+
+echo -n "
+ * RHRHEL7rpmlist_replaced - This file contains list of packages which replace original RHEL 6 packages on RHEL 7 system and are available in 'base' channel. These packages will be installed always.
+ * RHRHEL7rpmlist_replaced-notbase - Similar to file RHRHEL7rpmlist_replaced but packages are part of other channels and must be installed manually.
+" >> "$KICKSTART_README"
+
+[ $notprovided -eq 1 ] && [ -z "$other_repositories" ] && statuscode=$RESULT_FIXED
+
+[ $found -eq 1 ] && log_slight_risk "\
+Some packages installed on the system changed their name between RHEL 6 and RHEL 7. Although they should be compatible, monitoring after the update is recommended." && exit $statuscode
+
+rm -f solution.txt && touch solution.txt
+
+exit $RESULT_PASS

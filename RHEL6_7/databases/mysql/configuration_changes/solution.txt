@@ -1,0 +1,12 @@
+During in-place upgrade, the old MySQL 5.1 RPM package is uninstalled and
+the new MariaDB 5.5 RPM package is installed, but RPM does not take this
+operations as an update. Note that the MySQL RPM renames /etc/my.cnf to
+/etc/my.cnf.rpmsave on uninstall.
+
+After installing MariaDB you should do the following to restore your old
+configuration options:
+
+  root> mv -vi /etc/my.cnf.rpmsave /etc/my.cnf
+
+You can find more on: [link:https://access.redhat.com/articles/723833]
+

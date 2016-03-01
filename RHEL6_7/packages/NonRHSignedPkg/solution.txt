@@ -1,0 +1,5 @@
+Packages which are not signed with the official Red Hat keys will not be upgraded. These packages are typically provided by third parties or have been modified in some way. There is a high risk of incompatibility with these packages as they have not been verified by Red Hat. For upgrade assistance, contact the vendors of these packages.
+
+You can find a list of all unsigned packages including the vendor names in the [link:kickstart/nonrhpkgs] file.
+
+

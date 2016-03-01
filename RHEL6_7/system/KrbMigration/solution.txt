@@ -1,0 +1,5 @@
+The configuration option KRB5REALM was merged with the option KRB5KDC_ARGS in file /etc/sysconfig/krb5kdc in Red Hat Enterprise Linux 7. This content transforms the old configuration file to the new one while keeping the settings intact. No manual user action is necessary upon upgrade.
+
+krb5-appl is no longer in RHEL 7. Use openssh. Instead of rcp, ftp use scp, sftp. Instead of telnet, rlogin or rsh use slogin and ssh.
+The clients and servers support GSSAPI authentication using Kerberos, and the sloging and ssh commands can be passed with -K flag to delegate credential to the remote host.
+

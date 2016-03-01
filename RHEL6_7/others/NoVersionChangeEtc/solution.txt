@@ -1,0 +1,1 @@
+Some packages are the same in Red Hat Enterprise Linux 7 and Red Hat Enterprise Linux 6, therefore the current configuration files for these packages can be safely reused. This module stores these files in the /root/preupgrade/cleanconf/etc/ directory.

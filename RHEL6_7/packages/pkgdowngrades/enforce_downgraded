@@ -1,0 +1,269 @@
+#!/usr/bin/python
+
+"""
+Download (not yet downloaded) packages which are "downgraded" in newer RHEL
+version.  This script requires having all RHEL6 repositories disabled and having
+apropriate RHEL7 repostiory enabled.
+"""
+
+"""
+Requirements are 'yum', 'rpm-python' and 'python-libs'.
+"""
+import os, sys
+import yum
+import shutil
+import yum.packageSack
+from optparse import OptionParser
+import logging
+import rpm
+import ConfigParser
+
+DEBUG2 = logging.DEBUG - 1
+DEBUG3 = DEBUG2 - 1
+
+logging.basicConfig(format='HOOK-pkgdowngrades: %(levelname)s: %(message)s',
+        level=logging.INFO)
+
+OPT_PACKAGES_LIST = "package.list"
+ALT_PATH="media/Packages/"
+OPT_VERBOSE = False
+REDHAT_UPGRADE_TOOL_CONFIGFILE = "/root/preupgrade/upgrade.conf"
+
+
+def count_transaction(package_objects, nogpgcheck):
+    """
+    by given set of package_object, count the correct installation order
+    """
+    logging.debug("rpm: count transaction")
+    ts = rpm.TransactionSet()
+    if nogpgcheck:
+        ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES)
+    for package in package_objects:
+        filename = package.localPkg()
+        logging.debug("rpm: trying to install pkg " + filename)
+        with open(filename) as fd:
+            header = ts.hdrFromFdno(fd)
+            ts.addInstall(header, filename, "i")
+    ts.order()
+    return ts
+
+
+def pkg_key(pkg_o):
+    """ get dict key based on package object """
+    return "{0}.{1}".format(pkg_o.name, pkg_o.arch)
+
+
+def install_downloaded_ts(transaction, downgraded_dict, options):
+    rhelup_list = options.rhelupdir + "/" + OPT_PACKAGES_LIST
+    logging.debug("adjusting rhelup's transaction '{0}'".format(rhelup_list))
+
+    with open(rhelup_list, "a") as myfile:
+        for te in transaction:
+            filename = te.Key()
+            basename = os.path.basename(filename)
+            key = te.N() + "." + te.A()
+            reason = "DEP"
+            if key in downgraded_dict.keys():
+                reason = "DOWNGRADE"
+            logging.info("{0}: enforcing package installation '{1}'"
+                    .format(reason, key))
+
+            if(os.access(filename, os.W_OK)):
+                # source from network
+                shutil.move(filename, options.rhelupdir)
+                myfile.write(basename + "\n")
+            else:
+                # source from device/iso - we can't remove file from read_only
+                # detination and we know that will be there during upgrade, so
+                # only modify path 
+                # WARN: access must be checked for every file, otherwise we need check
+                # path of file if it is part of iso/device or it is from some optional repo
+                #os.symlink(filename, os.path.join(options.rhelupdir, basename))
+                myfile.write(ALT_PATH + basename + "\n")
+
+
+def get_downgraded_packages(yb_repo, pkgs, arch):
+    """ get list of packages which is actually downgraded """
+
+    logging.debug("getting the list of downgraded packages")
+
+    downgraded_packages = []
+
+    for pkg in pkgs:
+        repo_package = None
+
+        # Search in repo for 'NAME.ARCH'
+        # TODO: use returnNewestByNameArch()
+        repo_pkgs = yb_repo.pkgSack.searchNevra(name=pkg.name, arch=pkg.arch)
+        if repo_pkgs:
+            # found arch-specific alternative package in next RHEL major release
+            repo_package = repo_pkgs[0]
+        else:
+            # Search only for 'NAME' and check whether BuildArch did not changed
+            # between major RHEL releases (or whether multilib-ness changed).
+            repo_pkgs = yb_repo.pkgSack.searchNevra(name=pkg.name)
+            if not repo_pkgs:
+                # No alternative package in repo so we give up - this is task
+                # for other contents
+                logging.log(DEBUG3, "package " + pkg.name + " not found")
+
+            elif pkg.arch == "noarch":
+                actual_arch = repo_pkgs[0].arch
+                logging.warning(
+                    "package '{0}' is not noarch anymore, {1} will be installed"
+                        .format(pkg.name, actual_arch))
+                repo_package = repo_pkgs[0]
+
+            elif len(repo_pkgs) > 1:
+                err_msg = "Multiple packages: "
+                for f_package in repo_pkgs:
+                    msg = pkg_key(f_package)
+                    err_msg = err_msg + " " + msg
+                # This should never happen, it is not worth failing though.
+                logging.error(err_msg)
+
+            elif repo_pkgs[0].arch == "noarch":
+                repo_package = repo_pkgs[0]
+                logging.warning(
+                    "package {0} switched to 'noarch' in next RHEL release"
+                            .format(pkg_key(pkg)))
+
+            elif pkg.arch != arch:
+                logging.warning(
+                    "multilib package '{0}.{1}' is not in repo anymore"
+                        .format(pkg.name, pkg.arch))
+
+            else:
+                repo_package = repo_pkgs[0]
+
+        if not repo_package:
+            logging.log(DEBUG2, "package '{0}.{1}' is skipped"
+                                .format(pkg.name, pkg.arch))
+        else:
+            if yum.packages.comparePoEVR(pkg, repo_package) > 0:
+                downgraded_packages.append(repo_package)
+
+    return downgraded_packages
+
+
+def opts():
+    """ wrap option parsing """
+    parser = OptionParser()
+    parser.add_option("", "--rhelupdir", dest="rhelupdir",
+            help="where redhat-upgrade-tool has its downloaded packages")
+
+    parser.add_option("", "--installroot", dest="installroot",
+            help="fake root, same as yum --installroot")
+
+    parser.add_option("", "--destdir", dest="destdir",
+            help="where this script downloads additional packages")
+
+
+    (options, _) = parser.parse_args()
+    return options
+
+
+def prepare_destdir(options):
+    """ cleanup and re-initialize destdir before actual download """
+
+    logging.debug("preparing destdir")
+
+    shutil.rmtree(options.destdir, ignore_errors=True)
+    os.mkdir(options.destdir)
+
+    for basename in os.listdir(options.rhelupdir):
+        if basename != OPT_PACKAGES_LIST:
+            os.symlink(options.rhelupdir + "/" + basename,
+                       options.destdir + "/" + basename)
+
+
+def main():
+    """ start """
+
+    options = opts()
+
+    if not options.installroot or \
+       not options.destdir or \
+       not options.rhelupdir:
+        logging.fatal("bad parameters, try --help")
+        return 1
+
+    logging.info("start with arguments: " + ' '.join(sys.argv))
+
+    rhelupconf = ConfigParser.ConfigParser()
+    rhelupconf.read([REDHAT_UPGRADE_TOOL_CONFIGFILE])
+    try:
+        nogpgcheck = rhelupconf.getboolean('config', 'nogpgcheck')
+        noverifyssl = rhelupconf.getboolean('config', 'noverifyssl')
+        logging.debug("nogpgcheck set to " + nogpgcheck.__str__())
+        logging.debug("noverifyssl set to " + noverifyssl.__str__())
+    except ValueError:
+        logging.fatal("Error while reading redhat-upgrade-tool configuration, aborting.")
+        return 1
+
+    prepare_destdir(options)
+
+    yb_repo = yum.YumBase()
+    yb_repo.preconf.disabled_plugins = ["rhnplugin"]
+    yb_repo.doConfigSetup(root=options.installroot)
+
+    yb_system = yum.YumBase()
+
+    # We want everything to get installed on a concrete place
+    for i in yb_repo.repos.listEnabled():
+        i.setAttribute('pkgdir', options.destdir)
+        if noverifyssl:
+            i.setAttribute('sslverify', 0)
+        if nogpgcheck:
+            i.setAttribute('gpgcheck', 0)
+
+    arch = yb_repo.conf.yumvar['basearch']
+    yb_repo.conf.yumvar['releasever'] = 20
+
+    logging.debug("getting the list of installed packages")
+
+    # Go through all installed packages
+    pkgs = yb_system.rpmdb.returnPackages()
+
+    downgraded_packages = get_downgraded_packages(yb_repo, pkgs, arch)
+
+    downgraded_dict = {}
+    for i in downgraded_packages:
+        logging.debug("broken upgrade path detected: {0}.{1}"
+                .format(i.name, i.arch))
+        downgraded_dict[pkg_key(i)] = True
+        yb_repo.install(i)
+
+    logging.debug("yum: buildTransaction()")
+    (_, _) = yb_repo.buildTransaction()
+
+    ts_members = [x.po for x in yb_repo.tsInfo.getMembers()]
+
+    # download packages
+    logging.debug("downloading packages")
+    errors = yb_repo.downloadPkgs(ts_members)
+    if errors:
+        msg = "downloading failed"
+        for key in errors.keys():
+            for i in errors[key]:
+                msg = msg + i
+        logging.fatal(msg)
+        return 1
+
+    # count the transaction
+    downloaded_po_set = [x for x in ts_members
+                                if os.path.exists(x.localPkg()) \
+                                        and not os.path.islink(x.localPkg())]
+
+    transaction = count_transaction(downloaded_po_set, nogpgcheck)
+
+    # fix redhat-upgrade-tool's transaction
+    install_downloaded_ts(transaction, downgraded_dict, options)
+
+    logging.info("done")
+    return 0
+
+
+# from optparse import OptionParser
+if __name__ == "__main__":
+    sys.exit(main())

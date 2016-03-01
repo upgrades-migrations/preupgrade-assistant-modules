@@ -1,0 +1,69 @@
+Some issues have been found in your BIND9 configuration.
+Use following solutions to fix them:
+
+
+'tcp-listen-queue' statement with value less than '10':
+-------------------------------------------------------
+The value specified in 'tcp-listen-queue' statement is less than '10'.
+You should:
+- Change your configuration to use at least value of '10'. BIND9
+  will silently ignore value < '10' and use '10' instead.
+
+
+'zone-statistics' arguments changed:
+------------------------------------
+Arguments of 'zone-statistics' option changed in new version of BIND9.
+You should:
+- Replace argument 'yes' with 'full', or replace argument 'no' with
+  'terse'. Old options are still recognised by BIND9 and silently
+  converted.
+
+
+slave zone definition without 'masterfile-format' statement:
+------------------------------------------------------------
+In new version of BIND9, slave zones are saved by default as 'raw'
+format after the zone transfer. Previously the default format was 'text'.
+You should use one of the following solutions:
+- Remove saved slave zones files so they are saved in the 'raw'
+  format when transfered next time.
+- Convert zones files to 'raw' format using the 'named-compilezone'
+  tool.
+- Include 'masterfile-format text;' statement in the slave zone
+  definition statement.
+
+
+Zone declaration that conflicts with built-in empty zones:
+----------------------------------------------------------
+In new version of BIND9, the list of automatically created empty
+zones expanded. Your configuration contains zone that is conflicting
+with built-in empty zone. You should use one of following solutions:
+- Disable the specific empty zone by using 'disable-empty-zone <zone>;
+  statement
+- Disable empty zones at globally by using 'empty-zones-enable no;'
+  statement.
+
+
+[FIXED] No 'pid-file' AND/OR 'session-keyfile' statement found:
+-------------------------------------------------------
+The directory used by named for runtime data has been moved from the BIND
+default location, '/var/run/named/', to a new location '/run/named/'.
+As a result, the PID file has been moved from the default location
+'/var/run/named/named.pid' to the new location '/run/named/named.pid'.
+In addition, the session-key file has been moved to '/run/named/session.key'.
+These locations need to be specified by statements in the options section.
+To fix this we added:
+- 'pid-file  "/run/named/named.pid";' statement into the options section of
+  your BIND9 configuration.
+- 'session-keyfile  "/run/named/session.key";' statement into the options
+  section of your BIND9 configuration.
+
+
+The config file(s) could not be fixed completely, there are still some issues that need review.
+
+
+Written Fixed config file to '/root/preupgrade/dirtyconf/etc/named.conf'
+
+
+For more information, please see the BIND9 Administrator Reference
+Manual located in '/usr/share/doc/bind-9.9.4/Bv9ARM.pdf' and 'DNS Servers'
+section of RHEL 7 Networking Guide.
