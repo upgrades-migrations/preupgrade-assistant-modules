@@ -5,7 +5,7 @@ switch_to_content
 #END GENERATED SECTION
 
 _NOAUTO_POSTSCRIPT="noauto_postupgrade.d/install_rpmlist.sh"
-_DST_NOAUTO_POSTSCRIPT="$VALUE_TMP_PREUPGRADE/kickstart/$_NOAUTO_POSTSCRIPT"
+_DST_NOAUTO_POSTSCRIPT="$KICKSTART_DIR/$_NOAUTO_POSTSCRIPT"
 
 [ ! -f "$VALUE_RPM_RHSIGNED" ] && \
   log_error "Signed RPM list not found, please contact support." && \
@@ -43,8 +43,12 @@ notprovided=0
 other_repositories=""
 removeme=""
 statuscode=$RESULT_INFORMATIONAL # PASS is separated on the bottom
-rm -f "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced"* >/dev/null
+rm -f "$KICKSTART_DIR/RHRHEL7rpmlist_replaced"* >/dev/null
 rm -f solution.txt
+
+# create these 2 files - just to be sure - should be created always
+touch "$KICKSTART_DIR/RHRHEL7rpmlist_replaced"
+touch "$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase"
 
 mkdir -p "$(dirname $_DST_NOAUTO_POSTSCRIPT)"
 cp "$_NOAUTO_POSTSCRIPT" "$_DST_NOAUTO_POSTSCRIPT"
@@ -119,9 +123,9 @@ do
     other_repositories="${other_repositories}$channel "
     msg_channel="($channel channel in RHEL 7)"
     statuscode=$RESULT_FAILED
-    echo "$repl_pkgs $channel" >>"$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase"
+    echo "$repl_pkgs $channel" >>"$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase"
   else
-    echo "$repl_pkgs" >>"$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced"
+    echo "$repl_pkgs" >>"$KICKSTART_DIR/RHRHEL7rpmlist_replaced"
   fi
 
   removeme="$removeme $orig_pkg"
@@ -174,7 +178,7 @@ $repos_texts
 Then you must enable any equivalent repositories (if they are disabled) and
 install any needed packages.
 For this purpose, you can run a prepared script:
-$_DST_NOAUTO_POSTSCRIPT $VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase
+$_DST_NOAUTO_POSTSCRIPT $KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase
 
 which will install any remaining packages from these repositories.
 
@@ -298,10 +302,10 @@ EOF
 # limited set of packages)
 
 #remove the duplicates from rhel7rpmlist caused by replacements
-cat "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced" | sort | uniq > "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced.bak"
-cat "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase" | sort | uniq > "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase.bak"
-mv "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced.bak"  "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced"
-mv "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase.bak"  "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_replaced-notbase"
+cat "$KICKSTART_DIR/RHRHEL7rpmlist_replaced" | sort | uniq > "$KICKSTART_DIR/RHRHEL7rpmlist_replaced.bak"
+cat "$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase" | sort | uniq > "$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase.bak"
+mv "$KICKSTART_DIR/RHRHEL7rpmlist_replaced.bak"  "$KICKSTART_DIR/RHRHEL7rpmlist_replaced"
+mv "$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase.bak"  "$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase"
 
 echo -n "
  * RHRHEL7rpmlist_replaced - This file contains list of packages which replace original RHEL 6 packages on RHEL 7 system and are available in 'base' channel. These packages will be installed always.
