@@ -18,5 +18,5 @@ grep -v "45689c882fa658e0" >"$VALUE_TMP_PREUPGRADE/kickstart/nonrhpkgs" || \
 echo " * nonrhpkgs - this file contains all RHEL 6 packages not signed by RH keys - you will have to handle them yourself." >>"$KICKSTART_README"
 
 #We detected some non-redhat package
-log_high_risk "We detected some non-RH signed packages, you can find the list in [link:./kickstart/nonrhpkgs]. You need to handle them yourself!"
+log_high_risk "We detected some non-RH signed packages, you can find the list in [link:kickstart/nonrhpkgs]. You need to handle them yourself!"
 exit $RESULT_FAIL
