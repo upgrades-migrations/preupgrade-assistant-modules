@@ -46,7 +46,7 @@ do
     grep -q "^$k[[:space:]]" $VALUE_RPM_QA || continue
     is_dist_native $k ||  j="$j$k "
   done
-  j="$j)"
+  j="${j% })"
   [ "$j" == " (required by NonRH signed package(s):)" ] && j=""
   [ -n "$j" ] && log_high_risk "Package $pkg $j removed between RHEL 6 and RHEL 7"
   echo "$pkg$j" >>solution.txt

@@ -44,7 +44,7 @@ while read line; do
     do
       grep -q "^$l[[:space:]]" $VALUE_RPM_QA && is_dist_native "$l" || rq_msg="$rq_msg$l "
     done
-    rq_msg="$rq_msg)"
+    rq_msg="${rq_msg% })"
 
     [ "$rq_msg" == " (required by NonRH signed package(s):)" ] && rq_msg=""
     [ -n "$rq_msg" ] && $tmp_log_risk "Library $soname_lib from $pkg$rq_msg removed between RHEL 6 and RHEL 7"

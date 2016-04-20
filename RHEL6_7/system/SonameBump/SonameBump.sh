@@ -65,7 +65,7 @@ while read line; do
       grep -q "^$l[[:space:]]" $VALUE_RPM_QA || continue
       is_dist_native "$l" || rq_msg="$rq_msg$l "
     done
-    rq_msg="$rq_msg)"
+    rq_msg="${rq_msg% })"
 
     [ -n "$npkgs" ] && [[ "$pkg" !=  "$npkgs" ]] \
       && pkgs_msg=" (on RHEL 7 available in: $npkgs)"
