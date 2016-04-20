@@ -8,7 +8,7 @@ export LANG=C
 set -o pipefail
 
 # is created/copied by ReplacedPackages
-_DST_NOAUTO_POSTSCRIPT="$VALUE_TMP_PREUPGRADE/kickstart/noauto_postupgrade.d/install_rpmlist.sh"
+_DST_NOAUTO_POSTSCRIPT="$KICKSTART_DIR/noauto_postupgrade.d/install_rpmlist.sh"
 
 [ -r "$COMMON_DIR" ] && ls -1d "$COMMON_DIR"/default* >/dev/null 2>/dev/null || {
   log_error "Common file directory missing.  Please contact support."
@@ -56,6 +56,8 @@ generate_req_msg() {
 
 AddonPkgs=$(mktemp .addonpkgsXXX --tmpdir=/tmp)
 OptionalPkgs=$(mktemp .optionalpkgsXXX --tmpdir=/tmp)
+KeptBasePkgs=$(mktemp .keptbasepkgsXXX --tmpdir=/tmp)
+DistNativePkgs=$(mktemp .nativepkgsXXX --tmpdir=/tmp)
 
 _my_tmp=$(print_opt_file_list)
 [ -n "$_my_tmp" ] && grep -Hr "..*" $_my_tmp | sed -r "s|^$COMMON_DIR/default([^:]+):([^[:space:]]*) ([^[:space:]-]*).*$|\2 \3 \1|" | sort | uniq > "$OptionalPkgs"
@@ -63,17 +65,20 @@ _my_tmp=$(print_opt_file_list)
 _my_tmp=$(print_addon_file_list)
 [ -n "$_my_tmp" ] && grep -Hr "..*" $_my_tmp | sed -r "s|^$COMMON_DIR/([^:]+):([^[:space:]]*) ([^[:space:]-]*).*$|\2 \3 \1|" | sort | uniq > "$AddonPkgs"
 
-[ ! -r "$OptionalPkgs" ] || [ ! -r "$AddonPkgs" ] && {
+cat $(print_base_files) | grep -o "^[^[:space:]]*" > "$KeptBasePkgs"
+get_dist_native_list > "$DistNativePkgs"
+
+[ ! -r "$OptionalPkgs" ] || [ ! -r "$AddonPkgs" ] || [ ! -r "$KeptBasePkgs" ] || [ ! -r "$DistNativePkgs" ] && {
   log_error "Generic part of the content is missing!"
-  rm -f "$OptionalPkgs" "$AddonPkgs"
+  rm -f "$OptionalPkgs" "$AddonPkgs" "$KeptBasePkgs" "$DistNativePkgs"
   exit_error
 }
 
 fail=0
 other_repositories=""
-rm -f "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_optional"
-rm -f "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_notbase"
-rm -f "$VALUE_TMP_PREUPGRADE/RHRHEL7rpmlist_kept"
+rm -f "$KICKSTART_DIR/RHRHEL7rpmlist_optional"
+rm -f "$KICKSTART_DIR/RHRHEL7rpmlist_notbase"
+rm -f "$KICKSTART_DIR/RHRHEL7rpmlist_kept"
 rm -f solution.txt
 
 echo \
@@ -90,7 +95,7 @@ The following packages are affected:
 while read line; do
   pkgname=$(echo $line | cut -d " " -f1)
 
-  grep -q "^$pkgname[[:space:]]" $VALUE_RPM_QA && is_dist_native $pkgname || continue
+  grep -q "^${pkgname}$" "$DistNativePkgs" || continue
   msg_req=$(generate_req_msg "$pkgname")
 
   echo $line | grep -q " kept "; # is moved or kept?
@@ -99,7 +104,7 @@ while read line; do
   else
     log_high_risk "Package $pkgname$msg_req is available in The Optional channel."
   fi
-  echo "$pkgname" >> "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_optional"
+  echo "$pkgname" >> "$KICKSTART_DIR/RHRHEL7rpmlist_optional"
   echo "$pkgname$msg_req (optional channel)" >> solution.txt
   fail=1
 done < "$OptionalPkgs"
@@ -111,7 +116,7 @@ while read line; do
   pkgname=$(echo $line | cut -d " " -f1)
 
   echo $line | grep -q " kept "; # is moved or kept?
-  grep -q "^$pkgname[[:space:]]" $VALUE_RPM_QA && is_dist_native "$pkgname" || continue
+  grep -q "^${pkgname}$" "$DistNativePkgs" || continue
   msg_req=$(generate_req_msg "$pkgname")
 
   if [ $is_moved -ne 0 ]; then
@@ -121,7 +126,7 @@ while read line; do
     channel=$(echo "$line" | sed -r "s/^.*default-(.*)_kept-uncommon$/\1/")
     log_high_risk "Package $pkgname$msg_req is available in $channel channel."
   fi
-  echo "$pkgname $channel" >> "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_notbase"
+  echo "$pkgname $channel" >> "$KICKSTART_DIR/RHRHEL7rpmlist_notbase"
   echo "$pkgname$msg_req ($channel channel)" >> solution.txt
   fail=1
   other_repositories="$other_repositories$channel "
@@ -129,10 +134,14 @@ done < "$AddonPkgs"
 
 rm -f "$OptionalPkgs" "$AddonPkgs"
 
-# Generate list of packages which are kept in base channel (peculiarly kept but
+# Generate list of installed packages which are kept in base channel (peculiarly kept but
 # moved to base channel from different channel). These packages should be installed as well
-cat $(print_base_files) | grep -o "^[^[:space:]]*" >> "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_kept"
+while read pkgname; do
+  grep -q "^${pkgname}$" "$DistNativePkgs" || continue
+  echo "$pkgname" >> "$KICKSTART_DIR/RHRHEL7rpmlist_kept"
+done < "$KeptBasePkgs"
 
+rm -f "$OptionalPkgs" "$AddonPkgs" "$KeptBasePkgs" "$DistNativePkgs"
 
 ###################################################
 ###################################################
@@ -185,8 +194,8 @@ packages.  This problem is already under consideration for a future fix.
 
 echo -n "
   * RHRHEL7rpmlist_kept - This file contains a list of packages which you have installed on your system and are available on RHEL 7 system in the 'base' channel. These packages will be installed.
-  * RHRHEL7rpmlist_optional - Similar to file RHRHEL7rpmlist_kept but packages are available only in the Optional channel. These packages must be installed manually.
-  * RHRHEL7rpmlist_notbase - Similar to RHRHEL7rpmlist_optional but the package are available from other channels.
+  * RHRHEL7rpmlist_optional - Similar to file RHRHEL7rpmlist_kept but packages are available only in the Optional channel. Probably you will need install them manually.
+  * RHRHEL7rpmlist_notbase - Similar to RHRHEL7rpmlist_optional but the package are available from other channels. Probably you will need install them manually.
 " >> "$KICKSTART_README"
 
 test $fail -eq 0 && exit_pass || exit_fail
