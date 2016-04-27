@@ -9,10 +9,17 @@ set -o pipefail
 
 # is created/copied by ReplacedPackages
 _DST_NOAUTO_POSTSCRIPT="$KICKSTART_DIR/noauto_postupgrade.d/install_rpmlist.sh"
+FILENAME_BASIS="RHRHEL7rpmlist_kept"
+
 
 [ -r "$COMMON_DIR" ] && ls -1d "$COMMON_DIR"/default* >/dev/null 2>/dev/null || {
   log_error "Common file directory missing.  Please contact support."
   exit_error
+}
+
+###################################################
+get_repo_id() {
+  grep -E "^[^-]*-$1;" "$COMMON_DIR/default_nreponames" | cut -d ";" -f3
 }
 
 ###################################################
@@ -37,18 +44,20 @@ print_base_files() {
 }
 
 ###################################################
-generate_req_msg() {
-  msg_req=""
+get_req_pkgs() {
+  req_pkgs=""
   for k in $(rpm -q --whatrequires "$1" | grep -v "^no package requires" \
-    | rev | cut -d'-' -f3- | rev)
+    | rev | cut -d'-' -f3- | rev | sort | uniq)
   do
-    grep -q "^$k[[:space:]]" $VALUE_RPM_QA || continue
-    is_dist_native $k || msg_req="$msg_req$k "
+    is_pkg_installed "$k" || continue
+    is_dist_native $k || req_pkgs="$req_pkgs$k "
   done
-  msg_req="${msg_req% })"
-  [ -n "$msg_req" ] || {
-    echo " (required by Non Red Hat signed package(s):${msg_req% })"
-  }
+  [ -n "$req_pkgs" ] && echo "${req_pkgs% }"
+}
+
+###################################################
+generate_req_msg() {
+  [ -n "$1" ] && echo " (required by Non Red Hat signed package(s):$1)"
 }
 
 ###################################################
@@ -76,9 +85,7 @@ get_dist_native_list > "$DistNativePkgs"
 
 fail=0
 other_repositories=""
-rm -f "$KICKSTART_DIR/RHRHEL7rpmlist_optional"
-rm -f "$KICKSTART_DIR/RHRHEL7rpmlist_notbase"
-rm -f "$KICKSTART_DIR/RHRHEL7rpmlist_kept"
+rm -f "$KICKSTART_DIR/${FILENAME_BASIS}"*
 rm -f solution.txt
 
 echo \
@@ -96,7 +103,8 @@ while read line; do
   pkgname=$(echo $line | cut -d " " -f1)
 
   grep -q "^${pkgname}$" "$DistNativePkgs" || continue
-  msg_req=$(generate_req_msg "$pkgname")
+  req_pkgs=$(get_req_pkgs "$pkgname")
+  msg_req=$(generate_req_msg "$req_pkgs")
 
   echo $line | grep -q " kept "; # is moved or kept?
   if [ $? -ne 0 ]; then
@@ -104,8 +112,8 @@ while read line; do
   else
     log_high_risk "Package $pkgname$msg_req is available in The Optional channel."
   fi
-  echo "$pkgname" >> "$KICKSTART_DIR/RHRHEL7rpmlist_optional"
   echo "$pkgname$msg_req (optional channel)" >> solution.txt
+  echo "$pkgname|$req_pkgs|$pkgname|$(get_repo_id "optional")" >> "$KICKSTART_DIR/${FILENAME_BASIS}-notbase"
   fail=1
 done < "$OptionalPkgs"
 [ $fail -eq 1 ] && other_repositories="optional "
@@ -115,19 +123,21 @@ done < "$OptionalPkgs"
 while read line; do
   pkgname=$(echo $line | cut -d " " -f1)
 
-  echo $line | grep -q " kept "; # is moved or kept?
   grep -q "^${pkgname}$" "$DistNativePkgs" || continue
-  msg_req=$(generate_req_msg "$pkgname")
+  req_pkgs=$(get_req_pkgs "$pkgname")
+  msg_req=$(generate_req_msg "$req_pkgs")
 
-  if [ $is_moved -ne 0 ]; then
+  echo $line | grep -q " kept "; # is moved or kept?
+  if [ $? -ne 0 ]; then
     channel=$(echo "$line" | rev | cut -d "_" -f1 | rev)
     log_high_risk "Package $pkgname$msg_req moved to $channel channel between RHEL 6 and RHEL 7."
   else
     channel=$(echo "$line" | sed -r "s/^.*default-(.*)_kept-uncommon$/\1/")
     log_high_risk "Package $pkgname$msg_req is available in $channel channel."
   fi
-  echo "$pkgname $channel" >> "$KICKSTART_DIR/RHRHEL7rpmlist_notbase"
+
   echo "$pkgname$msg_req ($channel channel)" >> solution.txt
+  echo "$pkgname|$req_pkgs|$pkgname|$(get_repo_id $channel)" >> "$KICKSTART_DIR/${FILENAME_BASIS}-notbase"
   fail=1
   other_repositories="$other_repositories$channel "
 done < "$AddonPkgs"
@@ -138,8 +148,16 @@ rm -f "$OptionalPkgs" "$AddonPkgs"
 # moved to base channel from different channel). These packages should be installed as well
 while read pkgname; do
   grep -q "^${pkgname}$" "$DistNativePkgs" || continue
-  echo "$pkgname" >> "$KICKSTART_DIR/RHRHEL7rpmlist_kept"
+  echo "$pkgname||$pkgname|" >> "$KICKSTART_DIR/${FILENAME_BASIS}"
 done < "$KeptBasePkgs"
+
+for file in $(ls $KICKSTART_DIR/${FILENAME_BASIS}*); do
+  # add header line
+  echo "# old-package|required-by-pkgs|replaced-by-pkgs|repo-id" > ${file}.bak
+  cat "$file" | sort | uniq >> ${file}.bak
+  mv ${file}.bak $file
+done
+
 
 rm -f "$OptionalPkgs" "$AddonPkgs" "$KeptBasePkgs" "$DistNativePkgs"
 
@@ -171,7 +189,7 @@ You should remove these packages before upgrade, otherwise the upgrade may fail.
   }
   [ $MIGRATE -eq 1 ] && {
     regexp_part="$(echo "${other_repositories}" | tr ' ' '|' | sed -e "s/^|*//" -e "s/|*$//" | sort | uniq)"
-    migrate_repos="$(grep -E "^[^-]*($regexp_part)?;" < "$COMMON_DIR/default_nreponames")"
+    migrate_repos="$(grep -E "^[^-]*(-($regexp_part))?;" < "$COMMON_DIR/default_nreponames")"
     repos_texts="$(echo "$migrate_repos" | cut -d ";" -f4)"
 
     echo \
@@ -184,18 +202,13 @@ Then you must enable any equivalent repositories (if they are disabled) and inst
 For this purpose, you can run a prepared script:
 
 $_DST_NOAUTO_POSTSCRIPT <some-rpmlist-file>
-
-Please Note: The repositories listed above may not be exhaustive and we
-are unable to confirm whther further repositories are needed for some
-packages.  This problem is already under consideration for a future fix.
 " >> solution.txt
   }
 }
 
 echo -n "
-  * RHRHEL7rpmlist_kept - This file contains a list of packages which you have installed on your system and are available on RHEL 7 system in the 'base' channel. These packages will be installed.
-  * RHRHEL7rpmlist_optional - Similar to file RHRHEL7rpmlist_kept but packages are available only in the Optional channel. Probably you will need install them manually.
-  * RHRHEL7rpmlist_notbase - Similar to RHRHEL7rpmlist_optional but the package are available from other channels. Probably you will need install them manually.
+  * ${FILENAME_BASIS} - This file contains a list of packages which you have installed on your system and are available on RHEL 7 system in the 'base' channel. These packages will be installed automatically.
+  * ${FILENAME_BASIS}-notbase - Similar to ${FILENAME_BASIS} but the package are available from other channels. Probably you will need install them manually.
 " >> "$KICKSTART_README"
 
 test $fail -eq 0 && exit_pass || exit_fail
