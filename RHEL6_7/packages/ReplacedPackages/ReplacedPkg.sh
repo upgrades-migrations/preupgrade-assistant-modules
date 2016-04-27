@@ -5,7 +5,13 @@ switch_to_content
 #END GENERATED SECTION
 
 _NOAUTO_POSTSCRIPT="noauto_postupgrade.d/install_rpmlist.sh"
-_DST_NOAUTO_POSTSCRIPT="$KICKSTART_DIR/$_NOAUTO_POSTSCRIPT"
+_DST_NOAUTO_POSTSCRIPT="$NOAUTO_POSTUPGRADE_D/install_rpmlist.sh"
+FILENAME_BASIS="RHRHEL7rpmlist_replaced"
+
+get_repo_id() {
+  [ -n "$1" ] && \
+    grep -E "^[^-]*-$1;" "$COMMON_DIR/default_nreponames" | cut -d ";" -f3
+}
 
 [ ! -f "$VALUE_RPM_RHSIGNED" ] && \
   log_error "Signed RPM list not found, please contact support." && \
@@ -43,14 +49,13 @@ notprovided=0
 other_repositories=""
 removeme=""
 statuscode=$RESULT_INFORMATIONAL # PASS is separated on the bottom
-rm -f "$KICKSTART_DIR/RHRHEL7rpmlist_replaced"* >/dev/null
+rm -f "$KICKSTART_DIR/${FILENAME_BASIS}"* >/dev/null
 rm -f solution.txt
 
 # create these 2 files - just to be sure - should be created always
-touch "$KICKSTART_DIR/RHRHEL7rpmlist_replaced"
-touch "$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase"
+touch "$KICKSTART_DIR/${FILENAME_BASIS}"
+touch "$KICKSTART_DIR/${FILENAME_BASIS}-notbase"
 
-mkdir -p "$(dirname $_DST_NOAUTO_POSTSCRIPT)"
 cp "$_NOAUTO_POSTSCRIPT" "$_DST_NOAUTO_POSTSCRIPT"
 
 echo \
@@ -89,16 +94,20 @@ do
   repl_pkgs=$(echo "$replaced_line" | cut -d'|' -f2 )
   is_moved=0
   is_not_base=0
+  filename_suffix=""
   msg_channel=""
-  msg_req=" (required by Non Red Hat signed package(s):"
+  req_pkgs=""
+  msg_req=""
   for k in $(rpm -q --whatrequires $orig_pkg | grep -v "^no package requires" \
-    | rev | cut -d'-' -f3- | rev )
+    | rev | cut -d'-' -f3- | rev | sort | uniq )
   do
-    grep -q "^$k[[:space:]]" $VALUE_RPM_QA || continue
-    is_dist_native $k || msg_req="${msg_req}$k "
+    is_pkg_installed "$k" || continue
+    is_dist_native "$k" || msg_req="${req_pkgs}$k "
   done
-  msg_req="${msg_req% })"
-  [ "$msg_req" == " (required by Non Red Hat signed package(s):)" ] && msg_req=""
+  [ -n "$req_pkgs" ] && {
+    req_pkgs="${req_pkgs% }"
+    msg_req=" (required by Non Red Hat signed package(s):$req_pkg)"
+  }
   channel="$(grep "^$orig_pkg[[:space:]]" "$MoveReplacedPkgs" | rev | cut -d "_" -f 1 | rev)"
 
   func_log_risk=log_high_risk
@@ -121,22 +130,21 @@ do
       [ $UPGRADE -eq 1] && func_log_risk=log_high_risk
     }
     other_repositories="${other_repositories}$channel "
-    msg_channel="($channel channel in RHEL 7)"
+    msg_channel=" ($channel channel in RHEL 7)"
     statuscode=$RESULT_FAILED
-    echo "$repl_pkgs $channel" >>"$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase"
-  else
-    echo "$repl_pkgs" >>"$KICKSTART_DIR/RHRHEL7rpmlist_replaced"
+    filename_suffix="-notbase"
   fi
 
+  echo "${orig_pkg}|$req_pkgs|$(echo $repl_pkgs | tr ',' ' ')|$(get_repo_id $channel)" >> "$KICKSTART_DIR/${FILENAME_BASIS}${filename_suffix}"
   removeme="$removeme $orig_pkg"
 
   # logs / prints
-  [ -n "$msg_req" ] && log_slight_risk "Package $orig_pkg $msg_req replaced between RHEL 6 and RHEL 7"
+  [ -n "$msg_req" ] && log_slight_risk "Package ${orig_pkg}$msg_req replaced between RHEL 6 and RHEL 7"
   [ $is_moved -eq 1 ] && $func_log_risk "Package $orig_pkg replacement moved to $channel channel between RHEL 6 and RHEL 7. You need to enable this channel for upgrade."
   [ $is_not_base -eq 1 ] && $func_log_risk "Package $orig_pkg replacement is part of $channel channel on RHEL 7. You need to enable this channel for upgrade."
-  echo "${orig_pkg}$msg_req was replaced by $repl_pkgs $msg_channel" >>solution.txt
+  echo "${orig_pkg}$msg_req was replaced by ${repl_pkgs}$msg_channel" >>solution.txt
   found=1
-done < <(get_dist_native_list)
+done < <(get_dist_native_list | sort | uniq)
 
 echo \
 "
@@ -167,7 +175,7 @@ part of the RHEL 7 Optional repository before you start the system upgrade." >> 
     #migrate_repos="$(echo "${other_repositories% }" | tr ' ' '\n' | sort | uniq \
     #                  | sed -r "s/^(.+)$/rhel-7-\1=baseurl=<RHEL-7-\1>/")"
     regexp_part="$(echo "${other_repositories}" | tr ' ' '|' | sed -e "s/^|*//" -e "s/|*$//" | sort | uniq )"
-    migrate_repos="$(grep -E "^[^-]*($regexp_part)?;" < "$COMMON_DIR/default_nreponames")"
+    migrate_repos="$(grep -E "^[^-]*(-($regexp_part))?;" < "$COMMON_DIR/default_nreponames")"
     repos_texts="$(echo "$migrate_repos" | cut -d ";" -f4 )"
 
     echo "
@@ -177,14 +185,10 @@ $repos_texts
 
 Then you must enable any equivalent repositories (if they are disabled) and
 install any needed packages.
-For this purpose, you can run a prepared script:
-$_DST_NOAUTO_POSTSCRIPT $KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase
+For this purpose (installation), you can run a prepared script:
+$_DST_NOAUTO_POSTSCRIPT $KICKSTART_DIR/${FILENAME_BASIS}-notbase
 
 which will install any remaining packages from these repositories.
-
-Please Note: The repositories listed above may not be exhaustive and we
-are unable to confirm whther further repositories are needed for some
-packages.  This problem is already under consideration for a future fix.
 " >> solution.txt
   }
 }
@@ -196,7 +200,7 @@ rm -f "$ReplacedPkgs" "$MoveReplacedPkgs" "$NotBasePkgs"
   #Packages not handled properly according to http://fedoraproject.org/wiki/Packaging:Guidelines#Renaming.2FReplacing_Existing_Packages
   # -> Package should have both obsoletes and provides, otherwise it can cause troubles during the update.
   l=""
-  for i in $(get_dist_native_list)
+  for i in $(get_dist_native_list | sort | uniq)
   do
     # For now, handle them same way, we want them installed...
     # Notice: not-base channel are important mainly for migration, where
@@ -301,15 +305,17 @@ EOF
 # on RHEL 6, assume he wants it on RHEL 7 as well, rather than having only
 # limited set of packages)
 
-#remove the duplicates from rhel7rpmlist caused by replacements
-cat "$KICKSTART_DIR/RHRHEL7rpmlist_replaced" | sort | uniq > "$KICKSTART_DIR/RHRHEL7rpmlist_replaced.bak"
-cat "$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase" | sort | uniq > "$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase.bak"
-mv "$KICKSTART_DIR/RHRHEL7rpmlist_replaced.bak"  "$KICKSTART_DIR/RHRHEL7rpmlist_replaced"
-mv "$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase.bak"  "$KICKSTART_DIR/RHRHEL7rpmlist_replaced-notbase"
+# it looks better sorted
+for file in $(ls $KICKSTART_DIR/${FILENAME_BASIS}*); do
+  # add header line
+  echo "# old-package|required-by-pkgs|replaced-by-pkgs|repo-id" > ${file}.bak
+  cat "$file" | sort | uniq >> ${file}.bak
+  mv ${file}.bak $file
+done
 
 echo -n "
- * RHRHEL7rpmlist_replaced - This file contains list of packages which replace original RHEL 6 packages on RHEL 7 system and are available in 'base' channel. These packages will be installed always.
- * RHRHEL7rpmlist_replaced-notbase - Similar to file RHRHEL7rpmlist_replaced but packages are part of other channels and must be installed manually.
+ * ${FILENAME_BASIS} - This file contains list of packages which replace original RHEL 6 packages on RHEL 7 system and are available in 'base' channel. These packages will be installed always.
+ * ${FILENAME_BASIS}-notbase - Similar to file ${FILENAME_BASIS} but packages are part of other channels and must be installed manually.
 " >> "$KICKSTART_README"
 
 [ $notprovided -eq 1 ] && [ -z "$other_repositories" ] && statuscode=$RESULT_FIXED
