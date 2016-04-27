@@ -5,7 +5,12 @@ switch_to_content
 #END GENERATED SECTION
 
 # is created/copied by ReplacedPackages
-_DST_NOAUTO_POSTSCRIPT="$VALUE_TMP_PREUPGRADE/kickstart/noauto_postupgrade.d/install_rpmlist.sh"
+_DST_NOAUTO_POSTSCRIPT="$NOAUTO_POSTUPGRADE_D/install_rpmlist.sh"
+FILENAME_BASIS="RHRHEL7rpmlist_obsoleted"
+
+get_repo_id() {
+  grep -E "^[^-]*-$1;" "$COMMON_DIR/default_nreponames" | cut -d ";" -f3
+}
 
 [ ! -f "$VALUE_RPM_RHSIGNED" ] || [ ! -r "$COMMON_DIR" ] && {
   log_error "Signed RPM list or common file directory missing.  Please contact support."
@@ -31,7 +36,8 @@ grep -Hr "..*" $COMMON_DIR/default-*_obsoleted | sed -r "s|^$COMMON_DIR/([^:]+):
 
 found=0
 other_repositories=""
-rm -f solution.txt "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlisti_obsoleted"*
+rm -f solution.txt "$KICKSTART_DIR/${FILENAME_BASIS}"*
+
 echo \
 "Some packages were obsoleted between RHEL 6 and RHEL 7.
 Red Hat provides alternatives for them, but these
@@ -61,23 +67,26 @@ do
   orig_pkg=$(echo "$line" | cut -d'|' -f1)
   new_pkgs=$(echo "$line" | cut -d'|' -f2)
   #skip non-rh and unavailable packages
-  grep -q "^$orig_pkg[[:space:]]" $VALUE_RPM_QA && is_dist_native $orig_pkg || continue
+  is_pkg_installed "$orig_pkg" && is_dist_native $orig_pkg || continue
 
   is_moved=0
   is_not_base=0
+  filename_suffix=""
   msg_channel=""
-  msg_req=" (required by Non Red Hat signed package(s):"
-  func_log_risk=log_high_risk
+  req_pkgs=""
+  msg_req=""
+  func_log_risk=log_medium_risk
+
   for k in $(rpm -q --whatrequires $orig_pkg | grep -v "^no package requires" \
-    | rev | cut -d'-' -f3- | rev)
+    | rev | cut -d'-' -f3- | rev | sort | uniq)
   do
-    grep -q "^$k[[:space:]]" $VALUE_RPM_QA || continue
-    is_dist_native $k || msg_req="$msg_req$k "
+    is_pkg_installed "$k" || continue
+    is_dist_native "$k" || req_pkgs="$req_pkgs$k "
   done
-  msg_req="${msg_req% })"
-  [ "$msg_req" == " (required by Non Red Hat signed package(s):)" ] && {
-    msg_req=""
-    func_log_risk=log_medium_risk
+  [ -n "$req_pkgs" ] && {
+    req_pkgs="${req_pkgs% }"
+    msg_req=" (required by Non Red Hat signed package(s):$req_pkgs)"
+    func_log_risk=log_high_risk
   }
   channel="$(grep "^$orig_pkg[[:space:]]" "$MoveObsoletedPkgs" | rev | cut -d "_" -f 1 | rev)"
 
@@ -92,24 +101,30 @@ do
 
 
   if [ $is_moved -eq 1 ] || [ $is_not_base -eq 1 ]; then
-    [ "$channel" == "optional" ] && optional=1
+    # [ "$channel" == "optional" ] && optional=1 # unused variable
     other_repositories="${other_repositories}$channel "
-    msg_channel="($channel channel in RHEL 7)"
+    msg_channel=" ($channel channel in RHEL 7)"
   fi
 
   # logs / prints
-  [ -n "$msg_req" ] && $func_log_risk "The package $orig_pkg $msg_req was removed (obsoleted) between RHEL 6 and RHEL 7"
+  [ -n "$msg_req" ] && $func_log_risk "The package ${orig_pkg}$msg_req was removed (obsoleted) between RHEL 6 and RHEL 7"
   [ $is_moved -eq 1 ] && $func_log_risk "The partial-replacement for $orig_pkg moved to $channel between RHEL6 and RHEL 7."
   [ $is_not_base -eq 1 ] && $func_log_risk "The partial-replacement for $orig_pkg is available in the $channel channel on RHEL 7."
-  echo "${orig_pkg} $msg_req was obsoleted by $new_pkgs $msg_channel" >>solution.txt
+  echo "${orig_pkg}$msg_req was obsoleted by ${new_pkgs}$msg_channel" >>solution.txt
+  {
+    # store data to kickstart files
+    [ -n "$msg_req" ] && filename_suffix="${filename_suffix}-required"
+    [ -n "$channel" ] && filename_suffix="${filename_suffix}-notbase"
+    echo "${orig_pkg}|$req_pkgs|$(echo $new_pkgs | tr ',' ' ')|$(get_repo_id $channel)" >> "$KICKSTART_DIR/${FILENAME_BASIS}${filename_suffix}"
+  }
   found=1
 done < "$ObsoletedPkgs"
 rm -f "$ObsoletedPkgs" "$MoveObsoletedPkgs" "$NotBasePkgs"
 
-
+# transform my-repo-names to known names
 [ -n "$other_repositories" ] && [ $MIGRATE -eq 1 ] && {
   regexp_part="$(echo "${other_repositories}" | tr ' ' '|' | sed -e "s/^|*//" -e "s/|*$//" | sort | uniq )"
-  migrate_repos="$(grep -E "^[^-]*($regexp_part)?;" < "$COMMON_DIR/default_nreponames")"
+  migrate_repos="$(grep -E "^[^-]*(-($regexp_part))?;" < "$COMMON_DIR/default_nreponames")"
   repos_texts="$(echo "$migrate_repos" | cut -d ";" -f4)"
 
   echo "
@@ -122,23 +137,23 @@ For this purpose, you can run a prepared script:
 $_DST_NOAUTO_POSTSCRIPT <some-rpmlist-file>
 
 which will install the available packages listed in the file.
-
-Please Note: The repositories listed above may not be exhaustive and we
-are unable to confirm whther further repositories are needed for some
-packages.  This problem is already under consideration for a future fix." >>solution.txt
+" >>solution.txt
 }
 
+# it looks better sorted
+for file in $(ls $KICKSTART_DIR/${FILENAME_BASIS}*); do
+  # add header line
+  echo "# old-package|required-by-pkgs|obsoleted-by-pkgs|repo-id" > ${file}.bak
+  cat "$file" | sort | uniq >> ${file}.bak
+  mv ${file}.bak $file
+done
 
-grep "required" solution.txt | grep -v "channel in RHEL" >>"$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_obsoleted-required"
-grep "required" solution.txt | grep "channel in RHEL" >>"$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_obsoleted-required-notbase"
-grep "obsoleted by" solution.txt | grep -ve "required" -e "^Following " -e "channel in RHEL" >> "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_obsoleted"
-grep "obsoleted by" solution.txt | grep -ve "required" -e "^Following " | grep "channel in RHEL" >> "$VALUE_TMP_PREUPGRADE/kickstart/RHRHEL7rpmlist_obsoleted-notbase"
 
   echo -n "
- * RHRHEL7rpmlist_obsoleted-required - This file contains all RHEL 6 packages, which were replaced in RHEL 7 by an alternative which is not 100% compatible. As some of your packages depend on it, you should check the changes in detail.
- * RHRHEL7rpmlist_obsoleted-required-notbase - Similar to RHRHEL7rpmlist_obsoleted-required, but these packages are not part of the base channel on RHEL 7. You need register the new machine and attach subscriptions with the correct repositories if you want to install them.
- * RHRHEL7rpmlist_obsoleted-optional - Similar to RHRHEL7rpmlist_obsoleted-required, but in this case no non Red Hat  package requires this. Install these at your own discretion.
- * RHRHEL7rpmlist_obsoleted-optional-notbase - Similar to RHRHEL7rpmlist_obsoleted-required-notbase, but in this case no non Red Hat package requires this. Install these at your own discretion.
+ * ${FILENAME_BASIS} - This file contains all RHEL 6 packages, which were replaced in RHEL 7 by an alternative which is not 100% compatible and are part of the base channel. Direct dependency from non Red Hat signed packageis was not discovered.
+ * ${FILENAME_BASIS}-required - Similar to ${FILENAME_BASIS}, but in addition are required by non Red Hat signed packages. As some of your packages depend on it, you should check the changes in detail.
+ * ${FILENAME_BASIS}-notbase - Similar to ${FILENAME_BASIS}, but these packages are not part of the base channel on RHEL 7. You need register the new machine and attach subscriptions with the correct repositories if you want to install them.
+ * ${FILENAME_BASIS}-required-notbase - Similar to ${FILENAME_BASIS}-required and ${FILENAME_BASIS}-notbase - packages are required by non Red Hat signed packages and are not part of base channel.
 " >> "$KICKSTART_README"
 
 echo \
