@@ -25,7 +25,7 @@ then
 fi
 
 is_dist_native yaboot || {
-  log_extrem_risk "Yaboot rpm is not signed by Red Hat. This is unsupported."
+  log_extreme_risk "Yaboot rpm is not signed by Red Hat. This is unsupported."
   exit_fail
 }
 
