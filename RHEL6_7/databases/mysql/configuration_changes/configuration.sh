@@ -80,7 +80,7 @@ check_options() {
     for i in log-bin-trust-routine-creators table_lock_wait_timeout ; do
         echo "$filtered_conf" | grep $i >/dev/null
         if [ $? -eq 0 ]; then
-            echo "obsolete_options_used" >> "$tmp_config"
+            echo "obsolete_options_used" >> "$tmp_file"
             log_high_risk "${CONFIG_FILE}: option '$i' was removed in MariaDB 5.5"
             sed -i -e "s/${i}\s*/#${i}/g" $BACKUPED_CONFIG_FILE
             [ $? -eq 0 ] \
