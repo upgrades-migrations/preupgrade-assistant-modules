@@ -134,9 +134,10 @@ $repos_texts
 
 Then you must enable any equivalent repositories (if they are disabled) and install any needed packages.
 For this purpose, you can run a prepared script:
-$_DST_NOAUTO_POSTSCRIPT <some-rpmlist-file>
+$_DST_NOAUTO_POSTSCRIPT <path/to/pkglist-file>
 
 which will install the available packages listed in the file.
+See ${KICKSTART_README} for details on 'pkglist' files.
 " >>solution.txt
 }
 

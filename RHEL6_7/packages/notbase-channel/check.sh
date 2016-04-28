@@ -7,8 +7,8 @@
 export LANG=C
 set -o pipefail
 
-# is created/copied by ReplacedPackages
-_DST_NOAUTO_POSTSCRIPT="$KICKSTART_DIR/noauto_postupgrade.d/install_rpmlist.sh"
+# is created/copied by ReplacedPackages, which run always
+_DST_NOAUTO_POSTSCRIPT="$NOAUTO_POSTUPGRADE_D/install_rpmlist.sh"
 FILENAME_BASIS="RHRHEL7rpmlist_kept"
 
 
@@ -50,7 +50,7 @@ get_req_pkgs() {
     | rev | cut -d'-' -f3- | rev | sort | uniq)
   do
     is_pkg_installed "$k" || continue
-    is_dist_native $k || req_pkgs="$req_pkgs$k "
+    is_dist_native "$k" || req_pkgs="$req_pkgs$k "
   done
   [ -n "$req_pkgs" ] && echo "${req_pkgs% }"
 }
@@ -151,7 +151,7 @@ while read pkgname; do
   echo "$pkgname||$pkgname|" >> "$KICKSTART_DIR/${FILENAME_BASIS}"
 done < "$KeptBasePkgs"
 
-for file in $(ls $KICKSTART_DIR/${FILENAME_BASIS}*); do
+for file in $(ls "$KICKSTART_DIR/${FILENAME_BASIS}"*); do
   # add header line
   echo "# old-package|required-by-pkgs|replaced-by-pkgs|repo-id" > ${file}.bak
   cat "$file" | sort | uniq >> ${file}.bak
@@ -201,7 +201,9 @@ $repos_texts
 Then you must enable any equivalent repositories (if they are disabled) and install any needed packages.
 For this purpose, you can run a prepared script:
 
-$_DST_NOAUTO_POSTSCRIPT <some-rpmlist-file>
+$_DST_NOAUTO_POSTSCRIPT <path/to/pkglist-file>
+
+See ${KICKSTART_README} for details on 'pkglist' files.
 " >> solution.txt
   }
 }

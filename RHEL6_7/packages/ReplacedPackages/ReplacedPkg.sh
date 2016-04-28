@@ -188,7 +188,7 @@ install any needed packages.
 For this purpose (installation), you can run a prepared script:
 $_DST_NOAUTO_POSTSCRIPT $KICKSTART_DIR/${FILENAME_BASIS}-notbase
 
-which will install any remaining packages from these repositories.
+which will install any remaining available packages from these repositories.
 " >> solution.txt
   }
 }
