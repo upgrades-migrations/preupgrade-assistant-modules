@@ -7,7 +7,7 @@ touch solution.txt
 
 # we need really all static lists in this content, so get right path
 # - we can't use 'arch' because of cross arch migration (eg i386-x86_64)
-REPO_STATS="$(dirname "$(readlink -f "$(ls "$COMMON_DIR/default-kept-pkgs")")")"
+REPO_STATS="$(dirname "$(readlink -f "$(ls "$COMMON_DIR/default_kept-pkgs")")")"
 REGEX_PKG='s/^([^[:space:]|]+).*$/\1/'
 
 # all without debug repositories (debuginfo not importnant without packages)
