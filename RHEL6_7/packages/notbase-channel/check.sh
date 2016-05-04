@@ -110,7 +110,7 @@ while read line; do
   if [ $? -ne 0 ]; then
     log_high_risk "Package $pkgname$msg_req moved to the Optional channel between RHEL 6 and RHEL 7."
   else
-    log_high_risk "Package $pkgname$msg_req is available in The Optional channel."
+    log_high_risk "Package $pkgname$msg_req is available in the Optional channel."
   fi
   echo "$pkgname$msg_req (optional channel)" >> solution.txt
   echo "$pkgname|$req_pkgs|$pkgname|$(get_repo_id "optional")" >> "$KICKSTART_DIR/${FILENAME_BASIS}-notbase"
@@ -153,7 +153,7 @@ done < "$KeptBasePkgs"
 
 for file in $(ls "$KICKSTART_DIR/${FILENAME_BASIS}"*); do
   # add header line
-  echo "# old-package|required-by-pkgs|replaced-by-pkgs|repo-id" > ${file}.bak
+  echo "# old-package|required-by-pkgs|new_pkg|repo-id" > ${file}.bak
   cat "$file" | sort | uniq >> ${file}.bak
   mv ${file}.bak $file
 done
@@ -176,7 +176,7 @@ The syntax for the additional parameter is:
 Alternatively, you could remove all packages which reside in the RHEL 7 Optional repository before starting the system upgrade.
 " >> solution.txt
     echo "${other_repositories}" | grep -qe "optional $" -e "^$" || {
-      log_high_risk "Red Hat packages from channels other than Base or Optional, are not supported for inplace upgrade"
+      log_high_risk "Red Hat packages from other channels than Base or Optional, are not supported for inplace upgrade"
       echo \
 "
 You have some packages which are available in specific channels other than Base or Optional on RHEL 7.
