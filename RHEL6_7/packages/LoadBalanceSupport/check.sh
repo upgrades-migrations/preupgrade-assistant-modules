@@ -39,10 +39,16 @@ solution. For RHEl 7 compatible load balancer support install keepalived and hap
      fi
   fi
 elif [[ "${new_lb_check[@]}" =~ "haproxy" ]] ;then
+    if [[ "${new_lb_check[@]}" =~ "keepalived" ]] ;then
+  echo "You have installed haproxy tcp/http based load balancer and proxy. If you want to implement also LVS based load balancer, install ipvsadm package" >> $SOLUTION_FILE  
+  log_none_risk "For LVS based Load Balancer run 'yum install ipvsadm'"
+  exit_informational
+    else
   echo "You have installed haproxy tcp/http based load balancer and proxy. If you want to implement also LVS based load balancer, install ipvsadm and keepalived packages" >> $SOLUTION_FILE  
   log_none_risk "For LVS based Load Balancer run 'yum install ipvsadm keepalived'"
   exit_informational
+  fi
 else
 
-   exit_pass
+   exit_not_applicable
 fi
