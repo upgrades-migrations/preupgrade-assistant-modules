@@ -7,12 +7,12 @@
 # NOTES:
 # - see the bug #1138615 for reasons
 #
-# - this script requires yum-plugin-downloadonly package installed, so
-#   so preupgrade-assistant-contents must require it
+# - this script depends on yum-plugin-downloadonly package; so it means
+#   preupgrade-assistant-contents package has to require the plugin
 #
-# - this script creates "rhelup" pre-upgrade hook;  that script modifies
-#   rhelup's intermediate files so it is meant as believed _sooo ugly_
-#   work-around before rhelup itself gets fixed somehow
+# - this script creates pre-upgrade hook for redhat-upgrade-tool; the hook
+#   modifies redhat-upgrade-tool's intermediate files so, yes, this is just
+#   an ugly work-around until redhat-upgrade-tool itself gets a proper fix.
 
 perl_wrapper="$(dirname "${BASH_SOURCE}")"/parse
 tmp_native_list=tmpnativelist
@@ -69,7 +69,7 @@ case "$rv" in
         exit_pass
         ;;
     1)
-        # Note double-quoted intentionally
+        # Don't double-quote $packages here, intentional
         packages=$(set -f;  echo $packages)
         log_error "at least packages $packages are downgraded in RHEL7"
         log_medium_risk "having one of [$packages] installed can break the upgrade"
