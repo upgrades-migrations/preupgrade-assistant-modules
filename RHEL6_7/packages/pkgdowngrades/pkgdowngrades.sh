@@ -7,9 +7,6 @@
 # NOTES:
 # - see the bug #1138615 for reasons
 #
-# - this script depends on yum-plugin-downloadonly package; so it means
-#   preupgrade-assistant-contents package has to require the plugin
-#
 # - this script creates pre-upgrade hook for redhat-upgrade-tool; the hook
 #   modifies redhat-upgrade-tool's intermediate files so, yes, this is just
 #   an ugly work-around until redhat-upgrade-tool itself gets a proper fix.
