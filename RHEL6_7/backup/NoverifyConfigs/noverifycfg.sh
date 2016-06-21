@@ -7,6 +7,8 @@
 COMPONENT="distribution"
 [ ! -f "noverifycfg" ] || [ ! -f "verified_blacklist" ] && exit $RESULT_ERROR
 found=0
+DIRTYCONF_D="$VALUE_TMP_PREUPGRADE/dirtyconf"
+CLEANCONF_D="$VALUE_TMP_PREUPGRADE/cleanconf"
 
 #Todo: add sha1sum defaults for noarch packages (so we can skip unchanged)
 while read i
@@ -16,16 +18,24 @@ do
   #do we have this file on system?
   [ -f "$j" ] || continue
   #was already stored and checked?
-  [ -f "$VALUE_TMP_PREUPGRADE/cleanconf/$j" ] && continue
-  RPMVERSION=$(rpm -qf $j | rev | cut -d'-' -f3- | rev | sort -u | xargs echo)
+  [ -f "$CLEANCONF_D/$j" ] && continue
+  pkgname=$(rpm -qf $j | rev | cut -d'-' -f3- | rev | sort -u | xargs echo)
   #check for the RH signed rpm, don't handle not-signed packages
-  is_dist_native $RPMVERSION || continue
+  #FIXME: added support of untracked files, because some significant
+  #       files could be stored at all, even when these are created "on the fly"
+  #       - this should be handled better later e.g. with list of files which
+  #         are not tracked but fall under specific package, which should be
+  #         signed by RH at last.
+  is_pkg_installed "$pkgname" && is_dist_native "$pkgname" ||  {
+    echo "$pkgname" | grep -q "is not owned by any package" || continue
+    log_info "Backup file $j which is not tracked by any package, but is part of input list."
+  }
   grep -q "^$j " verified_blacklist && {
-    cp --parents -a "$j" "$VALUE_TMP_PREUPGRADE"/cleanconf/
+    cp --parents -a "$j" "$CLEANCONF_D"
     continue
   }
-  cp --parents -a "$j" "$VALUE_TMP_PREUPGRADE"/dirtyconf/ &&  found=1
-  echo "$j ($RPMVERSION)" >>"$VALUE_TMP_PREUPGRADE"/kickstart/noverifycfg
+  cp --parents -a "$j" "$DIRTYCONF_D" &&  found=1
+  echo "$j ($pkgname)" >>"$KICKSTART_DIR/noverifycfg"
   done
 done < noverifycfg
 
