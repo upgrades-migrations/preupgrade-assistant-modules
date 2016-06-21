@@ -49,9 +49,9 @@ check_base_modules() {
 " >> $SOLUTION_FILE
     while read line
     do
-        grep -i "^[ \t]*LoadModule.*$line" $CONFIG_FILE
+        grep -qi "^[ \t]*LoadModule.*$line" $CONFIG_FILE
         if [ $? -eq 0 ]; then
-            echo "    $line" >> $SOLUTION_FILE
+            echo "    $line" | tr -d '\' >> $SOLUTION_FILE
         fi
     done <default_modules
     echo >> $SOLUTION_FILE
@@ -62,15 +62,15 @@ check_base_modules() {
 " >> $SOLUTION_FILE
     while read line
     do
-        grep -i "^[ \t]*LoadModule.*$line" $CONFIG_FILE
+        grep -qi "^[ \t]*LoadModule.*$line" $CONFIG_FILE
         if [ $? -eq 0 ]; then
-            echo "    $line" >> $SOLUTION_FILE
+            echo "    $line" | tr -d '\' >> $SOLUTION_FILE
         fi
     done <removed_modules
     echo >> $SOLUTION_FILE
 
-    grep -i "^[ \t]*LoadModule ldap_module" $CONFIG_FILE && \
-    grep -i "^[ \t]*LDAP.*\|^[ \t]*AuthLDAP.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+    grep -qi "^[ \t]*LoadModule ldap_module" $CONFIG_FILE && \
+    grep -qi "^[ \t]*LDAP.*\|^[ \t]*AuthLDAP.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
 * mod_ldap has been moved to separate package called \"mod_ldap\" and will be installed
@@ -79,8 +79,8 @@ check_base_modules() {
         echo "mod_ldap_flag=1" >> "$TMP_FLAG_FILE"
     fi
 
-    grep -i "^[ \t]*LoadModule speling_module" $CONFIG_FILE && \
-    grep -i "^[ \t]*CheckSpelling" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+    grep -qi "^[ \t]*LoadModule speling_module" $CONFIG_FILE && \
+    grep -qi "^[ \t]*CheckSpelling" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
     echo "\
 * mod_speling is used, but it is not enabled by default in new version of httpd.
@@ -88,8 +88,8 @@ check_base_modules() {
 " >> $SOLUTION_FILE
     fi
 
-    grep -i "^[ \t]*LoadModule usertrack_module" $CONFIG_FILE && \
-    grep -i "^[ \t]*Cookie.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+    grep -qi "^[ \t]*LoadModule usertrack_module" $CONFIG_FILE && \
+    grep -qi "^[ \t]*Cookie.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
 * mod_usertrack is used, but it is not enabled by default in new version of httpd.
@@ -100,7 +100,7 @@ check_base_modules() {
 }
 
 
-grep -i "Include conf.modules.d/\\*.conf" $CONFIG_FILE
+grep -qi "Include conf.modules.d/\\*.conf" $CONFIG_FILE
 if [ $? -ne 0 ]; then
     echo "\
 * httpd.conf does not include conf.modules.d/*.conf. This directory will be
@@ -108,12 +108,12 @@ if [ $? -ne 0 ]; then
 " >> $SOLUTION_FILE
 fi
 
-grep -i "^[ \t]*LoadModule" $CONFIG_FILE
+grep -qi "^[ \t]*LoadModule" $CONFIG_FILE
 if [ $? -eq 0 ]; then
     check_base_modules
 fi
 
-grep -i "Allow,Deny\|Deny,Allow\|Mutual-failure" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+grep -qi "Allow,Deny\|Deny,Allow\|Mutual-failure" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
 * httpd config files contain deprecated Access control directives Order, Allow,
@@ -124,9 +124,9 @@ if [ $? -eq 0 ]; then
 " >> $SOLUTION_FILE
 fi
 
-grep -i "^[ \t]*LoadModule perl_module" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+grep -qi "^[ \t]*LoadModule perl_module" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
-    grep -i "^[ \t]*Perl.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+    grep -qi "^[ \t]*Perl.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
 * mod_perl is no longer provided in RHEL7 and it is enabled in httpd
@@ -142,9 +142,9 @@ if [ $? -eq 0 ]; then
     fi
 fi
 
-grep -i "^[ \t]*LoadModule dnssd_module" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+grep -qi "^[ \t]*LoadModule dnssd_module" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
-    grep -i "^[ \t]*DNSSDEnable" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+    grep -qi "^[ \t]*DNSSDEnable" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
 * mod_dnssd is no longer provided in RHEL7 and it is enabled in httpd
@@ -159,9 +159,9 @@ if [ $? -eq 0 ]; then
     fi
 fi
 
-grep -i "^[ \t]*LoadModule auth_pgsql_module" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+grep -qi "^[ \t]*LoadModule auth_pgsql_module" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
-    grep -i "^[ \t]*Auth_PG.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+    grep -qi "^[ \t]*Auth_PG.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
 * mod_auth_pgsql is no longer provided in RHEL7 and it is enabled in httpd
@@ -178,9 +178,9 @@ if [ $? -eq 0 ]; then
     fi
 fi
 
-grep -i "^[ \t]*LoadModule mysql_auth_module" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+grep -qi "^[ \t]*LoadModule mysql_auth_module" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
-    grep -i "^[ \t]*AuthMySQL.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+    grep -qi "^[ \t]*AuthMySQL.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
 * mod_auth_mysql is no longer provided in RHEL7 and it is enabled in httpd
@@ -197,7 +197,7 @@ if [ $? -eq 0 ]; then
     fi
 fi
 
-grep -i "Authz\(LDAP\|DBD\|DBM\|GroupFile\|User\|Owner\)Authoritative" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+grep -qi "Authz\(LDAP\|DBD\|DBM\|GroupFile\|User\|Owner\)Authoritative" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
 * Directives that control how authorization modules respond when they don't
@@ -210,7 +210,7 @@ if [ $? -eq 0 ]; then
     ret=$RESULT_FAIL
 fi
 
-grep -i "CookieLog" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+grep -qi "CookieLog" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
 * Deprecated CookieLog directive has been removed. There is no direct
@@ -221,7 +221,7 @@ if [ $? -eq 0 ]; then
     ret=$RESULT_FAIL
 fi
 
-grep -i "^[ \t]*HTTPD=.*worker.*" /etc/sysconfig/httpd
+grep -qi "^[ \t]*HTTPD=.*worker.*" /etc/sysconfig/httpd
 if [ $? -eq 0 ]; then
     echo "\
 * httpd.worker is used. In new httpd version, MPM is set using modules.
@@ -229,7 +229,7 @@ if [ $? -eq 0 ]; then
 " >> $SOLUTION_FILE
 fi
 
-grep -i "^[ \t]*HTTPD=.*event.*" /etc/sysconfig/httpd
+grep -qi "^[ \t]*HTTPD=.*event.*" /etc/sysconfig/httpd
 if [ $? -eq 0 ]; then
     echo "\
 * httpd.event is used. In new httpd version, MPM is set using modules.
@@ -237,7 +237,7 @@ if [ $? -eq 0 ]; then
 " >> $SOLUTION_FILE
 fi
 
-grep -i "^[ \t]*SSLMutex default" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+grep -qi "^[ \t]*SSLMutex default" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
 * \"SSLMutex default\" is not needed in httpd-2.4 and will be removed
@@ -245,7 +245,7 @@ if [ $? -eq 0 ]; then
 " >> $SOLUTION_FILE
 fi
 
-grep -i "^[ \t]*SSLPassPhraseDialog[ \t]*builtin" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+grep -qi "^[ \t]*SSLPassPhraseDialog[ \t]*builtin" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
 * \"SSLPassPhraseDialog builtin\" should not be used in httpd-2.4 because of
@@ -255,7 +255,7 @@ if [ $? -eq 0 ]; then
 " >> $SOLUTION_FILE
 fi
 
-grep -i "^[ \t]*SSLSessionCache[ \t]*shmcb:/var/cache/mod_ssl/scache" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
+grep -qi "^[ \t]*SSLSessionCache[ \t]*shmcb:/var/cache/mod_ssl/scache" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
 * \"SSLSessionCache shmcb:/var/cache/mod_ssl/scache(512000)\" should not be used
@@ -270,11 +270,11 @@ if [ $ret -ne $RESULT_PASS ]; then
 fi
 
 echo >> $SOLUTION_FILE
-echo "This section of solution text shows the difference between this system
-configuration of httpd and the default httpd 2.2 configuration:" >> $SOLUTION_FILE
+echo "In the file below is stored the difference between this system configuration of httpd
+and the default httpd 2.2 configuration: [link:${PWD#$VALUE_TMP_PREUPGRADE/}default_diff.diff]" >> $SOLUTION_FILE
 echo >> $SOLUTION_FILE
 
-diff -u httpd.conf $CONFIG_FILE >> $SOLUTION_FILE
+diff -u httpd.conf $CONFIG_FILE >> "${PWD}/default_diff.diff"
 
 mkdir -p $POSTUPGRADE_DIR # it should be irrelevant but to be sure
 cp -R postupgrade.d/* $POSTUPGRADE_DIR
