@@ -1,0 +1,86 @@
+2016-06-27
+
+--------
+
+* The allow or deny attributes are in use. Previous versions of tomcat allowed a list, but
+  this version takes a single expression.
+  This needs to be addressed before an update can occur.
+
+--------
+
+* The internalProxies or trustedProxies attributes are in use. Previous versions of tomcat allowed a list, but
+  this version takes a single expression.
+  This needs to be addressed before an update can occur.
+
+--------
+
+* The filter attribute is in use. Previous versions of tomcat allowed a list, but
+  this version takes a single expression.
+  This needs to be addressed before an update can occur.
+
+--------
+
+* The retrictedUserAgents or noCompressionUserAgents attributes are in use. Previous
+  versions of tomcat allowed a list, but this version takes a single expression.
+  This needs to be addressed before an update can occur.
+
+--------
+
+* XML context descriptors (META-INF/context.xml files) are no longer copied from deployed
+  WARs and directories to the host's xmlBase. The default Tomcat 6 behavior can be enabled
+  by setting the copyXML attribute of the Host element to true.
+
+--------
+
+* The roles required to use the Manager application were changed from the single manager
+  role to manager-gui, manager-script, manager-jmx, and manager-status roles. You will need to
+  assign the role(s) required for the functionality you wish to access.
+
+--------
+
+  The manager role will be updated to manager-gui by postupgrade script automatically, but
+  this may require further update if you use the manager-script, etc roles.
+
+--------
+
+* The roles required to use the Host Manager application were changed from the single admin
+  role to the admin-gui and admin-script roles. You will need to assign the role(s) required
+  for the functionality you wish to access.
+
+--------
+
+  The admin role will be updated to admin-gui by postupgrade script automatically, but
+  this may require further update if you use the admin-script role.
+
+--------
+
+* randomClass attribute of Manager has changed to secureRandomClass and the provided class
+  must extend java.secure.SecureRandom.
+  This will be corrected by postupgrade script automatically.
+
+--------
+
+  There is a known issue with SecureRandom having long initialization times. If this is
+  experienced, you can use the following system property:
+  "-Djava.security.egd=file:/dev/./urandom".
+
+--------
+
+* The algorithm and entropy attributes have been removed.
+  This will be corrected by postupgrade script automatically.
+
+--------
+
+* The emptySessionPath attribute has been removed.
+  This will be corrected by postupgrade script automatically.
+
+--------
+
+* The disableURLRewriting attribute has been removed.
+  This will be corrected by postupgrade script automatically.
+
+--------
+
+* The tomcat package from EPEL is installed and conflicts with the upgrade.
+  This will need to be removed prior to the to upgrade.
+
