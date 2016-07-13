@@ -67,7 +67,7 @@ if grep -qiw CUPS <(echo "$BROWSEREMOTEPROTOCOLS"); then
 fi
 
 if [ "$SEND_BROWSE$RECV_BROWSE" == "00" ]; then
-    log_none_risk "The CUPS Browsing protocol is not in use, and no CUPS Browsing configuration directives are set."
+    log_info "The CUPS Browsing protocol is not in use, and no CUPS Browsing configuration directives are set."
     exit $RESULT
 fi
 

@@ -44,5 +44,5 @@ fi
 echo "KRB5KDC_ARGS=\"$KRB5KDC_ARGS\"" >> "$TARGET_DIR/krb5kdc"
 
 # log risk and exit
-log_none_risk "The config file /etc/sysconfig/krb5kdc has been converted for use in Red Hat Enterprise Linux 7."
+log_info "The config file /etc/sysconfig/krb5kdc has been converted for use in Red Hat Enterprise Linux 7."
 exit "$RESULT_FIXED"
