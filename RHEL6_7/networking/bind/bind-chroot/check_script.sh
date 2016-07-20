@@ -4,6 +4,27 @@
 . /usr/share/preupgrade/common.sh
 #END GENERATED SECTION
 
+chroot_dir=$(grep "^ROOTDIR" /etc/sysconfig/named | awk -F'=' '!/^($|[[:space:]]*#)/{print $2}')
+
+if grep -wq "^ROOTDIR" /etc/sysconfig/named  && [[ -d "$chroot_dir" ]];then
+    cp --parents -ar  /etc/sysconfig/named  $VALUE_TMP_PREUPGRADE/dirtyconf
+    declare -a bind_chroot_configs=( "$chroot_dir"/etc/rndc.key /etc/rndc.conf "$chroot_dir"/etc/named.conf )
+    for file in /var/named/chroot/var/named/db.*;do
+        if [[ -e "$file" ]];then
+          bind_chroot_configs+=( "$chroot_dir"/var/named/db.* )
+        fi
+        break
+    done
+    printf '%s\n' ${bind_chroot_configs[@]} | while IFS= read -r config
+    do
+        if [[ -e "$config"  ]];then
+        cp --parents -ar "$config" $VALUE_TMP_PREUPGRADE/cleanconf/
+        fi
+    done
+    echo "Your bind-chroot setup configuration files have been backed up" >> $SOLUTION_FILE
+fi
+
+
 log_slight_risk "bind-chroot package has been detected"
 
 #We need to make sure that admin reviews the solution.txt
