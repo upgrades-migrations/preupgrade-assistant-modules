@@ -16,6 +16,7 @@ cp -a "selinux-preup-script.sh" ${PRE_UPGRADE_DIR} || exit ${RESULT_ERROR}
 
 # install selinux-sandbox rules if selinux policies are installed
 cp -a ./postupgrade.d/00-selinux-sandbox.sh ${TARGET_DIR} || exit ${RESULT_ERROR}
+cp -a ./postupgrade.d/01-selinux-autorelabel.sh ${TARGET_DIR} || exit ${RESULT_ERROR}
 
 if [[ $(selinuxenabled) -eq 0 ]] ; then
     log_high_risk "There were changes in SELinux policies between RHEL 6 and RHEL 7. Please, check solution in order to resolve this issue."
