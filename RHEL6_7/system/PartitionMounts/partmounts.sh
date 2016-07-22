@@ -3,6 +3,7 @@
 . /usr/share/preupgrade/common.sh
 #END GENERATED SECTION
 
+export LVM_SUPPRESS_FD_WARNINGS=1
 cp /proc/partitions $VALUE_TMP_PREUPGRADE/kickstart/
 cp /etc/fstab $VALUE_TMP_PREUPGRADE/kickstart/
 lsblk -r --noheadings > $VALUE_TMP_PREUPGRADE/kickstart/lsblk_list
@@ -16,6 +17,6 @@ echo " * lsblk_list - generated list of block devices by lsblk --list" >>"$KICKS
 echo " * pvs_list - generated list of physical volumes by pvs command " >>"$KICKSTART_README"
 echo " * vgs_list - generated list of volume groups by vgs command " >>"$KICKSTART_README"
 
-grep [[:space:]]ext4[[:space:]] /etc/fstab >/dev/null && exit $RESULT_INFORMATIONAL
+grep "[[:space:]]ext4[[:space:]]" /etc/fstab >/dev/null && exit $RESULT_INFORMATIONAL
 
 exit $RESULT_PASS
