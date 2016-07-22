@@ -274,7 +274,7 @@ echo "In the file below is stored the difference between this system configurati
 and the default httpd 2.2 configuration: [link:${PWD#$VALUE_TMP_PREUPGRADE/}default_diff.diff]" >> $SOLUTION_FILE
 echo >> $SOLUTION_FILE
 
-diff -u httpd.conf $CONFIG_FILE >> "${PWD}/default_diff.diff"
+diff -u $CONFIG_FILE httpd.conf >> "${PWD}/default_diff.diff"
 
 mkdir -p $POSTUPGRADE_DIR # it should be irrelevant but to be sure
 cp -R postupgrade.d/* $POSTUPGRADE_DIR
