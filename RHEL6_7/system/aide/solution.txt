@@ -1,4 +1,3 @@
-Aide tool is used for 'guarding' system integrity.
-After an upgrade run command:
+After the upgrade run a command:
 
 aide --update
