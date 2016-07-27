@@ -9,9 +9,9 @@ FOUND=0
 
 # Aide installed but never run
 if [[ ! -f $AIDE_LOG ]]; then
-    log_info "Aide was installed but never run."
+    log_info "AIDE was installed but never run."
     exit $RESULT_INFORMATIONAL
 fi
 
-log_medium_risk "Aide tool is used for 'guarding' system integrity."
+log_medium_risk "AIDE is being used for 'guarding' the system integrity."
 exit $RESULT_FAIL

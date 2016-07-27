@@ -16,7 +16,7 @@ for py_dir in `find -P /usr/lib*/python*/site-packages/* -maxdepth 0 -type d`
 do
     RPM=`rpm -qf $py_dir`
     if [ $? -ne 0 ]; then
-        log_slight_risk "$py_dir is not owned by any RPM package."
+        log_slight_risk "$py_dir is not owned by an RPM package."
         FOUND=1
         continue
     fi

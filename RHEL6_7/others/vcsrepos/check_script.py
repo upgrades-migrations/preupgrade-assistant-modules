@@ -83,8 +83,8 @@ def cvs_repository(path, suffix):
 
 def main():
     if os.geteuid() != 0:
-        sys.stdout.write("Need to be root.\n")
-        log_slight_risk("The script needs to be run under root account")
+        sys.stdout.write("Needs to be root.\n")
+        log_slight_risk("The script needs to be run under the root account")
         exit_error()
     messages = {'/.git': "GIT", '/.svn': "SUBVERSION", '/.bzr': "BAZAAR", '/CVS': "CVS"}
     fnc_dict = {'/.git': git_repository,
