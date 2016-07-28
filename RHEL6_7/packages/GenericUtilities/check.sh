@@ -43,13 +43,12 @@ ALL_AFFECTED_PKGS=$( comm -1 -2 \
 
 [ -n "$ALL_AFFECTED_PKGS" ] || exit $RESULT_PASS # improbable situation
 
-echo "Some utilities were removed, moved between packages of change path.
-Please, check your scripts for possible problems. Below are appended brief lists.
-If you want see details, please look at another contents.
+echo "Some utilities were replaced, removed, moved between packages or their path changed.
+Please, check your scripts for possible problems. 
 
-Lists don't contain utilities from removed packages, which are not replaced
-by another packages. Likewise don't contain utilities which are moved into
-packages which replace or obsolete original packages." >> solution.txt
+The list below does not contain utilities from removed packages, which were not replaced
+by other packages or utilities which were moved into
+packages replacing obsolete original packages." >> solution.txt
 
 declare -a arr_rm arr_repl arr_mv arr_ch arr_mvch
 for pkg in $ALL_AFFECTED_PKGS; do
@@ -81,26 +80,26 @@ done
   }
 
   [ ${#arr_rm[@]} -ne 0 ] && {
-    echo -e "\nRemoved utilities (some removed utilities have still alternative):"
+    echo -e "\nRemoved utilities (some of them still have an alternative):"
     printf -- "%s\n" "${arr_rm[@]}"
   }
 
   [ ${#arr_mv[@]} -ne 0 ] && {
-    echo -e "\nUtilities moved between packages (with same location):"
+    echo -e "\nUtilities moved between packages (with the same location):"
     printf -- "%s\n" "${arr_mv[@]}"
   }
 
   [ ${#arr_ch[@]} -ne 0 ] && {
-    echo -e "\nUtilities which change original location (unchanged package):"
+    echo -e "\nUtilities which changed their original location (the package remained unchanged):"
     printf -- "%s\n" "${arr_ch[@]}"
   }
 
   [ ${#arr_mvch[@]} -ne 0 ] && {
-    echo -e "\nUtilities which change original package and location:"
+    echo -e "\nUtilities which changed their original package and location:"
     printf -- "%s\n" "${arr_mvch[@]}"
   }
 } >> solution.txt
 
-log_slight_risk "Some utilities were removed, moved between packages or change path."
+log_slight_risk "Some utilities were replaced, removed, moved between packages or their location changed."
 exit $RESULT_FAIL # probably always will be failed
 

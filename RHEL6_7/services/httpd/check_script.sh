@@ -44,7 +44,7 @@ ret=$RESULT_INFORMATIONAL
 check_base_modules() {
     echo "\
 * httpd.conf loads modules which are loaded in conf.modules.d/*conf
-  in new httpd version. Following modules will be therefore removed from
+  in the new httpd version. Therefore, the following modules will be removed from
   httpd.conf:
 " >> $SOLUTION_FILE
     while read line
@@ -64,7 +64,7 @@ check_base_modules() {
     do
         grep -qi "^[ \t]*LoadModule.*$line" $CONFIG_FILE
         if [ $? -eq 0 ]; then
-            echo "    $line" | tr -d '\' >> $SOLUTION_FILE
+            echo "    $line" >> $SOLUTION_FILE
         fi
     done <removed_modules
     echo >> $SOLUTION_FILE
@@ -73,8 +73,8 @@ check_base_modules() {
     grep -qi "^[ \t]*LDAP.*\|^[ \t]*AuthLDAP.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
-* mod_ldap has been moved to separate package called \"mod_ldap\" and will be installed
-  by postupgrade script automatically.
+* mod_ldap has been moved to a separate package called \"mod_ldap\" and will be installed
+  by the postupgrade script automatically.
 " >> $SOLUTION_FILE
         echo "mod_ldap_flag=1" >> "$TMP_FLAG_FILE"
     fi
@@ -83,7 +83,7 @@ check_base_modules() {
     grep -qi "^[ \t]*CheckSpelling" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
     echo "\
-* mod_speling is used, but it is not enabled by default in new version of httpd.
+* mod_speling is used, but it is not enabled by default in the new version of httpd.
   This module will be enabled.
 " >> $SOLUTION_FILE
     fi
@@ -92,7 +92,7 @@ check_base_modules() {
     grep -qi "^[ \t]*Cookie.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
-* mod_usertrack is used, but it is not enabled by default in new version of httpd.
+* mod_usertrack is used, but it is not enabled by default in the new version of httpd.
   This module will be enabled.
 " >> $SOLUTION_FILE
     fi
@@ -118,8 +118,8 @@ if [ $? -eq 0 ]; then
     echo "\
 * httpd config files contain deprecated Access control directives Order, Allow,
   Deny, and Satisfy. The old access control idioms should be replaced
-  by the new authentication mechanisms, although for compatibility with old
-  configurations, the new module mod_access_compat is provided and loaded by
+  by new authentication mechanisms, although for the sake of compatibility with the old
+  configurations, a new module mod_access_compat is provided and loaded by
   default.
 " >> $SOLUTION_FILE
 fi
@@ -129,14 +129,14 @@ if [ $? -eq 0 ]; then
     grep -qi "^[ \t]*Perl.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
-* mod_perl is no longer provided in RHEL7 and it is enabled in httpd
-  configuration. Reconfigure httpd manually to not use mod_perl.
+* mod_perl is no longer provided in Red Hat Enterprise Linux 7 and it is enabled in the httpd
+  configuration. Reconfigure httpd manually so that it does not use mod_perl.
 " >> $SOLUTION_FILE
         ret=$RESULT_FAIL
     else
         echo "\
-* mod_perl is no longer provided in RHEL7. It is loaded in httpd
-  configuration but it seems it is not used. This module will be unloaded
+* mod_perl is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
+  configuration but it does not seem to be used. This module will be unloaded
   automatically.
 " >> $SOLUTION_FILE
     fi
@@ -147,13 +147,13 @@ if [ $? -eq 0 ]; then
     grep -qi "^[ \t]*DNSSDEnable" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
-* mod_dnssd is no longer provided in RHEL7 and it is enabled in httpd
-  configuration. Reconfigure httpd manually to not use mod_dnssd.
+* mod_dnssd is no longer provided in Red Hat Enterprise Linux 7 and it is enabled in the httpd
+  configuration. Reconfigure httpd manually so that it does not use mod_dnssd.
 " >> $SOLUTION_FILE
         ret=$RESULT_FAIL
     else
         echo "\
-* mod_dnssd is no longer provided in RHEL7. It is loaded in httpd
+* mod_dnssd is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
   configuration but not enabled. This module will be unloaded automatically.
 " >> $SOLUTION_FILE
     fi
@@ -164,15 +164,15 @@ if [ $? -eq 0 ]; then
     grep -qi "^[ \t]*Auth_PG.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
-* mod_auth_pgsql is no longer provided in RHEL7 and it is enabled in httpd
-  configuration. Reconfigure httpd manually to not use mod_auth_pgsql and use
+* mod_auth_pgsql is no longer provided in Red Hat Enterprise Linux 7 and it is enabled in the httpd
+  configuration. Reconfigure httpd manually so that it does not use mod_auth_pgsql and uses
   mod_dbd instead.
 " >> $SOLUTION_FILE
         ret=$RESULT_FAIL
     else
         echo "\
-* mod_auth_pgsql is no longer provided in RHEL7. It is loaded in httpd
-  configuration but it seems it is not used. This module will be unloaded
+* mod_auth_pgsql is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
+  configuration but it does not seem to be used. This module will be unloaded
   automatically.
 " >> $SOLUTION_FILE
     fi
@@ -183,15 +183,15 @@ if [ $? -eq 0 ]; then
     grep -qi "^[ \t]*AuthMySQL.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
-* mod_auth_mysql is no longer provided in RHEL7 and it is enabled in httpd
-  configuration. Reconfigure httpd manually to not use mod_auth_mysql and use
+* mod_auth_mysql is no longer provided in Red Hat Enterprise Linux 7 and it is enabled in the httpd
+  configuration. Reconfigure httpd manually so that it does not use mod_auth_mysql and uses
   mod_dbd instead.
 " >> $SOLUTION_FILE
         ret=$RESULT_FAIL
     else
         echo "\
-* mod_auth_mysql is no longer provided in RHEL7. It is loaded in httpd
-  configuration but it seems it is not used. This module will be unloaded
+* mod_auth_mysql is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
+  configuration but it does not seem to be used. This module will be unloaded
   automatically.
 " >> $SOLUTION_FILE
     fi
@@ -200,8 +200,8 @@ fi
 grep -qi "Authz\(LDAP\|DBD\|DBM\|GroupFile\|User\|Owner\)Authoritative" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
-* Directives that control how authorization modules respond when they don't
-  match the authenticated user have been removed: This includes
+* Directives that control how authorization modules respond when they do not
+  match the authenticated user have been removed. This includes
   AuthzLDAPAuthoritative, AuthzDBDAuthoritative, AuthzDBMAuthoritative,
   AuthzGroupFileAuthoritative, AuthzUserAuthoritative,
   and AuthzOwnerAuthoritative. These directives have been replaced by the more
@@ -214,7 +214,7 @@ grep -qi "CookieLog" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
 * Deprecated CookieLog directive has been removed. There is no direct
-  replacement for this directive in new httpd version.
+  replacement for this directive in the new httpd version.
   Consider using CustomLog or LogFormat described at
   <http://httpd.apache.org/docs/2.4/mod/mod_log_config.html>.
 " >> $SOLUTION_FILE
@@ -224,23 +224,23 @@ fi
 grep -qi "^[ \t]*HTTPD=.*worker.*" /etc/sysconfig/httpd
 if [ $? -eq 0 ]; then
     echo "\
-* httpd.worker is used. In new httpd version, MPM is set using modules.
-  mpm_worker module will be loaded automatically.
+* httpd.worker is used. In the new httpd version, MPM is set using modules.
+  The mpm_worker module will be loaded automatically.
 " >> $SOLUTION_FILE
 fi
 
 grep -qi "^[ \t]*HTTPD=.*event.*" /etc/sysconfig/httpd
 if [ $? -eq 0 ]; then
     echo "\
-* httpd.event is used. In new httpd version, MPM is set using modules.
-  mpm_event module will be loaded automatically.
+* httpd.event is used. In the new httpd version, MPM is set using modules.
+  The mpm_event module will be loaded automatically.
 " >> $SOLUTION_FILE
 fi
 
 grep -qi "^[ \t]*SSLMutex default" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
-* \"SSLMutex default\" is not needed in httpd-2.4 and will be removed
+* \"SSLMutex default\" is not needed in httpd 2.4 and will be removed
   automatically.
 " >> $SOLUTION_FILE
 fi
@@ -248,7 +248,7 @@ fi
 grep -qi "^[ \t]*SSLPassPhraseDialog[ \t]*builtin" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
-* \"SSLPassPhraseDialog builtin\" should not be used in httpd-2.4 because of
+* \"SSLPassPhraseDialog builtin\" should not be used in httpd 2.4 because of the
   systemd integration.
   \"SSLPassPhraseDialog exec:/usr/libexec/httpd-ssl-pass-dialog\" will be used
   instead automatically.
@@ -259,7 +259,7 @@ grep -qi "^[ \t]*SSLSessionCache[ \t]*shmcb:/var/cache/mod_ssl/scache" $CONFIG_F
 if [ $? -eq 0 ]; then
     echo "\
 * \"SSLSessionCache shmcb:/var/cache/mod_ssl/scache(512000)\" should not be used
-  in httpd-2.4 because of directory change.
+  in httpd-2.4 because of the directory change.
   \"SSLSessionCache shmcb:/run/httpd/sslcache(512000)\" will be used instead
   automatically.
 " >> $SOLUTION_FILE
@@ -270,11 +270,11 @@ if [ $ret -ne $RESULT_PASS ]; then
 fi
 
 echo >> $SOLUTION_FILE
-echo "In the file below is stored the difference between this system configuration of httpd
-and the default httpd 2.2 configuration: [link:${PWD#$VALUE_TMP_PREUPGRADE/}default_diff.diff]" >> $SOLUTION_FILE
+echo "The difference between this system configuration of httpd
+and the default httpd 2.2 configuration is stored in this file: [link:${PWD#$VALUE_TMP_PREUPGRADE/}default_diff.diff]" >> $SOLUTION_FILE
 echo >> $SOLUTION_FILE
 
-diff -u $CONFIG_FILE httpd.conf >> "${PWD}/default_diff.diff"
+diff -u httpd.conf $CONFIG_FILE >> $SOLUTION_FILE
 
 mkdir -p $POSTUPGRADE_DIR # it should be irrelevant but to be sure
 cp -R postupgrade.d/* $POSTUPGRADE_DIR
@@ -284,14 +284,14 @@ chmod +x $POSTUPGRADE_DIR/httpd.sh
 grep -q "mod_ldap_flag=1" "$TMP_FLAG_FILE" # yes, that's not nice solution
 [ $?  -eq 0 ] &&  echo "
 
-# install mod_ldap (was split to own package on RHEL-7 system)
-# and it's used on the original system
+# install mod_ldap (was split to own package on the Red Hat Enterprise Linux 7 system)
+# and it is used on the original system
 yum install -y mod_ldap || {
   prep_source_right && \
     yum install -y mod_ldap
 }
 [ \$? -eq 0 ] || {
-  echo \"Package 'mod_ldap' wasn't installed. Please install it manually.\" >&2
+  echo \"The 'mod_ldap' package was not installed and you must install it manually.\" >&2
 }
 
 " >> "$POSTUPGRADE_DIR/httpd.sh"

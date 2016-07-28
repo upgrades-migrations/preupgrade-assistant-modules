@@ -20,13 +20,13 @@ founderror=1
 founderror=0
 rm solution.txt
 echo \
-"Packages may create system accounts with static ids based on the reservation
-in /usr/share/doc/setup-*/uidgid file. If you have some violations against the
-uidgid file reservation, applications might not work properly or it may cause
-some unexpected behaviour. As the reservations between releases of Red Hat
+"The packages may create system accounts with static IDs based on the reservation
+in the /usr/share/doc/setup-*/uidgid file. If you have any violations against the
+uidgid file reservation, the applications might not work properly or they might cause
+some unexpected behaviour. As the reservations between different releases of Red Hat
 Enterprise Linux might differ, please check carefully findings bellow.
 
-Especially cases when id reserved by some application is used by different
+Especially cases when an ID reserved by an application is used by different
 account are really important. Using different account then reserved might
 cause interoperability issues.
 
@@ -62,10 +62,10 @@ if [ -n "$nameline" ];
 then
 #check uid
 [ -n "$myuid" ] && ([ x`echo $nameline | cut -d':' -f3` == x"$myuid" ] || \
- write_file "Invalid uid used for $myname account - now `echo $nameline | cut -d':' -f3`, should be $myuid". "This may cause troubles when exact static user id is expected by some application.")
+ write_file "Invalid UID used for $myname account - now `echo $nameline | cut -d':' -f3`, should be $myuid". "This may cause troubles when exact static user id is expected by some application.")
 #check gid
 [ -n "$mygid" ] && ([ x`echo $nameline | cut -d':' -f4` == x"$mygid" ] || \
- write_file "Invalid gid used for $myname account - now `echo $nameline | cut -d':' -f4`, should be $mygid". "This may cause troubles when exact static user id is expected by some application.")
+ write_file "Invalid GID used for $myname account - now `echo $nameline | cut -d':' -f4`, should be $mygid". "This may cause troubles when exact static user id is expected by some application.")
 #check homedir (FIXME: Should we warn about this in preupgrade?)
 [ -n "$myhome" ] && ([ x`echo $nameline | cut -d':' -f6` == x"$myhome" ] || \
  log_info setup "Incorrect homedir used for $myname account - now `echo $nameline | cut -d':' -f6`, should be $myhome based on reservation data")
@@ -98,9 +98,9 @@ values are hard-coded in the application.
 #no issues found, so remake solution text
 rm solution.txt
 echo \
-"Packages may create system accounts with static ids based on the reservation
-in /usr/share/doc/setup-*/uidgid file. If you have some violations against the
-uidgid file reservation, applications might not work properly or it may cause
+"The packages may create system accounts with static IDs based on the reservation
+in the /usr/share/doc/setup-*/uidgid file. If you have any violations against the
+uidgid file reservation, the applications might not work properly or they might cause
 some unexpected behavior. In your case, no important divergence from the
 reservations was found. Even the smaller findings - like different login
 shells and application home directories - may be worth to check - you can
