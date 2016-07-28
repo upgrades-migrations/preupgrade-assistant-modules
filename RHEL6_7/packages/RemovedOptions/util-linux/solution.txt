@@ -1,10 +1,10 @@
-Some options were removed or deprecated from util-linux-ng (on RHEL 7
-is renamed back to util-linux) package binaries between RHEL 6 and RHEL 7.
-This may break functionality of some of your scripts. All option removals
-with solutions are listed bellow.
+Some options were removed or deprecated from util-linux-ng (on Red Hat Enterprise Linux 7 it
+is renamed back to util-linux) package binaries between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7.
+This may break the functionality of some of your scripts. All option removals
+with the solutions are listed bellow.
 
 blkid:
-    -w - options is deprecated (undocumented on RHEL7)
+    -w - option is deprecated (undocumented on Red Hat Enterprise Linux 7)
 
 fallocate:
     --lenght - replaced by --length
@@ -16,7 +16,7 @@ losetup:
     -s - short option removed, available only --show
 
 mount:
-    -p, --pass-fd - options are deprecated (undcummented on RHEL7)
+    -p, --pass-fd - options are deprecated (undocumented on Red Hat Enterprise Linux 7)
 
 partx:
     --gpt - undocumented and removed
@@ -27,6 +27,6 @@ readprofile:
 sfdisk:
     -? - replaced by -h
 
-blkid,fsck,hexdump,hwclock,mkfs,mount,renice:
+blkid, fsck, hexdump, hwclock, mkfs, mount, renice:
     -v is deprecated and replaced by -V
     (print version)

@@ -1,3 +1,3 @@
-Option "-K" was removed from grep, egrep and fgrep utilities on RHEL 7 system.
-This option wasn't docummented before on RHEL 6.
+Option "-K" was removed from grep, egrep and fgrep utilities on Red Hat Enterprise Linux 7 system.
+This option was not documented before on Red Hat Enterprise Linux 6.
 
