@@ -15,7 +15,7 @@ if [[ -f "/boot/grub/$FILE_NAME" ]]; then
     POST_SCRIPT="postupgrade.d/$SCRIPT_NAME"
     cp -f $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
     cp -f /boot/grub/$FILE_NAME $POSTUPGRADE_DIR/$FILE_NAME
-    log_slight_risk "File $FILE_NAME was backuped for inplace upgrade case and editing grub options"
+    log_slight_risk "The $FILE_NAME file was backed up for the upgrade which enables you to edit GRUB options."
     exit_fail
 fi
 

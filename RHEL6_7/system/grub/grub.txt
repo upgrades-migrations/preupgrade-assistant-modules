@@ -1,6 +1,6 @@
-Grub package is used as loader of linux system.
+The GRUB package is used as a loader of the Linux system.
 
-Preupgrade assistant will backup file /boot/grub/splash.xpm.gz
-and restore restore them after inplace upgrade to /boot/grub directory.
+The Preupgrade Assistant will back up the /boot/grub/splash.xpm.gz file 
+and restore it after the upgrade to the /boot/grub directory.
 
-Modification of boot parameters is not possible without that file.
+The file splash.xpm.gz allows you to modify boot parameters during the booting.
