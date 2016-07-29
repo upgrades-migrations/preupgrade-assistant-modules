@@ -8,29 +8,6 @@ import re
 from preup.script_api import *
 
 
-
-
-
-set_component("samba")
-"""Preupgrade assistant performs system upgradability assessment
-and gathers information required for successful operating system upgrade.
-Copyright (C) 2013 Red Hat Inc.
-Frantisek Kluknavsky <fkluknav@redhat.com>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>."""
-check_applies_to (check_applies="samba")
-set_component("samba")
 #END GENERATED SECTION
 # exit functions are exit_{pass,not_applicable, fixed, fail, etc.}
 # logging functions are log_{error, warning, info, etc.}
