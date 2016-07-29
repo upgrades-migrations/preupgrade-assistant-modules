@@ -51,7 +51,7 @@ check_base_modules() {
     do
         grep -qi "^[ \t]*LoadModule.*$line" $CONFIG_FILE
         if [ $? -eq 0 ]; then
-            echo "    $line" | tr -d '\' >> $SOLUTION_FILE
+            echo "    $line" | tr -d '\\' >> $SOLUTION_FILE
         fi
     done <default_modules
     echo >> $SOLUTION_FILE
@@ -64,7 +64,7 @@ check_base_modules() {
     do
         grep -qi "^[ \t]*LoadModule.*$line" $CONFIG_FILE
         if [ $? -eq 0 ]; then
-            echo "    $line" >> $SOLUTION_FILE
+            echo "    $line" | tr -d '\\' >> $SOLUTION_FILE
         fi
     done <removed_modules
     echo >> $SOLUTION_FILE
@@ -271,10 +271,10 @@ fi
 
 echo >> $SOLUTION_FILE
 echo "The difference between this system configuration of httpd
-and the default httpd 2.2 configuration is stored in this file: [link:${PWD#$VALUE_TMP_PREUPGRADE/}default_diff.diff]" >> $SOLUTION_FILE
+and the default httpd 2.2 configuration is stored in this file: [link:${PWD#$VALUE_TMP_PREUPGRADE/}/default_diff.diff]" >> $SOLUTION_FILE
 echo >> $SOLUTION_FILE
 
-diff -u httpd.conf $CONFIG_FILE >> $SOLUTION_FILE
+diff -u httpd.conf $CONFIG_FILE > default_diff.diff
 
 mkdir -p $POSTUPGRADE_DIR # it should be irrelevant but to be sure
 cp -R postupgrade.d/* $POSTUPGRADE_DIR
