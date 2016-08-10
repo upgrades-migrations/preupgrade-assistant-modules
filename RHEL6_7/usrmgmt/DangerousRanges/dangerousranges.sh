@@ -19,53 +19,53 @@ The following problems were found on your system:
 " >solution.txt
 
 # Check for invalid range user ids
-for i in `cat $VALUE_PASSWD | cut -d':' -f1-4`
-do
+#for i in `cat $VALUE_PASSWD | cut -d':' -f1-4`
+while read -r i ; do
   # Is id greater than 999? Nothing to do
-  [ `echo $i | cut -d':' -f3` -gt 999 ] && continue
+  [ `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` -gt 999 ] && continue
 
   myname=`echo $i | cut -d':' -f1`
   # RHEL 6 uid user range 500-999 - we need to keep RHEL 6 defaults
-  if [ `echo $i | cut -d':' -f3` -gt 499 ]
+  if [ `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` -gt 499 ]
   then
   logindefs=1
   continue
   fi
 
   # Reserved system user ID range use
-  if [ `echo $i | cut -d':' -f3` -lt 200 ]
+  if [ `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` -lt 200 ]
   then
     grep " $myname " systemids >/dev/null 2>/dev/null && continue
-    echo " System account \"$myname\" uses ID `echo $i | cut -d':' -f3` without reservation - usage is prohibited and may cause migration issues!" >>solution.txt
-    log_slight_risk "System account \"$myname\" uses ID `echo $i | cut -d':' -f3` without reservation - usage is prohibited and may cause migration issues!"
+    echo " System account \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation - usage is prohibited and may cause migration issues!" >>solution.txt
+    log_slight_risk "System account \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation - usage is prohibited and may cause migration issues!"
     founderror=1
   fi
-done
+done < "$VALUE_PASSWD"
 
 [ $founderror -eq 1 ] && echo >>solution.txt
 # Check for invalid range group ids
-for i in `cat $VALUE_GROUP | cut -d':' -f1-4`
-do
+#for i in `cat $VALUE_GROUP | cut -d':' -f1-4`
+while read -r i ; do
   # Is id greater than 999? Nothing to do
-  [ `echo $i | cut -d':' -f3` -gt 999 ] && continue
+  [ `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` -gt 999 ] && continue
 
   myname=`echo $i | cut -d':' -f1`
   # rhel-6 gid user range 500-999 - we need to keep the RHEL 6 defaults
-  if [ `echo $i | cut -d':' -f3` -gt 499 ]
+  if [ `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` -gt 499 ]
   then
   logindefs=1
   continue
   fi
 
   # Reserved system group ID range use
-  if [ `echo $i | cut -d':' -f3` -lt 200 ]
+  if [ `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` -lt 200 ]
   then
     grep " $myname " systemids >/dev/null 2>/dev/null && continue
-    echo " System group \"$myname\" uses ID `echo $i | cut -d':' -f3` without reservation - this ID is prohibited from use and may cause migration issues!" >>solution.txt
-    log_slight_risk "System group \"$myname\" uses ID `echo $i | cut -d':' -f3` without reservation - this ID is prohibited from use and may cause migration issues!"
+    echo " System group \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation - this ID is prohibited from use and may cause migration issues!" >>solution.txt
+    log_slight_risk "System group \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation - this ID is prohibited from use and may cause migration issues!"
     founderror=1
   fi
-done
+done < "$VALUE_GROUP"
 
 [ $logindefs -eq 1 ] &&
 echo \
