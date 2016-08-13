@@ -17,7 +17,7 @@ def open_file(filename):
     try:
         f = open(filename, "r")
         try:
-            line = f.readlines()
+            line = f.read().splitlines()
         except IOError:
             raise
     except IOError:
@@ -25,6 +25,15 @@ def open_file(filename):
     else:
         f.close()
     return line
+
+# just for now because previous version didn't work correctly
+# and the module will be rewritten completely
+try:
+    preset = open_file(PRESET_FILE)
+except IOError:
+    print "ERROR: Unable to open default preset file. Services will not be handled."
+    print "       Please set required services as you need manually."
+    sys.exit(1)
 
 
 def run_subprocess(cmd):
@@ -89,12 +98,6 @@ def enable_services():
         print "Unable to open enabled services"
         sys.exit(1)
 
-    try:
-        preset = open_file(PRESET_FILE)
-    except IOError:
-        print "Unable to open enabled services"
-        sys.exit(1)
-
     enabled_services = determine_services(services)
 
     for service in enabled_services:
@@ -107,7 +110,7 @@ def disable_services():
     try:
         services = open_file(DISABLED_SERVICES)
     except IOError:
-        print "Unable to open enabled services"
+        print "Unable to open disabled services"
         return
 
     disabled_services = determine_services(services)
