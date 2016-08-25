@@ -31,7 +31,7 @@ package redhat-release and then run preupg again. Use the command:
 
 # yum install redhat-release && preupg
 "
-UNSUPPORTED_VARIANT_MSG="Only the upgrade of Red Hat Enterprise Linux Server or Compute Node
+UNSUPPORTED_VARIANT_MSG="Only the upgrade of Red Hat Enterprise Linux Server or ComputeNode
 variant is supported at the moment. The upgrade of Workstation and Client variants
 is not supported."
 
@@ -48,9 +48,9 @@ fi
 
 check_variant_release() {
   [ $UPGRADE -eq 1 ] && {
-    grep -qE "Red Hat Enterprise Linux (Server|Compute Node)" "/etc/redhat-release" || {
+    grep -qE "Red Hat Enterprise Linux (Server|ComputeNode)" "/etc/redhat-release" || {
       $local_log_risk "This system is $(cat /etc/redhat-release)."
-      $local_log_risk "Only the upgrade of the latest version of Red Hat Enterprise Linux 6 Server or Compute Node is supported."
+      $local_log_risk "Only the upgrade of the latest version of Red Hat Enterprise Linux 6 Server or ComputeNode is supported."
       echo "$UNSUPPORTED_VARIANT_MSG" >> solution.txt
       exit $RESULT_FAIL
     }
@@ -75,7 +75,7 @@ get_variant_by_yum() {
     found_variant="$(echo "$line" | awk -F '[ .-]' '{ print $3 }')"
     case "$found_variant" in
       "computenode")
-        echo "Compute Node"
+        echo "ComputeNode"
         ;;
       "server")
         echo "Server"
@@ -108,7 +108,7 @@ else
 
   echo $VARIANT | grep -qE "Server|ComputeNode" || {
     $local_log_risk "This system is Red Hat Enterprise Linux $Variant 6"
-    $local_log_risk "Only the upgrade of the latest version of Red Hat Enterprise Linux 6 Server or Compute Node is supported."
+    $local_log_risk "Only the upgrade of the latest version of Red Hat Enterprise Linux 6 Server or ComputeNode is supported."
     echo "$UNSUPPORTED_VARIANT_MSG" >> solution.txt
     exit $RESULT_FAIL
   }
