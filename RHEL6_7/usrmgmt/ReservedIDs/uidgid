@@ -37,7 +37,7 @@ nscd|28|28|/|/bin/false|nscd
 rpcuser|29|29|/var/lib/nfs|/bin/false|nfs-utils
 console||31|||dev
 rpc|32|32|/|/bin/false|portmap
-amandabackup|33|(6)|/var/lib/amanda|/bin/false|amanda
+amandabackup|33|6|/var/lib/amanda|/bin/false|amanda
 tape||33|||setup
 netdump|34|34|/var/crash|/bin/bash|netdump-client, netdump-server
 utempter||35|||libutempter
@@ -70,7 +70,7 @@ prelude-manager|61|61||/sbin/nologin|prelude-manager
 snortd|62|62||/sbin/nologin|snortd
 audio||63|||setup
 condor|64|64|/var/lib/condor|/sbin/nologin|condord
-nslcd|65|(55)|/|/sbin/nologin|nslcd
+nslcd|65|55|/|/sbin/nologin|nslcd
 wine||66|||wine
 pegasus|66|65|/var/lib/Pegasus|/sbin/nologin|tog-pegasus
 webalizer|67|67|/var/www/html/usage|/sbin/nologin|webalizer

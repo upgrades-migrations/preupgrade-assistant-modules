@@ -93,7 +93,7 @@ contribute to some hard to analyze failures in the case that the system id
 values are hard-coded in the application.
 " >> solution.txt
 
-[ $founderror -eq 1 ] && exit $RESULT_FAIL
+[ $founderror -eq 1 ] && log_medium_risk "Reserved user and group IDs by setup package changed between the RHEL 6 and RHEL 7"; exit $RESULT_FAIL
 
 #no issues found, so remake solution text
 rm solution.txt
