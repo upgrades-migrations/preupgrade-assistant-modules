@@ -142,5 +142,5 @@ EOF
 
   exit_error
 fi
-
+log_high_risk "There are crucial changes between RHEL6 and RHEL7 openldap configuration. Please take steps recommended in solution text to ensure the functionality"
 exit_fail
