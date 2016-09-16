@@ -133,6 +133,7 @@ if [ $? -eq 0 ]; then
   configuration. Reconfigure httpd manually so that it does not use mod_perl.
 " >> $SOLUTION_FILE
         ret=$RESULT_FAIL
+        log_medium_risk "mod_perl is currently enabled but it is no longer provided in Red Hat Enterprise Linux 7"
     else
         echo "\
 * mod_perl is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
@@ -151,6 +152,7 @@ if [ $? -eq 0 ]; then
   configuration. Reconfigure httpd manually so that it does not use mod_dnssd.
 " >> $SOLUTION_FILE
         ret=$RESULT_FAIL
+        log_medium_risk "mod_dnssd is currently enabled but it is no longer provided in Red Hat Enterprise Linux 7"
     else
         echo "\
 * mod_dnssd is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
@@ -169,6 +171,7 @@ if [ $? -eq 0 ]; then
   mod_dbd instead.
 " >> $SOLUTION_FILE
         ret=$RESULT_FAIL
+        log_medium_risk "mod_auth_pgsql has been obsoleted by mod_dbd"
     else
         echo "\
 * mod_auth_pgsql is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
@@ -188,6 +191,7 @@ if [ $? -eq 0 ]; then
   mod_dbd instead.
 " >> $SOLUTION_FILE
         ret=$RESULT_FAIL
+        log_medium_risk "mod_auth_mysql has been obsoleted by mod_dbd"
     else
         echo "\
 * mod_auth_mysql is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
@@ -208,6 +212,8 @@ if [ $? -eq 0 ]; then
   expressive RequireAny, RequireNone, and RequireAll.
 " >> $SOLUTION_FILE
     ret=$RESULT_FAIL
+    log_medium_risk "Used authorization directives are obsolete."
+
 fi
 
 grep -qi "CookieLog" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
@@ -219,6 +225,7 @@ if [ $? -eq 0 ]; then
   <http://httpd.apache.org/docs/2.4/mod/mod_log_config.html>.
 " >> $SOLUTION_FILE
     ret=$RESULT_FAIL
+    log_medium_risk "CookieLog directive has been deprecated."
 fi
 
 grep -qi "^[ \t]*HTTPD=.*worker.*" /etc/sysconfig/httpd

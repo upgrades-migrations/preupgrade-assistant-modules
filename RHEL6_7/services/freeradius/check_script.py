@@ -23,7 +23,6 @@ def get_int(string):
             return value
         else:
             raise ValueError("cannot find integer in '%s'" % string)
-        
 
 def get_radiusd_version():
     args = [RADIUSD, '-v']
@@ -43,7 +42,6 @@ def get_radiusd_version():
         extra = match.group(4)
     else:
         raise ValueError("unable to parse FreeRADIUS version")
-    
 
     return major, minor, micro, extra
 
@@ -67,9 +65,12 @@ def main():
 
 
     if major < 3:
+        log_high_risk("The configuration of FreeRadius %d is not compatible with"
+                      " version 3 in Red Hat Enterprise Linux 7. See remediation"
+                      " description."  % (major))
         exit_fail()
 
 if __name__ == "__main__":
-	set_component(COMPONENT)
-	main()
-	exit_pass()
+    set_component(COMPONENT)
+    main()
+    exit_pass()
