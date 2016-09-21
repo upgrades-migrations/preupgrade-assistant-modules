@@ -11,6 +11,7 @@ ADD_ONS=\
 
 PART_RHEL7="92.pem|ScalableFileSystem 85.pem|LoadBalancer"
 found=0
+found_info=0
 cd /etc/pki/product
 for addon in $PART_RHEL7
 do
@@ -19,7 +20,7 @@ do
     PEM=`ls -1 *.pem`
     echo "$PEM" | grep "$PEM_NAME" > /dev/null
     if [ $? -eq 0 ]; then
-        found=1
+        found_info=1
         log_info "Content detects $NAME Add-On. No action is needed for RHEL 7."
 	continue
     fi
@@ -41,6 +42,10 @@ do
 done
 if [ $found -eq 1 ]; then
     exit_fail
+fi
+
+if [ $found_info -eq 1 ]; then
+  exit_informational
 fi
 
 exit_pass
