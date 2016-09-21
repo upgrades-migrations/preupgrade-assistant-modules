@@ -7,29 +7,10 @@
 # This check can be used if you need root privilegues
 check_root
 
-# Copy your config file from RHEL6 (in case of scenario RHEL6_7) 
+# Copy your config file from RHEL6 (in case of scenario RHEL6_7)
 # to Temporary Directory
 CONFIG_FILE="/etc/dovecot/"
 cp --parents -ar $CONFIG_FILE /root/preupgrade/dirtyconf
-
-# Now check your configuration file for options
-# and for other stuff related with configuration
-
-# If configuration can be used on target system (like RHEL7 in case of RHEL6_7)
-# the exit should be RESULT_PASS
-
-# If configuration can not be used on target system (like RHEL 7 in case of RHEL6_7)
-# scenario then result should be RESULT_FAILED. Correction of 
-# configuration file is provided either by solution script
-# or by postupgrade script located in $VALUE_TMP_PREUPGRADE/postupgrade.d/
-
-# if configuration file can be fixed then fix them in temporary directory
-# $VALUE_TMP_PREUPGRADE/$CONFIG_FILE and result should be RESULT_FIXED
-# More information about this issues should be described in solution.txt file
-# as reference to KnowledgeBase article.
-
-# postupgrade.d directory from your content is automatically copied by
-# preupgrade assistant into $VALUE_TMP_PREUPGRADE/postupgrade.d/ directory
 
 #workaround to openscap buggy missing PATH
 export PATH=$PATH:/usr/bin
@@ -66,7 +47,7 @@ fi
 
 if [ $RET = 0 ]
 then
-  cmp -s $TMPF1 $TMPF2 
+  cmp -s $TMPF1 $TMPF2
   RET=$?
   if [ "$RET" = 0 ]
   then
@@ -80,6 +61,13 @@ else
 fi
 
 log_info "Config files from $CONFIG_FILE will be fixed by postupgrade script"
+log_slight_risk "In some corner cases your configuration might not be migrated automatically but this is not usually expected."
+echo "\
+The doveconf tool should be able to migrate your configuration but there is a slight risk
+that you use some no longer supported options or plug-ins. In that case, update your configuration
+file manually on the new system.
+" > solution.txt
+
 PREF=$VALUE_TMP_PREUPGRADE/postupgrade.d/dovecot
 mkdir -p $PREF
 sed '2,/^#!\//d' $0 >$PREF/dovecot_postupgrade.sh
@@ -96,7 +84,7 @@ exit $RESULT_FAILED
 #END GENERATED SECTION
 
 CONFIG_FILE="/etc/dovecot"
-# This is simple postupgrade script. 
+# This is simple postupgrade script.
 
 # Source file was taken from source system and stored in preupgrade-assistant temporary directory
 
