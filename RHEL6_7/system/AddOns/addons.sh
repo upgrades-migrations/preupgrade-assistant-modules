@@ -17,12 +17,12 @@ for addon in $PART_RHEL7
 do
     PEM_NAME=`echo $addon | cut -d'|' -f1`
     NAME=`echo $addon | cut -d'|' -f2`
-    PEM=`ls -1 *.pem`
+    PEM=`ls -1 *.pem 2>/dev/null`
     echo "$PEM" | grep "$PEM_NAME" > /dev/null
     if [ $? -eq 0 ]; then
         found_info=1
         log_info "Content detects $NAME Add-On. No action is needed for RHEL 7."
-	continue
+    continue
     fi
 
 done
@@ -31,7 +31,7 @@ for addon in $ADD_ONS
 do
     PEM_NAME=`echo $addon | cut -d'|' -f1`
     NAME=`echo $addon | cut -d'|' -f2`
-    PEM=`ls -1 *.pem`
+    PEM=`ls -1 *.pem 2>/dev/null`
     echo "$PEM" | grep "$PEM_NAME" > /dev/null
     if [ $? -eq 0 ]; then
         found=1
