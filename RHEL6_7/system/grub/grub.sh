@@ -15,8 +15,16 @@ if [[ -f "/boot/grub/$FILE_NAME" ]]; then
     POST_SCRIPT="postupgrade.d/$SCRIPT_NAME"
     cp -f $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
     cp -f /boot/grub/$FILE_NAME $POSTUPGRADE_DIR/$FILE_NAME
-    log_slight_risk "The $FILE_NAME file was backed up for the upgrade which enables you to edit GRUB options."
-    exit_fail
+
+    {
+        echo
+        echo -n "File /boot/grub/splash.xpm.gz will be preserved as well"
+        echo -n " in order to work around behavior of legacy GRUB.  You"
+        echo -n " may safely delete this file once your GRUB2 setup is"
+        echo -n " working."
+    } >> grub.txt
+
 fi
 
-exit_pass
+log_medium_risk "After upgrade, manual migration of GRUB to GRUB2 will be necessary."
+exit_fail

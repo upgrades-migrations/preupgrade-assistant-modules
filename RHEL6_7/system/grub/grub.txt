@@ -1,6 +1,9 @@
-The GRUB package is used as a loader of the Linux system.
+GRUB is used as a loader of the Linux system.  However, Red Hat Enterprise Linux 7 does not ship GRUB anymore.  Instead, it ships GRUB2 only.  Because the configuration system has been completely overhauled, it is not possible to migrate the GRUB setup to GRUB2 automatically.
 
-The Preupgrade Assistant will back up the /boot/grub/splash.xpm.gz file 
-and restore it after the upgrade to the /boot/grub directory.
+During the upgrade process, GRUB will be preserved in the Master Boot Record and a temporary GRUB configuration will be deployed to allow you to boot into the upgraded system.
 
-The file splash.xpm.gz allows you to modify boot parameters during the booting.
+Because it is not possible to support the temporary configuration, you need to rewrite it and install GRUB2 to the Master Boot Record manually after the upgrade.
+
+For details on GRUB2, see the System Administrator's Guide:
+
+    https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/ch-Working_with_the_GRUB_2_Boot_Loader.html
