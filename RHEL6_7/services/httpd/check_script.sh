@@ -277,11 +277,11 @@ if [ $ret -ne $RESULT_PASS ]; then
 fi
 
 echo >> $SOLUTION_FILE
-echo "The difference between this system configuration of httpd
-and the default httpd 2.2 configuration is stored in this file: [link:${PWD#$VALUE_TMP_PREUPGRADE/}/default_diff.diff]" >> $SOLUTION_FILE
+echo "Following is the difference between this system configuration of httpd
+and the default httpd 2.2 configuration:" >> $SOLUTION_FILE
 echo >> $SOLUTION_FILE
 
-diff -u $CONFIG_FILE httpd.conf > default_diff.diff
+diff -u $CONFIG_FILE httpd.conf >> $SOLUTION_FILE
 
 mkdir -p $POSTUPGRADE_DIR # it should be irrelevant but to be sure
 cp -R postupgrade.d/* $POSTUPGRADE_DIR
