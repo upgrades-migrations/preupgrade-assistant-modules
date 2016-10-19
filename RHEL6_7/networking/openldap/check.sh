@@ -16,10 +16,11 @@ if ! [ -e "$confile" ];then
    echo " $confile doesn't exist, if you have slapd configuration file in alternative location run 
 the following command to test it's consistency:
 slaptest -v -f $cust_confile" >> $SOLUTION_FILE
-   log_medium_risk "It is recommended to use new directory format of slapd configuration on RHEL 7. If you wish to migrate your slapd configuration to the new format use the following commands:
-slaptest -f $cust_confile -F $confdir 
-chown -R ldap:ldap $confdir"
-   exit_informational
+   echo "It is recommended to use new directory format of slapd configuration on RHEL 7. If you wish to migrate your slapd configuration to the new format use the following commands:
+slaptest -f $cust_confile -F $confdir
+chown -R ldap:ldap $cust_confdir " >> $SOLUTION_FILE
+   log_medium_risk "Directory format is recommended for slapd configuration"
+   exit_fail
 else
    echo "It is recommended to use new directory format of slapd configuration on RHEL 7. If you wish to migrate your slapd configuration to the new format use the following commands:
 slaptest -f $confile -F $confdir
@@ -31,6 +32,7 @@ chown -R ldap:ldap $confdir " >> $SOLUTION_FILE
       log_high_risk "back-ldbm database backend is obsolete and should not be used"
       exit_fail
    else
-      exit_informational
+      log_medium_risk "Directory format is recommended for slapd configuration"
+      exit_fail
    fi
 fi
