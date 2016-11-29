@@ -1,8 +1,10 @@
-#!/bin/python
+#!/usr/bin/python
 
 import sys, os, re
 import xml.NoisyElementTree as NoET
 import xml.ElementTree as ET
+
+from shutil import copy2
 
 ##### FUNC + CONST / GLOBVARS #####
 APP_WEB_HOME="/usr/share/tomcat6/webapps"
@@ -199,10 +201,19 @@ def mv_webapps():
 
     Return True on success and return False otherwise.
     """
-    
-    if (os.system("/bin/mv %s %s-preupg-backup" % (APP_WEB_HOME_NEW,
-                                              APP_WEB_HOME_NEW)):
-        
+    if not os.path.exists(APP_WEB_HOME):
+        # in this case, system probably hasn't had any webapps or it will
+        # be stored on different place
+        log_warning(
+            "Original directory %s doesn't exists now. That means you probably"
+            " do not have set any your own web application on original system"
+            " or different path was used. In case you had some web"
+            " aaplications previously, please copy them to the new directory:"
+            " %s." % (APP_WEB_HOME, APP_WEB_HOME_NEW)
+            )
+        return False
+    if (os.system("/bin/mv %s %s-preupg-backup"
+                  % (APP_WEB_HOME_NEW, APP_WEB_HOME_NEW))):
         log_error(
             "The %s directory has not been backed up and move of old"
             " web apps from tomcat6 cannot be done. Please, migrate your web"
@@ -211,13 +222,14 @@ def mv_webapps():
         return False
     if os.system("/bin/mv %s %s" % (APP_WEB_HOME, APP_WEB_HOME_NEW)):
         log_error(
-            "Original web applicatino inside %s have not been moved to the new"
-            " %s directory, so tomcat cannot be used. Please move your old web"
-            " applications manually." % (APP_WEB_HOME, APP_WEB_HOME_NEW)
+            "Original web applications inside %s have not been moved to the new"
+            " %s directory, so tomcat cannot be used with them as previously."
+            " Please move your old web applications manually."
+              % (APP_WEB_HOME, APP_WEB_HOME_NEW)
             )
         # COPY! backed up data back
-        os.system("/bin/cp -ar %s-preupg-backup/* %s" % (APP_WEB_HOME_NEW,
-                                                 APP_WEB_HOME_NEW)):
+        os.system("/bin/cp -ar %s-preupg-backup/* %s"
+                  % (APP_WEB_HOME_NEW, APP_WEB_HOME_NEW))
         return False
     return True
 
@@ -230,13 +242,14 @@ def mv_configs():
     """
     Copy modified configuration files of tomcat6 to new destinations.
     """
+    # ok, this generate "//" in logs but doesn't matter
     if os.system("/bin/mv -vf %s/* %s" % (CONFIG_DIR, "/etc/tomcat")):
         log_error(
             "Config files of tomcat6 have not been moved to new tomcat"
             "directory. Please move them manually.")
         return False
 
-    return True 
+    return True
 
 ##############################################################################
 ##### MAIN #####
@@ -245,24 +258,37 @@ appWebXmlList = [fn for fn in get_file_list(APP_WEB_HOME) if fn.endswith("/WEB-I
 appContextXmlList = [fn for fn in get_file_list(APP_WEB_HOME) if fn.endswith("/META-INF/context.xml")]
 
 # parse all relevant XML files
+remove_rpmsuffix = lambda x: x[:-8] if x.endswith(".rpmsave") else x
 for fname in appWebXmlList + appContextXmlList + [
              GLOBAL_CONFIG_FILE,
              GLOBAL_WEB_XML,
              GLOBAL_CONTEXT_XML,
              GLOBAL_USER_XML
              ]:
+    ##
+    #FIXME:
+    # ugly hack - the script is processed after remove of the original tomcat6
+    # package and original config files are renamed with suffix ".rpmsave".
+    # For that purposes, when file doesn't exists, try check whether exists
+    # with the suffix, however, after load of file content, work with this
+    # file as it is original file without suffix.
+    #
     if not os.path.isfile(fname):
-        # code below will be more readable
-        # "None" value will be checked by check functions
-        etreeDict[fname] = None
-        continue
+        if os.path.isfile(fname + ".rpmsave"):
+            # -> ugly hack here
+            fname = fname + ".rpmsave"
+        else:
+            # code below will be more readable
+            # "None" value will be checked by check functions
+            etreeDict[fname] = None
+            continue
     tree = NoET.NoisyElementTree()
     tree.parse(
         fname,
         parser=NoET.CommentTreeBuilder(
             target=ET.TreeBuilder(element_factory=NoET.NSElement))
         )
-    etreeDict[fname] = tree
+    etreeDict[remove_rpmsuffix(fname)] = tree
 
 # Check manager|admin application
 #NOTE: according to my information just this file
@@ -281,12 +307,16 @@ for fname in appContextXmlList + [GLOBAL_CONFIG_FILE, GLOBAL_CONTEXT_XML]:
 # rewrite files - already we can do that because old tomcat6 will be removed
 #               - and original files should be stored at our backup already
 for key,val in etreeDict.iteritems():
-    if os.path.isfile(key) is False:
+    if os.path.isfile(key) is False and val is None:
         continue
     if val is None:
         log_warning("File '%s' has not been parsed." % key)
         continue
-    copy2(key, key + ".orig_backup")  # back up original file before rewrite
+    if os.path.isfile(key):
+        # back up original file before rewrite if exists
+        # - currently, some config files are renamed before run of this script
+        #   so usually we will not need create back up again
+        copy2(key, key + ".orig_backup")
     val.write(key,
               method="xml",
               xml_declaration=True,
@@ -294,9 +324,9 @@ for key,val in etreeDict.iteritems():
 
 # install new packages
 packages = get_lines("packages")
-old_packages = " ".join(map(lambda x: x.split("|")[0] , packages))
+old_packages = map(lambda x: x.split("|")[0] , packages)
 new_packages = " ".join(map(lambda x: x.split("|")[1] , packages))
-if os.system("yum install -y %s" % new_packages) == 0:
+if os.system("yum install -y %s" % new_packages) != 0:
     log_error(
         "New tomcat packages have not been installed. You need to"
         " install these packages manually and then copy manually old, modified"

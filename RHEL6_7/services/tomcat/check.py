@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python
 
 from preup.script_api import *
 
@@ -41,6 +41,14 @@ PRIVATE_POST_DIR   = os.path.join(POSTUPGRADE_DIR, "services/tomcat")
 
 # contians messages which could be printed in solution text
 solutionTexts = {
+    "info_paths_changed" : (
+        "* Paths are little changed on the Red Hat Enterprise 7 system because"
+        " of rename of packages (tomcat6* is renamed to tomcat*). Your"
+        " configuration files and web applications inside directories mentioned"
+        " below will be moved to new paths automatically:\n"
+        "  /etc/tomcat6 -> /etc/tomcat\n"
+        "  /usr/share/tomcat6/webapps -> /usr/share/tomcat/webapps"
+        ),
     "manager_role" : (
         "* The roles required to use the Manager application were changed from the single manager"
         " role to manager-gui, manager-script, manager-jmx, and manager-status roles. You will"
@@ -486,6 +494,10 @@ def check_copyXML(fname):
 ##############################################################################
 appWebXmlList = [fn for fn in get_file_list(APP_WEB_HOME) if fn.endswith("/WEB-INF/web.xml")]
 appContextXmlList = [fn for fn in get_file_list(APP_WEB_HOME) if fn.endswith("/META-INF/context.xml")]
+
+_print_solution("info_paths_changed")
+_set_exit_func(exit_fixed)
+
 
 # parse all relevant XML files
 for fname in appWebXmlList + appContextXmlList + [
