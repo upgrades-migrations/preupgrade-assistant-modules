@@ -3,7 +3,7 @@
 import sys, os, errno, re, shutil
 import datetime
 
-from preup.script_api import *
+from preupg.script_api import *
 
 check_rpm_to(check_rpm="", check_bin="")
 #END GENERATED SECTION

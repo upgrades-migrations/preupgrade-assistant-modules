@@ -28,7 +28,7 @@ if devel_time:
 	def exit_error():
 		sys.exit(-1)
 else:
-	from preup.script_api import *
+	from preupg.script_api import *
 
 #END GENERATED SECTION
 

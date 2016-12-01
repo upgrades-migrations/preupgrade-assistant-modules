@@ -6,7 +6,7 @@
 import os
 import re
 from collections import namedtuple
-from preup.script_api import *
+from preupg.script_api import *
 
 check_applies_to (check_applies="dnsmasq")
 check_rpm_to (check_rpm="", check_bin="python")

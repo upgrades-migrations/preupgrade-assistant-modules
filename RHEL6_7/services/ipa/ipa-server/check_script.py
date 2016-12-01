@@ -2,7 +2,7 @@
 
 import subprocess
 import re
-from preup.script_api import *
+from preupg.script_api import *
 
 check_rpm_to (check_rpm="",check_bin="python")
 

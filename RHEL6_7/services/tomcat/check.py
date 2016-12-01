@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from preup.script_api import *
+from preupg.script_api import *
 
 #END GENERATED SECTION
 

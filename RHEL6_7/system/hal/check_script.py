@@ -6,7 +6,7 @@ import sys, os #, errno
 import subprocess
 import re
 
-from preup.script_api import *
+from preupg.script_api import *
 
 
 #END GENERATED SECTION

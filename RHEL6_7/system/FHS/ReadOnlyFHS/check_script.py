@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- Mode: Python; python-indent: 8; indent-tabs-mode: t -*-
 
-from preup.script_api import *
+from preupg.script_api import *
 component = "filesystem"
 
 check_applies_to (check_applies="filesystem")

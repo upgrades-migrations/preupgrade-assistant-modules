@@ -3,7 +3,7 @@
 
 import sys
 import os
-from preup.script_api import *
+from preupg.script_api import *
 import ConfigParser
 
 #END GENERATED SECTION

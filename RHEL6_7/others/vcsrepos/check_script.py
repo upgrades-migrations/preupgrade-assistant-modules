@@ -5,7 +5,7 @@ import sys
 import os
 import re
 
-from preup.script_api import *
+from preupg.script_api import *
 
 check_applies_to (check_applies="filesystem")
 
