@@ -538,12 +538,10 @@ def return_with_code(code):
         exit_not_applicable()
     elif code == EXIT_PASS:
         exit_pass()
-    elif code == EXIT_ERROR:
-        exit_error()
     elif code == EXIT_INFORMATIONAL:
         exit_informational()
     else:
-        exit_unknown()
+        exit_error()
 
 
 def check_user(uid=0):

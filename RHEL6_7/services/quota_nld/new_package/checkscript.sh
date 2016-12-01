@@ -67,4 +67,4 @@ else
     exit_pass
 fi
 
-exit_unknown
+exit_error
