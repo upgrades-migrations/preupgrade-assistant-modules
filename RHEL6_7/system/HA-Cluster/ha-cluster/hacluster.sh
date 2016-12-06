@@ -9,6 +9,8 @@ if [ ! -f "$VALUE_RPM_RHSIGNED" ]; then
     exit_error
 fi
 
+PREUPG_PREDIR="$VALUE_TMP_PREUPGRADE/preupgrade-scripts/"
+
 PACKAGE_LIST="modcluster cluster clustermon corosync luci pacemaker pcs rgmanager ricci openais foghorn ccs cluster-glue"
 
 CLUSTER_CONFIG="/etc/cluster/cluster.conf"
@@ -18,7 +20,7 @@ found=0
 packages=""
 for pkg in $PACKAGE_LIST;
 do
-    grep -q "^$pkg[[:space:]]" $VALUE_RPM_QA && is_dist_native $pkg
+    is_pkg_installed $pkg && is_dist_native $pkg
     if [ $? -eq 0 ]; then
         log_info "The $pkg package is installed."
         packages="$packages $pkg"
@@ -26,13 +28,18 @@ do
     fi
 done
 if [ $found -eq 1 ]; then
-    log_extreme_risk "High Availability Add-On packages are installed. The upgrade is not possible."
-    echo "If you do not use the following cluster&HA related packages:$packages , uninstall them and run the Preupgrade Assistant again." >>hacluster.txt
+    log_high_risk "High Availability Add-On packages are installed. The upgrade is not possible."
+    echo "If you do not use the following cluster&HA related packages:$packages , uninstall them and run the Preupgrade Assistant again." >> "$SOLUTION_FILE"
+    # create pre-ugprade script to inhibit inplace upgrade till user keeps
+    # installed any package from $PACKAGE_LIST
+    cp "pre-hacluster.sh" "$PREUPG_PREDIR/pre-hacluster.sh"
+    sed -i "s/<PLACE_HOLDER>/$packages/" "$PREUPG_PREDIR/pre-hacluster.sh"
+    chmod +x "$PREUPG_PREDIR/pre-hacluster.sh"
     exit_fail
 fi
 
 if [ -f "$CLUSTER_CONFIG" ] || [ -f "$COROSYNC_CONFIG" ]; then
-    log_extreme_risk "High Availability Add-On config files $CLUSTER_CONFIG or $COROSYNC_CONFIG exist. The upgrade is not possible."
+    log_high_risk "High Availability Add-On config files $CLUSTER_CONFIG or $COROSYNC_CONFIG exist. The upgrade is not possible."
     exit_fail
 fi
 
