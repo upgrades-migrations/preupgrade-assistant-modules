@@ -69,11 +69,11 @@ rm -f "$safelibs"
 if [ $FOUND_BIN -eq 1 -o $FOUND_SCR -eq 1 ]; then
     if [ $FOUND_BIN -eq 1 ]; then
         log_slight_risk "Some binaries untracked by RPM were discovered on the system and may need to be rebuilt after the upgrade."
-        mv $BINARIES "$VALUE_TMP_PREUPGRADE/kickstart/$BINARIES"
+        mv $BINARIES "$KICKSTART_DIR/$BINARIES"
     fi
     if [ $FOUND_SCR -eq 1 ]; then
         log_slight_risk "Some scripts untracked by RPM were discovered on the system and may not work properly after the upgrade."
-        mv $SCRIPTS "$VALUE_TMP_PREUPGRADE/kickstart/$SCRIPTS"
+        mv $SCRIPTS "$KICKSTART_DIR/$SCRIPTS"
     fi
     exit_fail
 fi

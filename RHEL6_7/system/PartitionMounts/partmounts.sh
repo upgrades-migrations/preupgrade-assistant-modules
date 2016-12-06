@@ -4,12 +4,12 @@
 #END GENERATED SECTION
 
 export LVM_SUPPRESS_FD_WARNINGS=1
-cp /proc/partitions $VALUE_TMP_PREUPGRADE/kickstart/
-cp /etc/fstab $VALUE_TMP_PREUPGRADE/kickstart/
-lsblk -r --noheadings > $VALUE_TMP_PREUPGRADE/kickstart/lsblk_list
-pvs --noheadings --separator ':' > $VALUE_TMP_PREUPGRADE/kickstart/pvs_list
-vgs --noheadings --separator ':' > $VALUE_TMP_PREUPGRADE/kickstart/vgs_list
-lvdisplay -C --noheadings --separator ':' > $VALUE_TMP_PREUPGRADE/kickstart/lvdisplay
+cp /proc/partitions $KICKSTART_DIR/
+cp /etc/fstab $KICKSTART_DIR/
+lsblk -r --noheadings > $KICKSTART_DIR/lsblk_list
+pvs --noheadings --separator ':' > $KICKSTART_DIR/pvs_list
+vgs --noheadings --separator ':' > $KICKSTART_DIR/vgs_list
+lvdisplay -C --noheadings --separator ':' > $KICKSTART_DIR/lvdisplay
 
 echo " * partitions - copy of system /proc/partitions file, may be used in kickstart for disk layout" >>"$KICKSTART_README"
 echo " * fstab - copy of automated system mountpoints from /etc/fstab" >>"$KICKSTART_README"

@@ -50,10 +50,10 @@ while read line; do
   for pkg in $(echo $line | cut -d':' -f2 | cut -d "|" -f1 | sed -e 's/,/ /g')
   do
     #skip non-rh and unavailable packages
-    grep -q "^$pkg[[:space:]]" $VALUE_RPM_QA && is_dist_native "$pkg" || {
+    is_pkg_installed "$pkg" && is_dist_native "$pkg" || {
       rpm -q $pkg >/dev/null 2>&1 \
-        && log_debug "$pkg was skipped" \
-        || log_debug "$pkg was skipped - installed but not signed"
+        && log_debug "$pkg was skipped - installed but not signed" \
+        || log_debug "$pkg was skipped"
       continue
     }
     pkgs_msg=""
@@ -62,7 +62,7 @@ while read line; do
     for l in $(rpm -q --whatrequires $pkg | grep -v "no package requires" | \
      rev | cut -d'-' -f3- | rev)
     do
-      grep -q "^$l[[:space:]]" $VALUE_RPM_QA || continue
+      is_pkg_installed "$l" || continue
       is_dist_native "$l" || rq_msg="$rq_msg$l "
     done
     rq_msg="${rq_msg% })"
@@ -77,8 +77,8 @@ while read line; do
   done
 done < "$BumpedLibs"
 
-grep required "$sonamed_tmp" >>"$VALUE_TMP_PREUPGRADE/kickstart/SonameBumpedLibs-required"
-grep -v required "$sonamed_tmp" | grep -v "^$" >> "$VALUE_TMP_PREUPGRADE/kickstart/SonameBumpedLibs-optional"
+grep required "$sonamed_tmp" >>"$KICKSTART_DIR/SonameBumpedLibs-required"
+grep -v required "$sonamed_tmp" | grep -v "^$" >> "$KICKSTART_DIR/SonameBumpedLibs-optional"
 
 rm -f "$sonamed_tmp" "$BumpedLibs"
 

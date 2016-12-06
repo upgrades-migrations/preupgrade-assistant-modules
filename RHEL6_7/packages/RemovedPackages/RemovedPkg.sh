@@ -38,12 +38,12 @@ The following packages are no longer available:" >solution.txt
 while read pkg
 do
   #skip non-rh and unavailable packages
-  grep -q "^$pkg[[:space:]]" $VALUE_RPM_QA && is_dist_native $pkg || continue
+  is_pkg_installed "$pkg" && is_dist_native $pkg || continue
   j=" (required by NonRH signed package(s):"
   for k in $(rpm -q --whatrequires $pkg | grep -v "^no package requires" | \
    rev | cut -d'-' -f3- | rev)
   do
-    grep -q "^$k[[:space:]]" $VALUE_RPM_QA || continue
+    is_pkg_installed "$k" || continue
     is_dist_native $k ||  j="$j$k "
   done
   j="${j% })"
@@ -54,14 +54,14 @@ do
 done < "$RemovedPkgs"
 rm -f "$RemovedPkgs"
 
-grep required solution.txt >>"$VALUE_TMP_PREUPGRADE/kickstart/RemovedPkg-required"
-grep -v required solution.txt | grep -v " " | grep -v "^$" >> "$VALUE_TMP_PREUPGRADE/kickstart/RemovedPkg-optional"
-grep required "$VALUE_TMP_PREUPGRADE/kickstart/RemovedPkg-required" >/dev/null || rm "$VALUE_TMP_PREUPGRADE/kickstart/RemovedPkg-required"
-grep [a-zA-Z] "$VALUE_TMP_PREUPGRADE/kickstart/RemovedPkg-optional" >/dev/null || rm "$VALUE_TMP_PREUPGRADE/kickstart/RemovedPkg-optional"
-[ -f "$VALUE_TMP_PREUPGRADE/kickstart/RemovedPkg-required" ] && \
+grep required solution.txt >>"$KICKSTART_DIR/RemovedPkg-required"
+grep -v required solution.txt | grep -v " " | grep -v "^$" >> "$KICKSTART_DIR/RemovedPkg-optional"
+grep required "$KICKSTART_DIR/RemovedPkg-required" >/dev/null || rm "$KICKSTART_DIR/RemovedPkg-required"
+grep [a-zA-Z] "$KICKSTART_DIR/RemovedPkg-optional" >/dev/null || rm "$KICKSTART_DIR/RemovedPkg-optional"
+[ -f "$KICKSTART_DIR/RemovedPkg-required" ] && \
   echo " * RemovedPkg-required - This file contains all Red Hat Enterprise Linux 6 packages which were removed in Red Hat Enterprise Linux 7. There is no known compatible-enough alternative for them. As some of your packages depend on them, check the changes carefully." >>"$KICKSTART_README"
-[ -f "$VALUE_TMP_PREUPGRADE/kickstart/RemovedPkg-optional" ] && \
-  echo " * RemovedPkg-optional - Similar to RemovedPkg-required, but in this case no package not signed by Red Hat requires this. It is more of an informational thing for you so that you can deal with the unavailability of these packages." >>"$VALUE_TMP_PREUPGRADE/kickstart/README"
+[ -f "$KICKSTART_DIR/RemovedPkg-optional" ] && \
+  echo " * RemovedPkg-optional - Similar to RemovedPkg-required, but in this case no package not signed by Red Hat requires this. It is more of an informational thing for you so that you can deal with the unavailability of these packages." >>"$KICKSTART_DIR/README"
 
 echo \
 "

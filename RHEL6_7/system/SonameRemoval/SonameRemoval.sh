@@ -37,12 +37,12 @@ while read line; do
   for pkg in $(echo $line | cut -d':' -f2 | sed -e 's/,/ /g')
   do
     #skip non-rh and unavailable packages
-    grep -q "^$pkg[[:space:]]" $VALUE_RPM_QA && is_dist_native "$pkg" || continue
+    is_pkg_installed "$pkg" && is_dist_native "$pkg" || continue
     rq_msg=" (required by package(s) not signed by Red Hat:"
     for l in $(rpm -q --whatrequires $pkg | grep -v "no package requires" | \
      rev | cut -d'-' -f3- | rev)
     do
-      grep -q "^$l[[:space:]]" $VALUE_RPM_QA && is_dist_native "$l" || rq_msg="$rq_msg$l "
+      is_pkg_installed "$l"&& is_dist_native "$l" || rq_msg="$rq_msg$l "
     done
     rq_msg="${rq_msg% })"
 
@@ -55,8 +55,8 @@ while read line; do
   done
 done < "$RemovedLibs"
 
-grep required "$removed_tmp" | sort | uniq >>"$VALUE_TMP_PREUPGRADE/kickstart/RemovedLibs-required"
-grep -v required "$removed_tmp" | grep -v "^$" | sort | uniq >> "$VALUE_TMP_PREUPGRADE/kickstart/RemovedLibs-optional"
+grep required "$removed_tmp" | sort | uniq >>"$KICKSTART_DIR/RemovedLibs-required"
+grep -v required "$removed_tmp" | grep -v "^$" | sort | uniq >> "$KICKSTART_DIR/RemovedLibs-optional"
 
 rm -f "$removed_tmp" "$RemovedLibs"
 

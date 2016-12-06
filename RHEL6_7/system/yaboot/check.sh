@@ -16,7 +16,7 @@ then
     exit $RESULT_NOT_APPLICABLE
 fi
 
-grep -q "^yaboot[[:space:]]" $VALUE_RPM_QA
+is_pkg_installed "yaboot"
 
 if [ $? -ne 0 ];
 then

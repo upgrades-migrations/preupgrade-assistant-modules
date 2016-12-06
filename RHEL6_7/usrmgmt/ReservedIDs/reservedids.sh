@@ -32,13 +32,8 @@ cause interoperability issues.
 
 " > solution.txt
 
-KICKSTART="/root/preupgrade/kickstart"
-if [ ! -d "$KICKSTART" ]; then
-    mkdir -p $KICKSTART
-fi
-
-[ -f "uidgid" ] && cp -a uidgid $KICKSTART/uidgid
-[ -f "setup_passwd" ] && cp -a setup_passwd $KICKSTART/setup_passwd
+[ -f "uidgid" ] && cp -a uidgid $KICKSTART_DIR/uidgid
+[ -f "setup_passwd" ] && cp -a setup_passwd $KICKSTART_DIR/setup_passwd
 
 #check the reserved ids
 for line in `cat uidgid`

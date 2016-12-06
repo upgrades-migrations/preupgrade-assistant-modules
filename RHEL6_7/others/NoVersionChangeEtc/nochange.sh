@@ -15,7 +15,7 @@ found=0
 while read i
 do
   #skip non-rh and unavailable packages
-  grep -q "^$i[[:space:]]" $VALUE_RPM_QA && is_dist_native "$i" || continue
+  is_pkg_installed "$i" && is_dist_native "$i" || continue
 
   #copy the modified /etc/ located files to the preupgrade destination directory
   for j in $(rpm -ql $i | grep ^/etc/)

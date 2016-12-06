@@ -10,7 +10,7 @@ check_root
 # Copy your config file from RHEL6 (in case of scenario RHEL6_7)
 # to Temporary Directory
 CONFIG_FILE="/etc/dovecot/"
-cp --parents -ar $CONFIG_FILE /root/preupgrade/dirtyconf
+cp --parents -ar $CONFIG_FILE $VALUE_TMP_PREUPGRADE/dirtyconf
 
 #workaround to openscap buggy missing PATH
 export PATH=$PATH:/usr/bin
@@ -68,7 +68,7 @@ that you use some no longer supported options or plug-ins. In that case, update 
 file manually on the new system.
 " > solution.txt
 
-PREF=$VALUE_TMP_PREUPGRADE/postupgrade.d/dovecot
+PREF=$POSTUPGRADE_DIR/dovecot
 mkdir -p $PREF
 sed '2,/^#!\//d' $0 >$PREF/dovecot_postupgrade.sh
 chmod +x $PREF/dovecot_postupgrade.sh
