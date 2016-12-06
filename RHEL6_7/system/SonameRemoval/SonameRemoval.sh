@@ -42,7 +42,7 @@ while read line; do
     for l in $(rpm -q --whatrequires $pkg | grep -v "no package requires" | \
      rev | cut -d'-' -f3- | rev)
     do
-      is_pkg_installed "$l"&& is_dist_native "$l" || rq_msg="$rq_msg$l "
+      is_pkg_installed "$l" && is_dist_native "$l" || rq_msg="$rq_msg$l "
     done
     rq_msg="${rq_msg% })"
 
