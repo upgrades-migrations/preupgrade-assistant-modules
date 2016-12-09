@@ -177,7 +177,7 @@ check_is_initialized() {
 * Be careful. It seems that you have installed PostgreSQL server but you
   have not initialized the data directory. It means that either you have never
   used PostgreSQL server or you are using PostgreSQL server from the
-  postgresql-server package in a different way (which would need manual
+  postgresql-server package in a different way (which would need a manual
   interaction).
 EOF
         log_error \
@@ -187,7 +187,7 @@ EOF
     fi
 
     DATA_DIR_INITIALIZED=yes
-    log_info "The $PG_VERSION_FILE file is on its place, the database seems to be initialized."
+    log_info "The $PG_VERSION_FILE file is on its place and the database seems to be initialized."
     return $RESULT_PASS
 }
 
@@ -217,7 +217,7 @@ check_different_usage() {
   (achieved usually by symlinking the init file).  This situation was detected
   on your system.  Unfortunately, we are unable to handle such cases
   automatically in the Preupgrade Assistant.  Look at upstream pg_dumpall
-  documentation and follow the steps with respect to your special
+  documentation and follow the steps with respect to your specific
   configuration.  The links are:
 `echo "$links" | sed 's|^|    |'`
 EOF
@@ -228,19 +228,18 @@ EOF
     append_to_solution <<EOF
 * Even if the postgresql-server is probably configured correctly, we are unable
   to say for 100% that the server is not used in some specific way on your
-  machine - so we rather warn you here to look at your system and check that the
+  machine, so we recommend to look at your system and check that the
   $INITFILE is the only trigger the server is started by.
-  In any way - we suggest you to use in-place PostgreSQL database upgrade for
-  conversion the data stack to newer PostgreSQL server.
-  But still, full data directory backup ($DATA_DIR) *must* be done on
-  administrator's responsibility.  Up to that - backing up the database dump by
+  In any way - we suggest that you use the in-place PostgreSQL database upgrade for
+  the conversion of the data stack to a newer PostgreSQL server.
+  Still, the full data directory backup ($DATA_DIR) *is* the  administrator's responsibility.  Up to that - backing up the database dump by
   running the "pg_dumpall" tool is *strictly* encouraged because if something
-  with the in-place upgrade will go wrong on updated system, you won't be able
-  to go back to older RHEL6 PostgreSQL $PG_OLD_VERSION easily.
-  See upstream HOWTO for pg_dumpall:
+  with the in-place upgrade goes wrong on the updated system, you will not be able
+  to go back to the older Red hat Enterprise Linux 6 PostgreSQL $PG_OLD_VERSION easily.
+  See the upstream HOWTO for pg_dumpall:
   [link:$UPSTREAM_DOC_PGDUMP]
 EOF
-    log_slight_risk "We cannot tell for 100% that the system will be in-place upgradable."
+    log_slight_risk "We cannot tell for 100% that the system will be in-place upgradeable."
     DIFFERENT_USAGE_OK=yes
     return $RESULT_PASS
 }
@@ -287,12 +286,11 @@ check_enabled() {
         return $RESULT_PASS
     fi
 
-    log_error "PostgreSQL is not enabled after system startup"
+    log_error "PostgreSQL is not enabled after the system startup."
     append_to_solution <<EOF
-* Note that PostgreSQL is not enabled at system startup.  This is not "really"
-  risky but at is at least worth to observe.  If that is on server machine, the
-  PostgreSQL seems to be unused (if that is really truth, sysadmin may uninstall
-  postgresql-server package).
+* Note that PostgreSQL is not enabled at the system startup.  This is not "really"
+  risky but at is at least worth observing.  If that is on a server machine, the
+  PostgreSQL seems to be unused (if that is really true, the sysadmin may uninstall the postgresql-server package).
 EOF
     return $RESULT_FAIL
 }
@@ -321,7 +319,7 @@ check_permissions() {
             log_error "Can not execute \"$cmd\", 'postgres' is not superuser."
             append_to_solution <<EOF
 * The 'postgres' role is not a superuser for PostgreSQL server.  You should
-  execute this SQL statement under other PostgreSQL superuser account:
+  execute this SQL statement:
   ALTER USER postgres WITH SUPERUSER;
   under other PostgreSQL superuser account.
 EOF
@@ -333,16 +331,13 @@ EOF
     fi
 
     append_to_solution <<EOF
-* Be careful.  For smooth in-place upgrade the 'postgres' db user must have
-  Superuser role.  We are unable to check that assumption because you have
-  probably misconfigured the file "$PG_HBA_CONF_FILE".
-  If you want to make sure that everything is OK, fix the "$PG_HBA_CONF_FILE"
-  to not block 'postgres' user to login without password.  This may be pretty
-  easily achieved by putting of the line "local all postgres ident" to be the
+* Be careful.  For a smooth in-place upgrade the 'postgres' database user must have the superuser role.  We are unable to check that because you have
+  probably misconfigured the "$PG_HBA_CONF_FILE" file.
+  If you want to make sure that everything is OK, fix the "$PG_HBA_CONF_FILE" file
+  so that it does not block the 'postgres' user to log in without a password.  This may be achieved by putting the "local all postgres ident" line to be the
   first line of the file.
   The upgrade process is fully independent on this file though; so if you are
-  sure that 'postgres' is of Superuser role (default configuration) please
-  ignore this warning.
+  sure that 'postgres' is of superuser role (default configuration), ignore this warning.
 EOF
 
     log_slight_risk "The 'postgres' user can't connect to db without password"

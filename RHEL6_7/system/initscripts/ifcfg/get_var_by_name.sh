@@ -10,7 +10,7 @@ fi
 
 eval VALUE=\$$2
 if [ -z "$VALUE" ]; then
-	echo "variable is empty/unset"
+	echo "The variable is empty or unset"
 	exit 1
 fi
 echo $VALUE

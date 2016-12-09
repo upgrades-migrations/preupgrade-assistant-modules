@@ -57,7 +57,7 @@ check_base_modules() {
     echo >> $SOLUTION_FILE
 
     echo "\
-* httpd.conf loads default modules which have been removed in new version
+* httpd.conf loads default modules which have been removed in the new version
   of httpd. Following modules will be therefore removed from httpd.conf:
 " >> $SOLUTION_FILE
     while read line
@@ -73,7 +73,7 @@ check_base_modules() {
     grep -qi "^[ \t]*LDAP.*\|^[ \t]*AuthLDAP.*" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
     if [ $? -eq 0 ]; then
         echo "\
-* mod_ldap has been moved to a separate package called \"mod_ldap\" and will be installed
+* mod_ldap has been moved to a separate mod_ldap package and will be installed
   by the postupgrade script automatically.
 " >> $SOLUTION_FILE
         echo "mod_ldap_flag=1" >> "$TMP_FLAG_FILE"

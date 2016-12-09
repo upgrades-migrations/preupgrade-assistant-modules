@@ -10,7 +10,7 @@ if [ -e /etc/sysconfig/rhn/systemid ]; then
     if [ "$serverURL" = "https://xmlrpc.rhn.redhat.com/XMLRPC" ]; then
         log_high_risk "The system is registered with RHN Classic, which is not supported in Red Hat Enterprise Linux 7."
     else
-        log_medium_risk "The system is registered either with RHN Sattelite or RHN Proxy. Ensure that Your RHN Sattelite or RHN Proxy does not use RHN Classic as its source of updates, because it does not provide updates for Red Hat Enterprise Linux 7."
+        log_medium_risk "The system is registered either with RHN Satellite or RHN Proxy. Ensure that your RHN Satellite or RHN Proxy does not use RHN Classic as its source of updates, because RHN Classic does not provide updates for Red Hat Enterprise Linux 7."
     fi
     exit_fail
 else

@@ -73,8 +73,7 @@ sh_ini_check() {
 #                      MAIN                              #
 ##########################################################
 echo 'PHP was updated from version 5.3 to version 5.4.
-Read the Red Hat Enterprise Linux 7 Developer Guide
-and upstream migration guide for more details:
+See the upstream migration guide for more details:
 [link:http://php.net/manual/en/migration54.php]
 ' > solution.txt
 

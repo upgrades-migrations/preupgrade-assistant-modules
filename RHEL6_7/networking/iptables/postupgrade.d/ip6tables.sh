@@ -29,14 +29,14 @@ prep_source_right() {
 }
 
 if ! rpm -q iptables-services 1>/dev/null; then
-  echo "Package iptables-services will be installed."
+  echo "The iptables-services package will be installed."
   yum install iptables-services || {
     prep_source_right && \
       yum install iptables-services
   }
 
   [ $? -eq 0 ] || {
-    echo "Package iptables-services couldn't be installed. Please install it manually."
+    echo "The iptables-services package could not be installed. Install it manually."
     exit 1
   }
 fi

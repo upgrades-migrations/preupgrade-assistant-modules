@@ -46,7 +46,7 @@ done
 
 # Any configured bundles means that we can't automatically update
 if [ -n "$config_files" ]; then
-    log_medium_risk "The $config_files CA certificate bundles have been modified and cannot be automatically migrated to the upgraded system."
+    log_medium_risk "The $config_files CA certificate bundles have been modified and cannot be automatically migrated to the new system."
     exit $RESULT_FAIL
 fi
 
