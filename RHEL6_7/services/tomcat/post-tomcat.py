@@ -24,7 +24,7 @@ etreeDict = dict()
 ##############################################################################
 ### just get file list with given path ###
 def get_file_list(path):
-    "Return list of all files in path - including files in subdirs"
+    "Return a list of all files in the path, including the files in subdirectories."
     fList = list()
     for root, dummy_dirs, dummy_files in os.walk(path):
         fList.append(root)
@@ -32,7 +32,7 @@ def get_file_list(path):
 
 
 def get_lines(fname):
-    "Get lines of file"
+    "Get lines of a file"
     lines = None
     with open(fname, 'r') as handle:
         lines = map(lambda x: x.strip(), handle.readlines())
@@ -48,12 +48,12 @@ def log_warning(msg):
 ##### check/fix functions #####
 ##############################################################################
 def check_users(fname, verbose=True):
-    """Check & Fix roles in given XML file"""
+    """Check & Fix roles in a given XML file"""
 
     def _my_log_medium_risk(fname, role):
         log_medium_risk(
-            "%s: The %s role is in use and has been changed in tomcat 7. It will be"
-            " automatically updated to the new %s-gui role, but may require further"
+            "%s: The %s role is in use and has been changed in Tomcat 7. It will be"
+            " automatically updated to a new %s-gui role, but might require a further"
             " intervention." % (fname, role, role)
             )
 
@@ -113,7 +113,7 @@ def check_session_manager(fname, verbose=True):
             manager.attrib.pop("randomClass")
             if not changedSec and verbose:
                 _print_solution("randomClass")
-                log_info("%s: The attribut randomClass will be changed to secureRandomClass"
+                log_info("%s: The 'randomClass' attribute will be changed to 'secureRandomClass'"
                          " automatically." % fname)
             #_set_exit_func(exit_fixed)
             changedSec = True
@@ -125,7 +125,7 @@ def check_session_manager(fname, verbose=True):
             manager.attrib.pop(attr)
             if not changedAlg and verbose:
                 _print_solution("algorithm_entropy")
-                log_slight_risk("%s: The algorithm and entropy attributes are not"
+                log_slight_risk("%s: The 'algorithm' and 'entropy' attributes are not"
                                 " supported and have been removed automatically." % fname)
             #_set_exit_func(exit_fail)
             changedAlg = True
@@ -144,9 +144,9 @@ def check_session_cookie_connector(fname, verbose=True):
         elem.attrib.pop("emptySessionPath")
         if not changed and verbose:
             _print_solution("emptySessionPath")
-            log_medium_risk("%s: The emptySessionPath attribute is not supported in new Tomcat"
-                            " and will be removed automatically. See Remediation"
-                            " Instruction." % fname)
+            log_medium_risk("%s: The 'emptySessionPath' attribute is not supported in the tomcat package"
+                            " and will be removed automatically. See the Remediation"
+                            " description." % fname)
         #_set_exit_func(exit_fail)
         changed = True
     return changed
@@ -161,7 +161,7 @@ def check_url_rewriting(fname, verbose=True):
             context.attrib.pop("disableURLRewriting")
             if not changed and verbose:
                 _print_solution("disableURLRewriting")
-                log_medium_risk("%s: The disableURLRewriting attribute is not supported"
+                log_medium_risk("%s: The 'disableURLRewriting' attribute is not supported"
                                 " and will be removed automatically." % fname)
                 #_set_exit_func(exit_fail)
             changed = True
@@ -178,8 +178,8 @@ def check_jsp_compiler(fname, verbose=True):
                 elem.text = "getStringAsCharArray"
                 if not changed and verbose:
                     _print_solution("genStrAsCharArray")
-                    log_info("%s: The genStrAsCharArray attribute has been renamed"
-                         " to genStringAsCharArray. It will be corrected automatically" %fname)
+                    log_info("%s: The 'genStrAsCharArray' attribute has been renamed"
+                         " to 'genStringAsCharArray'. It will be corrected automatically." %fname)
                     #_set_exit_func(exit_fixed)
             changed = True
     return changed
@@ -189,34 +189,34 @@ def check_jsp_compiler(fname, verbose=True):
 # why not use shutil.move? see pydoc shutil for more info. Shell's mv is better
 def mv_webapps():
     """
-    Move old web apps to new tomcat directory.
+    Move old web apps to a new tomcat directory.
 
-    Move web application from APP_WEB_HOME directory to new dir
-    for tomcat v7. When files on new destination already exist, it will be
+    Move web applications from the APP_WEB_HOME directory to a new directory
+    for Tomcat 7. When the files in the new destination already exist, it will be
     moved to backup directory (see below).
 
-    New tomcat directory for web apps, created by tomcat package, is moved
-    to /usr/share/tomcat/webapps-preupg-backup. Move is used because of possible
+    The new tomcat directory for web apps, which is created by the tomcat package, is moved
+    to /usr/share/tomcat/webapps-preupg-backup/. Move is used because of possible
     troubles with copy when data take lots of space.
 
-    Return True on success and return False otherwise.
+    Return True on success or return False otherwise.
     """
     if not os.path.exists(APP_WEB_HOME):
         # in this case, system probably hasn't had any webapps or it will
         # be stored on different place
         log_warning(
-            "Original directory %s doesn't exists now. That means you probably"
-            " do not have set any your own web application on original system"
-            " or different path was used. In case you had some web"
-            " aaplications previously, please copy them to the new directory:"
+            "The original directory %s does not exist now, which means that you probably"
+            " did not have your own web applications on the original system"
+            " or a different path was used. In case you had some web"
+            " applications previously, copy them to a new directory:"
             " %s." % (APP_WEB_HOME, APP_WEB_HOME_NEW)
             )
         return False
     if (os.system("/bin/mv %s %s-preupg-backup"
                   % (APP_WEB_HOME_NEW, APP_WEB_HOME_NEW))):
         log_error(
-            "The %s directory has not been backed up and move of old"
-            " web apps from tomcat6 cannot be done. Please, migrate your web"
+            "The %s directory has not been backed up and the"
+            " web apps from tomcat6 cannot be moved. Migrate your web"
             " applications manually." % APP_WEB_HOME_NEW
             )
         return False
@@ -224,7 +224,7 @@ def mv_webapps():
         log_error(
             "Original web applications inside %s have not been moved to the new"
             " %s directory, so tomcat cannot be used with them as previously."
-            " Please move your old web applications manually."
+            " Move your old web applications manually."
               % (APP_WEB_HOME, APP_WEB_HOME_NEW)
             )
         # COPY! backed up data back
@@ -245,8 +245,8 @@ def mv_configs():
     # ok, this generate "//" in logs but doesn't matter
     if os.system("/bin/mv -vf %s/* %s" % (CONFIG_DIR, "/etc/tomcat")):
         log_error(
-            "Config files of tomcat6 have not been moved to new tomcat"
-            "directory. Please move them manually.")
+            "The tomcat6 config files have not been moved to the new tomcat"
+            "directory. Move the files manually.")
         return False
 
     return True
@@ -310,7 +310,7 @@ for key,val in etreeDict.iteritems():
     if os.path.isfile(key) is False and val is None:
         continue
     if val is None:
-        log_warning("File '%s' has not been parsed." % key)
+        log_warning("The '%s' file has not been parsed." % key)
         continue
     if os.path.isfile(key):
         # back up original file before rewrite if exists
@@ -328,9 +328,9 @@ old_packages = map(lambda x: x.split("|")[0] , packages)
 new_packages = " ".join(map(lambda x: x.split("|")[1] , packages))
 if os.system("yum install -y %s" % new_packages) != 0:
     log_error(
-        "New tomcat packages have not been installed. You need to"
-        " install these packages manually and then copy manually old, modified"
-        " configuration files of tomcat6 to new directories. New packages are:"
+        "No new tomcat packages have been installed."
+        " Install these packages manually and then copy the modified"
+        " tomcat6 configuration files to new directories. The new packages are:"
         " %s." % new_packages
         )
     sys.exit(1)
@@ -341,8 +341,8 @@ for pkg in new_packages.split():
     if os.system("rpm -q %s >/dev/null" % pkg):
         log_warning(
             "The package %s has not been installed."
-            " Probably because it is not available now. You need to install"
-            " it after upgrade manually and maybe copy old configuration"
+            " It might not be available now. You need to install"
+            " it after the upgrade manually and maybe copy the old configuration"
             " files manually too." % pkg
             )
         status = False
@@ -359,7 +359,7 @@ for pkg in old_packages:
         if os.system("rpm -e --nodeps %s" % old_packages):
             log_error(
                 "The %s package has not been removed from the system."
-                " Please remove it manually." % pkg
+                " Remove the package manually." % pkg
                 )
             status = False
 

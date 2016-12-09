@@ -2,9 +2,9 @@
 
 rpm -q tomcat >/dev/null 2>&1 && {
  {
-  echo -n "Error: The 'tomcat' package has been found installed on the system,"
-  echo -n " but remove of the package is required before upgrade on new system"
-  echo -n ". See report from Preupgrade Assistant. Upgrade is not enabled."
+  echo -n "Error: A tomcat package has been found installed on the system."
+  echo -n " The package must be removed before the upgrade to a new system."
+  echo -n ". See the report from the Preupgrade Assistant."
  } >&2
  exit 1
 }

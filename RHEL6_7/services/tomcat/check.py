@@ -42,87 +42,87 @@ PRIVATE_POST_DIR   = os.path.join(POSTUPGRADE_DIR, "services/tomcat")
 # contians messages which could be printed in solution text
 solutionTexts = {
     "info_paths_changed" : (
-        "* Paths are little changed on the Red Hat Enterprise 7 system because"
-        " of rename of packages (tomcat6* is renamed to tomcat*). Your"
-        " configuration files and web applications inside directories mentioned"
-        " below will be moved to new paths automatically:\n"
-        "  /etc/tomcat6 -> /etc/tomcat\n"
-        "  /usr/share/tomcat6/webapps -> /usr/share/tomcat/webapps"
+        "* Paths changed on the Red Hat Enterprise Linux 7 system because"
+        " the packages were renamed (tomcat6* is renamed to tomcat*). Your"
+        " configuration files and web applications inside the directories mentioned"
+        " below will be moved to the new paths automatically:\n"
+        "  /etc/tomcat6/ -> /etc/tomcat/\n"
+        "  /usr/share/tomcat6/webapps/ -> /usr/share/tomcat/webapps/"
         ),
     "manager_role" : (
-        "* The roles required to use the Manager application were changed from the single manager"
+        "* The roles that are required to use the Manager application changed from a single manager"
         " role to manager-gui, manager-script, manager-jmx, and manager-status roles. You will"
         " need to assign the role(s) required for the functionality you wish to access."
-        " The manager role will be updated to manager-gui by postupgrade script automatically,"
-        " but this may require further update if you use the manager-script, etc roles."
+        " The manager role will be updated to manager-gui by the postupgrade script automatically,"
+        " but a further update might be required if you use the other roles."
         ),
     "admin_role" : (
-        "* The roles required to use the Host Manager application were changed from the single"
-        " admin role to the admin-gui and admin-script roles. You will need to assign the role(s)"
+        "* The roles that are required to use the Host Manager application changed from a single"
+        " admin role to admin-gui and admin-script roles. You will need to assign the role(s)"
         " required for the functionality you wish to access."
-        " The admin role will be updated to admin-gui by postupgrade script automatically,"
-        " but this may require further update if you use the admin-script role."
+        " The admin role will be updated to admin-gui by the postupgrade script automatically,"
+        " but a further update might be required if you use the admin-script role."
         ),
     "copyXML" : (
         "* XML context descriptors (META-INF/context.xml files) are no longer copied from deployed"
-        " WARs and directories to the host's xmlBase. The default Tomcat 6 behavior can be enabled"
-        " by setting the copyXML attribute of the Host element to true."
+        " WAR files and directories to the host's xmlBase. The default Tomcat 6 behavior can be enabled"
+        " by setting the 'copyXML' attribute of the Host element to 'True'."
         ),
     "attr_allow_deny" : (
-        "* The allow or deny attributes are in use and utilize the tomcat6 regex list instead"
-        " of a single expression. Previous versions of tomcat allowed a list, but this version"
-        " takes a single expression. This needs to be addressed before an update can occur."
+        "* The 'allow' or 'deny' attributes are in use and utilize the tomcat6 regex list instead"
+        " of a single expression. Previous versions of Tomcat allowed a list, but this version"
+        " takes a single expression only. This needs to be addressed before an update can occur."
         ),
     "attr_proxies" : (
-        "* The internalProxies or trustedProxies attributes are in and use utilize the tomcat6"
-        " regex list instead of a single expression. Previous versions of tomcat allowed a list,"
-        " but this version takes a single expression. This needs to be addressed before an update"
+        "* The 'internalProxies' or 'trustedProxies' attributes are in use and utilize the tomcat6"
+        " regex list instead of a single expression. Previous versions of Tomcat allowed a list,"
+        " but this version takes a single expression only. This needs to be addressed before an update"
         " can occur."
         ),
     "attr_filter" : (
         "* The filter attribute is in use and utilizes the tomcat6 regex list instead of a single"
-        " expression. Previous versions of tomcat allowed a list, but this version takes a single"
-        " expression. This needs to be addressed before an update can occur."
+        " expression. Previous versions of Tomcat allowed a list, but this version takes a single"
+        " expression only. This needs to be addressed before an update can occur."
         ),
     "attr_user_agents" : (
-        "* The retrictedUserAgents or noCompressionUserAgents attributes are in use and utilize"
-        " the tomcat6 regex list instead of a single expression. Previous versions of tomcat"
-        " allowed a list, but this version takes a single expression. This needs to be addressed"
+        "* The 'retrictedUserAgents' or 'noCompressionUserAgents' attributes are in use and utilize"
+        " the tomcat6 regex list instead of a single expression. Previous versions of Tomcat"
+        " allowed a list, but this version takes a single expression only. This needs to be addressed"
         " before an update can occur."
         ),
     "randomClass" : (
-        "* randomClass attribute of Manager has changed to secureRandomClass and the provided"
-        " class must extend \"java.secure.SecureRandom\". This will be corrected by postupgrade"
+        "* The 'randomClass' attribute of Manager has changed to 'secureRandomClass' and the provided"
+        " class must extend 'java.secure.SecureRandom'. This will be corrected by the postupgrade"
         " script automatically."
         " There is a known issue with SecureRandom having long initialization times. If this"
         " is experienced, you can use the following system property:"
-        " \"-Djava.security.egd=file:/dev/./urandom\"."
+        " '-Djava.security.egd=file:/dev/./urandom'."
         ),
     "algorithm_entropy" : (
-        "* The algorithm and entropy attributes have been removed. This will be corrected"
-        " by postupgrade script automatically."
+        "* The 'algorithm' and 'entropy' attributes have been removed. This will be corrected"
+        " by the postupgrade script automatically."
         ),
     "emptySessionPath" : (
-        "* The emptySessionPath attribute of Connector has been obsoleted because it is now"
-        " configurable from the Servlet 3.0 API. You can set sessionCookiePath to \"/\" of"
-        " \"Context\" element in responsible context.xml file."
-        " The Obsoleted attribute will be removed automatically."
+        "* The 'emptySessionPath' attribute of Connector has been obsoleted because it is now"
+        " configurable from the Servlet 3.0 API. You can set 'sessionCookiePath' to a forward slash (/) of the"
+        " 'Context' element in the corresponding context.xml file."
+        " The obsoleted attribute will be removed automatically."
         ),
     "disableURLRewriting" : (
-        "* The disableURLRewriting attribute has been removed. This will be corrected"
-        " by postupgrade script automatically."
+        "* The 'disableURLRewriting' attribute has been removed. This will be corrected"
+        " by the postupgrade script automatically."
         ),
     "getStrAsCharArray" : (
-        "* The genStrAsCharArray attribute has been renamed to genStringAsCharArray. This will"
-        " be corrected by postupgrade script automatically."
+        "* The 'genStrAsCharArray attribute' has been renamed to 'genStringAsCharArray'. This will"
+        " be corrected by the postupgrade script automatically."
         ),
     "tomcatEPEL" : (
-        "* The tomcat package from EPEL or 3rd party is installed and conflicts with the upgrade."
-        " This must be removed prior to the to upgrade."
+        "* A tomcat package from EPEL or a third party is installed and conflicts with the upgrade."
+        " The package must be removed prior to the upgrade."
         ),
     "defaultDiff" : (
-        "* The difference between this system configuration file '%s' of tomcat6 and the default tomcat6"
-        " configuration is stored in this file: [link:%s]" % (
+        "* The difference between the '%s' system configuration file of tomcat6 and the default tomcat6"
+        " configuration is stored in the [link:%s] file." % (
                 GLOBAL_CONFIG_FILE,
                 DEFAULT_DIFF_FILE.replace(get_dest_dir()+"/", "")
             )
@@ -142,7 +142,7 @@ def _print_solution(key):
         solution_file("%s\n\n" % solutionTexts[key])
 
 def _set_exit_func(efunc):
-    "Just help function to set correct exit"
+    "A function to set the correct exit"
     global _use_exit_func
     if efunc is exit_error:
         _use_exit_func = exit_error
@@ -157,14 +157,14 @@ def _set_exit_func(efunc):
 # {fname : ET or None}
 ### just get file list with given path ###
 def get_file_list(path):
-    "Return list of all files in path - including files in subdirs"
+    "Return a list of all files in the path, including the files in its subdirectories."
     fList = list()
     for root, dummy_dirs, dummy_files in os.walk(path):
         fList.append(root)
     return fList
 
 def get_lines(fname):
-    "Get lines of file"
+    "Get lines of a file"
     lines = None
     with open(fname, 'r') as handle:
         lines = map(lambda x: x.strip(), handle.readlines())
@@ -172,9 +172,9 @@ def get_lines(fname):
 
 def write_lines(fname, lines):
     """
-    Write lines (list) to file.
+    Write lines (list) to a file.
 
-    if item does not end with line break, it will be added automatically
+    If an item does not end with a line break, the line break will be added automatically.
     """
     fix_ln = lambda x: x if len(x) > 0 and  x[-1] == '\n' else x+'\n'
     with open(fname, 'w') as handle:
@@ -184,13 +184,13 @@ def write_lines(fname, lines):
 ### print diff between
 def print_info_diff():
     """
-    Print diff part against default tomcat config file if it is not empty.
+    Print a diff part against the default tomcat config file if the diff part is not empty.
 
-    Create diff between default and current GLOBAL_CONFIG_FILE. When diff
-    is empty, log info message that the default configuration file it is
+    Create diff between the default and the current GLOBAL_CONFIG_FILE. When diff
+    is empty, log an info message that the default configuration file is
     used.
 
-    Otherwise log info message and append relevant info into the solution file.
+    Otherwise log an info message and append a relevant info into the solution file.
     """
     curr_file = get_lines(GLOBAL_CONFIG_FILE)
     orig_file = get_lines("server.xml")
@@ -204,19 +204,19 @@ def print_info_diff():
     # print must be here! not before write
     if len(diff_lines) > 0:
         _print_solution("defaultDiff")
-        log_info("Difference between this system configuration file of tomcat6"
-                 " and default configuration file has been stored to %s."
+        log_info("The difference between this system's tomcat6 configuration file"
+                 " and the default configuration file has been stored to %s."
                  % (DEFAULT_DIFF_FILE.replace(get_dest_dir()+"/", ""))
                 )
     else:
-        log_info("The default configuration file of tomcat6 is used.")
+        log_info("The default tomcat6 configuration file is used.")
 
 ### get_obsoleted_list ###
 def get_obsoleted_tomcatList():
     """
-    Get list of obsoleted installed tomcat6* packages from common data.
+    Get a list of obsoleted installed tomcat6* packages from common data.
 
-    Each item of the return list is string in format:
+    Each item of the return list is a string in the format:
     <current_package>|<new_package>
 
     E.g.: tomcat6;tomcat
@@ -256,12 +256,12 @@ def get_obsoleted_tomcatList():
 #      and easier for maintainance in future than now...). Will be discussed
 #####
 def check_users(fname, verbose=True):
-    """Check & Fix roles in given XML file"""
+    """Check & Fix roles in a given XML file"""
 
     def _my_log_medium_risk(fname, role):
         log_medium_risk(
-            "%s: The %s role is in use and has been changed in tomcat 7. It will be"
-            " automatically updated to the new %s-gui role, but may require further"
+            "%s: The %s role is in use and has been changed in Tomcat 7. It will be"
+            " automatically updated to a new %s-gui role, but might require a further"
             " intervention." % (fname, role, role)
             )
 
@@ -333,7 +333,7 @@ def check_session_manager(fname, verbose=True):
             manager.attrib.pop(attr)
             if not changedAlg and verbose:
                 _print_solution("algorithm_entropy")
-                log_slight_risk("%s: The algorithm and entropy attributes are not"
+                log_slight_risk("%s: The 'algorithm' and 'entropy' attributes are not"
                                 " supported and have been removed automatically." % fname)
             _set_exit_func(exit_fail)
             changedAlg = True
@@ -352,9 +352,9 @@ def check_session_cookie_connector(fname, verbose=True):
         elem.attrib.pop("emptySessionPath")
         if not changed and verbose:
             _print_solution("emptySessionPath")
-            log_medium_risk("%s: The emptySessionPath attribute is not supported in new Tomcat"
-                            " and will be removed automatically. See Remediation"
-                            " Instruction." % fname)
+            log_medium_risk("%s: The 'emptySessionPath' attribute is not supported in the new tomcat package"
+                            " and will be removed automatically. See the Remediation"
+                            " description." % fname)
         _set_exit_func(exit_fail)
         changed = True
     return changed
@@ -369,7 +369,7 @@ def check_url_rewriting(fname, verbose=True):
             context.attrib.pop("disableURLRewriting")
             if not changed and verbose:
                 _print_solution("disableURLRewriting")
-                log_medium_risk("%s: The disableURLRewriting attribute is not supported"
+                log_medium_risk("%s: The 'disableURLRewriting' attribute is not supported"
                                 " and will be removed automatically." % fname)
                 _set_exit_func(exit_fail)
             changed = True
@@ -386,8 +386,8 @@ def check_jsp_compiler(fname, verbose=True):
                 elem.text = "getStringAsCharArray"
                 if not changed and verbose:
                     _print_solution("genStrAsCharArray")
-                    log_info("%s: The genStrAsCharArray attribute has been renamed"
-                         " to genStringAsCharArray. It will be corrected automatically" % fname)
+                    log_info("%s: The 'genStrAsCharArray' attribute has been renamed"
+                         " to 'genStringAsCharArray'. It will be corrected automatically." % fname)
                     _set_exit_func(exit_fixed)
             changed = True
     return changed
@@ -411,9 +411,9 @@ def check_regex_attr(fname):
                 yield paramname, paramval
 
     def my_log_attr(fname, attr):
-        log_high_risk("%s: The %s attribute is in use and utilize"
+        log_high_risk("%s: The %s attribute is in use and utilizes"
                       " the tomcat6 regex list instead of a single expression."
-                      " See remediation instruction" % (fname,attr))
+                      " See the Remediation description" % (fname,attr))
 
     # return True when separator [;,] is included in string x
     has_sep = lambda x: ',' in x or ';' in x
@@ -483,7 +483,7 @@ def check_copyXML(fname):
             if elem.get("copyXML", None):
                 _print_solution("copyXML")
                 log_medium_risk("%s: XML context descriptors are no longer copied from deployed"
-                                " WARs and directories to the host's xmlBase by default." % fname)
+                                " WAR files and directories to the host's xmlBase by default." % fname)
                 _set_exit_func(exit_fail)
                 return True
     return False
@@ -521,8 +521,8 @@ for fname in appWebXmlList + appContextXmlList + [
 
 # check if tomcat from EPEL (or different source) is installed
 if is_pkg_installed("tomcat"):
-    log_high_risk("The tomcat package from EPEL (or 3rd party) is installed"
-                  " and it must be removed before inplace upgrade.")
+    log_high_risk("A tomcat package from EPEL or a third party is installed"
+                  " and must be removed before the in-place upgrade.")
     _print_solution("tomcatEPEL")
     _set_exit_func(exit_fail)
     # add pre-upgrade check script, which check, that package was really

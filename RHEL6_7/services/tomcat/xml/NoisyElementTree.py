@@ -8,21 +8,21 @@ class NSElement(ET.Element):
         ET.Element.__init__(self, tag, attrib)
 
     def namespace(self, keep_brackets=False):
-        "Extract namespace from tag"
+        "Extracts namespaces from tags"
         m = re.match("\{.*\}", self.tag)
         return ("{"+m.group(0)+"}" if keep_brackets else m.group(0)) if m else ""
 
     def iter_ignore_ns(self, tag=None):
         """
-        Like xml.etree.ElementTree.Element.iter() but ignore namespaces.
+        Similar to xml.etree.ElementTree.Element.iter() but ignores namespaces.
 
-        Default Element.iter function return just elements that correspond
-        exactly to given tag - or all when tag is not set - so when namespace
-        is used for an element, tag must contains namespace too, otherwise will
+        The default Element.iter function returns just the elements that correspond
+        exactly to a given tag (or all elements when the tag is not set), so when a namespace
+        is used for an element, the tag must contain a namespace too, otherwise the element will
         not be returned.
 
-        This function return element when corresponds to given tag ignoring namespace
-        so you can get all elements with same taf across various namespaces.
+        This function returns an element when the element corresponds to a given tag ignoring namespaces,
+        so you get all elements with the same tag regardless of namespaces.
         """
         if tag is None:
             yield self.iter()
@@ -35,11 +35,11 @@ class NSElement(ET.Element):
 
     def iter_same_ns(self, tag=None):
         """
-        Like xml.etree.ElementTree.Element.iter() but only for same namespace.
+        Similar to xml.etree.ElementTree.Element.iter() but only for the same namespaces.
 
         It is something between Element.iter() and Element.iter_ignore_ns().
-        When tag is specified, returns all elements corresponing to the given
-        tag with same namespace as original element.
+        When a tag is specified, the function returns all elements corresponding to the given
+        tag with same namespaces as the original element.
 
         E.g. element.tag  = "{http://foo.tar}bobika"
              element1.tag = "{http://foo.tar}pepa"
@@ -60,7 +60,7 @@ class NSElement(ET.Element):
 
 
 class CommentTreeBuilder(ET.XMLTreeBuilder):
-    "XMLTreeBuilder which keeps XML comments, includes comments outside root"
+    "XMLTreeBuilder, which keeps XML comments, includes comments outside root"
 
     def __init__(self, html=0, target=None):
         ET.XMLTreeBuilder.__init__(self, html, target)
@@ -86,15 +86,15 @@ class CommentTreeBuilder(ET.XMLTreeBuilder):
 
 class NoisyElementTree(ET.ElementTree):
     """
-    It's similar to ElementTree, just contain comments prior root node.
+    It is similar to ElementTree, but contains comments prior to the root node.
 
-    Unfortunately, some programmers still have troubles to understand XML
-    format and put LICENSE text as comment before root node - even when
-    license shouldn't be part of XML file, but put this skill now aside.
+    Unfortunately, some programmers still have troubles to understand an XML
+    format and put the LICENSE text as a comment before the root node, even when
+    the license should not be a part of an XML file.
 
-    When you need transform the file and .... don't loose nodes around root
-    node, this provide one way how to do it. In this case, just comments
-    before root node will be kept aside, accessible through:
+    When you need to transform the file and you do not want to lose nodes around the root
+    node, this solution provides a way to do it. In this case, only the comments
+    before the root node will be kept aside, accessible through:
         self.get_comments_prior_root().
     """
 
@@ -106,7 +106,7 @@ class NoisyElementTree(ET.ElementTree):
         return self._comments_prior_root
 
     def is_valid_tree(self):
-        "Return False when comments outside of root node exist. Otherwise True."
+        "Returns 'False' when comments outside of the root node exist. Otherwise returns 'True'."
         return len(self._comments_prior_root) == 0
 
     def parse(self, source, parser=None):
