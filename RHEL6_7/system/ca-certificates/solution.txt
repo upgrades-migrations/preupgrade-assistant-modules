@@ -10,11 +10,7 @@ an additional trusted certificate authority to the system.
 
 These additional trusted certificate authorities must be ported forward to
 the Red Hat Enterprise Linux 7.0 system manually. Place them as certificate (PEM or DER)
-files to the following directory:
-
- /etc/pki/ca-trust/source/anchors
-
-and then run the following command
+files to the /etc/pki/ca-trust/source/anchors/ directory and then run the command:
 
  # update-ca-trust
 
