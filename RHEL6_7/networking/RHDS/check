@@ -1,0 +1,116 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+echo "This is ALPHA version.
+                            " >> $SOLUTION_FILE
+
+if  service dirsrv status | grep -i error > /dev/null ;then 
+    echo "No dirsrv instance configured, nothing to do" >> $SOLUTION_FILE
+    exit_not_applicable
+else
+    instance=$(service dirsrv status | awk '{ print $2 }')
+    declare -a ds_configs=( "/etc/sysconfig/dirsrv" "/etc/dirsrv/*" )
+fi
+
+
+rhds_checks () {
+#In this version, this function apply mainly to the redhat-ds-base configuration.
+#In the future versions it may be extended to cover also other packages of redhat-ds package suit.
+#For this purpose it may be in the future split into multiple standalone functions.
+
+printf '%s\n' ${ds_configs[@]} | while IFS= read -r config
+do
+    if [[ -e "$config"  ]];then
+    cp --parents -ar "$config" $VALUE_TMP_PREUPGRADE/dirtyconf/
+    fi
+done
+
+echo "Directory server configuration files were copied into $VALUE_TMP_PREUPGRADE/dirtyconf/ directory.
+      If you are using preupgrade-assistant for in-place upgrade of the system, make sure to backup them in 
+      the external location" >> $SOLUTION_FILE
+
+
+}
+
+rhds_base_info () {
+
+echo "Use the following commands to backup your database directories. Please notice, that we are using Perl versions of the scripts. 
+      These are to be used with running dirserv instance. Shell versions must be run with stopped dirserv instance and
+      are not meant for master server backup.
+
+      ldapsearch -b cn=config -x -D '<rootdn>' -W  -H ldap://localhost -LLL '(objectClass=nsBackendInstance)' cn
+      # example : ldapsearch -b cn=config -x -D 'cn=Directory Manager' -W  -H ldap://localhost -LLL '(objectClass=nsBackendInstance)' cn
+
+      /usr/lib64/dirsrv/slapd-rl6-ldap/db2bak.pl -D \"<rootdn>\" -w <password> -a <backupfile>
+      # example : /usr/lib64/dirsrv/slapd-rl6-ldap/db2bak.pl -D \"cn=Directory Manager\" -w 12ldap389 -a /var/tmp/rl6-ldap.bak
+
+      /usr/lib64/dirsrv/slapd-rl6-ldap/db2ldif.pl -D \"<rootdn>\" -w <password> -r -n <backend_instance>
+      # example : /usr/lib64/dirsrv/slapd-rl6-ldap/db2ldif.pl -D \"cn=Directory Manager\" -w 12ldap389 -r -n userRoot
+
+      If you are using preupgrade-assistant for in-place upgrade of the system, make sure to backup them in the
+      external location
+
+      Use the following command to upgrade backend DB to new DN format AFTER the upgrade but before running the setup script:
+      upgradednformat -n <backend_instance> -a </path/to_backend/instance/dir>
+      # example : upgradednformat -n userRoot -a /var/lib/dirsrv/slapd-ldapserver/db/userRoot/ 
+                                                                                              " >> $SOLUTION_FILE
+
+
+}
+
+
+rhds_info () {
+
+echo 'Note: Only directory server package is checked. This version does not assist with the admin server and the console suits upgrade' >> $SOLUTION_FILE
+
+rhds_base_info
+
+}
+
+
+389_base_info () {
+
+echo '389-ds or 389-ds-base  are NOT supported as stand-alone packages, please review the scope of support below:
+      https://access.redhat.com/solutions/2440481             
+      https://access.redhat.com/articles/65032
+      https://access.redhat.com/support/offerings/production/soc
+
+      In-place upgrade of 389-ds or 389-ds-base packages is not supported. 
+      If you want to proceed with the update, you can find the following info helpful, but without any warranty:' >> $SOLUTION_FILE
+echo >> $SOLUTION_FILE
+
+rhds_base_info
+
+}
+
+389_info () {
+echo 'Note: Only directory server package is checked. This version does not assist with the admin server and the console suits upgrade' >> $SOLUTION_FILE
+
+389_base_info
+
+}
+
+
+is_pkg_installed "redhat-ds-base"
+if [ $? -eq 0 ];then
+   rhds_checks
+   is_pkg_installed "redhat-ds"
+   if [ $? -eq 0 ];then
+      rhds_info
+   else
+      rhds_base_info
+   fi
+   log_high_risk "Above info should help you with Red Hat Directory Server upgrade"
+   exit_fail
+else
+   is_pkg_installed "389-ds"
+   if [ $? -eq 0 ];then
+      389_info
+   else
+      389_base_info
+   fi
+   log_extreme_risk "389-ds or 389-ds-base upgrade is NOT supported"
+   exit_fail
+fi
