@@ -1,0 +1,237 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+
+DIRTY_DIR="$VALUE_TMP_PREUPGRADE/dirtyconf"
+CLEAN_DIR="$VALUE_TMP_PREUPGRADE/cleanconf"
+
+POST_DSTDIR="$POSTUPGRADE_DIR/system/java/"
+
+######################### FUNCTIONS ##########################
+dependent_packages() {
+  # print list of names of packages that requires the pkg $1
+  rpm --test -e "$1" 2>&1 | grep "is needed by (installed)" \
+    | rev \
+    | cut -d " " -f1 \
+    | cut -d "-" -f 3- \
+    | rev \
+    | LANG=C sort \
+    | uniq
+}
+
+_filter_native_pkgs() {
+  # filter out native packages; so print non-native packages
+  while [ -n "$1" ]; do
+    is_dist_native "$1" || echo "$1"
+    shift 1
+  done
+}
+
+ret=$RESULT_PASS
+set_result() {
+  case $1 in
+    $RESULT_ERROR) ret=$1 ;;
+    $RESULT_FAIL)  [ $ret -ne $RESULT_ERROR ] && ret=$1 ;;
+    $RESULT_FIXED) [ $ret -ne $RESULT_ERROR ] && [ $ret -ne $RESULT_FAIL ] && ret=$1 ;;
+  esac
+}
+
+get_jvm_dir() {
+  rpm_name=$(rpm -q "$1")
+  name_ver=$(echo "$rpm_name" | rev | cut -d "-" -f 2- | rev)
+  aarch=$(echo "$rpm_name" | rev | cut -d "." -f 1 | rev)
+
+  echo "/usr/lib/jvm/${name_ver}.${aarch}"
+}
+
+get_configs() {
+echo \
+  "jre/lib/calendars.properties" \
+  "jre/lib/content-types.properties" \
+  "jre/lib/flavormap.properties" \
+  "jre/lib/logging.properties" \
+  "jre/lib/net.properties" \
+  "jre/lib/psfontj2d.properties" \
+  "jre/lib/sound.properties" \
+  "jre/lib/deployment.properties" \
+  "jre/lib/deployment.config" \
+  "jre/lib/security/US_export_policy.jar" \
+  "jre/lib/security/java.policy" \
+  "jre/lib/security/java.security" \
+  "jre/lib/security/local_policy.jar" \
+  "jre/lib/security/nss.cfg" \
+  "jre/lib/ext"
+}
+
+#
+# Back up configuration files (from list above) on the given path
+#
+bp_jconfs() {
+  [ -z "$1" ] && {
+    log_error "Missing input JVM directory parameter."
+    exit_error
+  }
+
+  [ -d "$1" ] || {
+    log_error "The '$1' directory does not exist."
+    exit_error
+  }
+
+  state=0
+  for conf in $(get_configs); do
+    if [ -f "$1/$conf" ]; then
+      cp -anp --parents "$1/$conf" $DIRTY_DIR || {
+        log_warning "The config file $1/$conf was not backed up."
+        state=1
+      }
+    fi
+  done
+  return $state
+}
+
+
+
+##########################################################################
+# CHECK functions
+##########################################################################
+#
+# Check of GCJ Java
+#
+check_java_gcj() {
+  pkgs=""
+  for pkg in "java-1.5.0-gcj" "libgcj"; do
+    pkgs="$pkgs $pkg"
+    is_pkg_installed "$pkg" && is_dist_native "$pkg" || continue
+
+    dep_pkgs="$(dependent_packages $pkg)"
+    non_native_dep_pkgs="$(echo $(_filter_native_pkgs $dep_pkgs))"
+    if [ -n "$non_native_dep_pkgs" ]; then
+      # we found any dependent non-native package
+      log_medium_risk "The $pkg package is required by packages not signed" \
+                      "by Red Hat: $non_native_pkgs."
+    else
+      log_medium_risk "The $pkg package is installed on the system."
+    fi
+  done
+  echo >> "$SOLUTION_FILE" \
+    "* You have installed java-1.5.0-gcj or libgcj packages. The GCJ is not" \
+    "supported on Red Hat Enterprise Linux 7 system and your current" \
+    "Java applications compiled by GCJ will not work. Please, update your" \
+    "Java applications to be sure that they run with OpenJDK Java" \
+    "of version 7 or 8."
+  set_result $RESULT_FAILED
+}
+
+
+##########################################################################
+#
+# Check of OpenJDK 6
+#
+check_java6() {
+  pkg_old_java="java-1.6.0-openjdk"
+  is_pkg_installed "$pkg_old_java" && is_dist_native "$pkg_old_java" && {
+    echo >> "$SOLUTION_FILE" \
+      "* The OpenJDK Java 6 is not supported for inplace upgrade as support" \
+      "of the OpenJDK Java 6 has been ended on 31st of December 2016." \
+      "We recommend update of your applications to use OpenJDK Java 7 or 8," \
+      "and if it is possible remove the old OpenJDK Java 6," \
+      "before you update to new system Red Hat Enterprise Linux 7."
+    log_high_risk "The '$pkg_old_java' is installed but it is not supported for upgrades."
+    set_result $RESULT_FAILED
+
+    # at least we back up config files
+    old_jvmdir=$(get_jvm_dir "$pkg_old_java")
+    if bp_jconfs "$old_jvmdir"; then
+      log_info \
+        "Configuration files for the OpenJDK Java 6 have been backed up to" \
+        "the ${DIRTY_DIR}${old_jvmdir} directory."
+    else
+      log_high_risk "Some configuration files for the OpenJDK Java 6 have" \
+                    "not been backed up. Please, back up them manually" \
+                    "if you need them."
+    fi
+  }
+}
+
+##############################################################
+#
+# Check of OpenJDK 7 and 8
+#
+check_java78() {
+  for pkg in "java-1."{7,8}".0-openjdk"; do
+    is_pkg_installed "$pkg" && is_dist_native "$pkg" || continue
+    version=$(echo "$pkg" | grep -o "[78]")
+    jvmdir=$(get_jvm_dir "$pkg")
+
+    # for simple post-script
+    echo "$pkg|$jvmdir" >> "jvmdir_list"
+
+    echo >> "$SOLUTION_FILE" \
+      "* The OpenJDK Java $version is installed. Configuration files"\
+      "will be backed up and then will be restored by post-upgrade script" \
+      "automatically."
+
+    if bp_jconfs "$jvmdir"; then
+       log_info \
+         "The OpenJDK Java $version is installed. Your configuration" \
+         "have been backed up sucessfully and will be applied on the new" \
+         "system automatically."
+         set_result $RESULT_FIXED
+    else
+      # this is just for completion, but is not expected situation
+      log_error "Some configuration files for the OpenJDK Java $version have not been backed up."
+      set_result $RESULT_ERROR
+    fi
+
+  done
+}
+
+############################ MAIN ############################
+found=0
+found_gcj=0
+
+
+for pkg in "java-1."{6,7,8}".0-openjdk"; do
+  is_pkg_installed "$pkg" && is_dist_native "$pkg" && found=$(( found + 1 ))
+done
+
+for pkg in "java-1.5.0-gcj" "libgcj"; do
+  is_pkg_installed "$pkg" && is_dist_native "$pkg" && found_gcj=1
+done
+
+[ $found -eq 0 ] && [ $found_gcj -eq 0 ] && {
+  # there is not installed any our Java OpenJDK or GCJ package
+  # the module is not applicable
+  exit_not_applicable
+}
+
+# OK, we have job here
+[ $found_gcj -eq 1 ] && check_java_gcj
+[ $found     -ge 1 ] && {
+  check_java6
+  check_java78
+
+  if [ $found -gt 1 ]; then
+    log_slight_risk \
+       "Found installed more versions of OpenJDK Java." \
+       "We recommend check of settings of java alternatives on new system."
+    alternatives --display java \
+        | grep "link currently" \
+        | grep -o "/usr/lib.*$" \
+        > "current_alternatives"
+  fi
+
+  # prepare postupgrade
+  mkdir -p "$POST_DSTDIR"
+  mv "current_alternatives" "$POST_DSTDIR"
+  mv "jvmdir_list" "$POST_DSTDIR"
+  cp -a "java-post.sh" "$POST_DSTDIR"
+  chmod +x "$POST_DSTDIR/java-post.sh"
+
+}
+
+
+exit $ret
+
