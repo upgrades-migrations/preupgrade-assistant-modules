@@ -1,1 +1,0 @@
-In Red Hat Enterprise Linux 7, RPM packages providing Java are different from the ones in Red Hat Enterprise Linux 6. This can cause missing Java virtual provide on the upgraded system and break third party packages that depend on it. The postupgrade script will install Java after the upgrade.
