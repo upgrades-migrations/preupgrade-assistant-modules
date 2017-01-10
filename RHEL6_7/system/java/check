@@ -40,6 +40,18 @@ set_result() {
 
 get_jvm_dir() {
   rpm_name=$(rpm -q "$1")
+
+  grep -q "^java-1.8" && {
+    #
+    # java-1.8.0-openjdk uses same dirname as rpm NVRA
+    #
+    echo "/usr/lib/jvm/${name_ver}.${aarch}"
+    return 0
+  }
+
+  #
+  # OpenJDK 6 and 7 uses rpm NVA
+  #
   name_ver=$(echo "$rpm_name" | rev | cut -d "-" -f 2- | rev)
   aarch=$(echo "$rpm_name" | rev | cut -d "." -f 1 | rev)
 
