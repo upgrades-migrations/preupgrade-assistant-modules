@@ -5,6 +5,50 @@ check_rpm_to "" "grep,sed,cut,cp"
 
 #END GENERATED SECTION
 
+############# FUNCIONS / PERFORMANCE WORKROUND ###############################
+get_blacklist_file() {
+  [ ! -f "$PREUPGRADE_CONFIG" ] && return 1
+  local SECNAME="xccdf_preupg_rule_system_BinariesRebuild_check"
+  local line=$(
+    conf_get_section "$PREUPGRADE_CONFIG" "$SECNAME" \
+      | grep "exclude_file"
+  )
+
+  [ -z "$line" ] && return 1 # configuration is not used
+  echo "$line" | cut -d "=" -f 2-
+
+  return 0
+}
+
+gen_blacklist() {
+  local blacklist_cfg=$(get_blacklist_file)
+  [ $? -ne 0 ] && return 1
+  [ ! -f "$blacklist_cfg" ] && {
+    log_warning "The '$blacklist_cfg' file mentioned in config file doesn't exist."
+    return 1
+  }
+
+  sed -r 's/^(.)/^\1/' "$blacklist_cfg" > "$1"
+  return 0
+}
+
+gen_executable_list() {
+  local blacklist=$(mktemp .blacklistXXX --tmpdir="$PWD")
+  local executable=$(mktemp .executableXXX --tmpdir="$PWD")
+  echo "$executable"
+
+  gen_blacklist "$blacklist" || {
+    cp "$VALUE_EXECUTABLES" "$executable"
+    return 1
+  }
+
+  log_info "Original list of executable files has been reduced."
+  grep -vf "$blacklist" "$VALUE_EXECUTABLES" > "$executable"
+  return 0
+}
+
+
+############# MAIN ###########################################################
 [ ! -f "$VALUE_EXECUTABLES" ] || [ ! -r "$COMMON_DIR"  ] && {
   log_error "Generic common part of content is missing."
   exit_error
@@ -29,6 +73,10 @@ SCRIPTS="scripts"
 touch $SCRIPTS
 FOUND_BIN=0
 FOUND_SCR=0
+
+# (filtered) list of executables
+EXECUTABLES=$(gen_executable_list)
+
 # Check what binaries are not handled by our package and which needs to be
 # rebuilded on the new system
 while read line
@@ -62,7 +110,7 @@ do
       echo "$line" >> $SCRIPTS
     fi
   fi
-done < "$VALUE_EXECUTABLES"
+done < "$EXECUTABLES"
 
 rm -f "$safelibs"
 
