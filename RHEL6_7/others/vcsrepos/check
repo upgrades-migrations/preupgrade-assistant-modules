@@ -10,7 +10,6 @@ from preupg.script_api import *
 check_applies_to (check_applies="filesystem")
 
 #END GENERATED SECTION
-component = "vcsrepos"
 # exit functions are exit_{pass,not_applicable, fixed, fail, etc.}
 # logging functions are log_{error, warning, info, etc.}
 # for logging in-place risk use functions log_{extreme, high, medium, slight}_risk
@@ -110,6 +109,5 @@ def main():
 
 
 if __name__ == "__main__":
-    set_component(component)
     main()
     exit_informational()

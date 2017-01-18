@@ -11,9 +11,6 @@
 # allow better case matching
 shopt -s extglob
 
-# this is for 'common.sh'
-COMPONENT=postgresql
-
 # settings
 HOME_DIR=/var/lib/pgsql
 DATA_DIR=$HOME_DIR/data

@@ -4,7 +4,6 @@
 
 #END GENERATED SECTION
 
-COMPONENT="scl-utils"
 FOUND=0
 COLLECTIONS=`scl --list`
 if [ x"$COLLECTIONS" == "x" ]; then

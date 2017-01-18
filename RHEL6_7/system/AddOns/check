@@ -4,7 +4,6 @@
 
 #END GENERATED SECTION
 
-COMPONENT="distribution"
 ADD_ONS=\
 "83.pem|HighAvailability|/content/htb/rhel/server/7/\$basearch/highavailability/os 
 90.pem|ResilientStorage|/content/htb/rhel/server/7/\$basearch/resilientstorage/os"

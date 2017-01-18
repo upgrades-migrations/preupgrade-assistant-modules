@@ -7,7 +7,6 @@ from preupg.script_api import *
 
 check_rpm_to(check_rpm="", check_bin="")
 #END GENERATED SECTION
-component = "yum"
 
 
 def main():
@@ -58,7 +57,6 @@ def main():
 
 
 if __name__ == "__main__":
-    set_component(component)
     result = main()
     if result == 'fixed':
         exit_fixed()

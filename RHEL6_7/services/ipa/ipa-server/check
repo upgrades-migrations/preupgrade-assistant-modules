@@ -15,7 +15,6 @@ try:
 except ImportError:
     ipaserver_installed = False
 
-COMPONENT = 'ipa-server'
 
 def main():
     if not ipaserver_installed:
@@ -30,7 +29,6 @@ def main():
     exit_fail()
 
 if __name__ == "__main__":
-    set_component(COMPONENT)
     main()
     exit_pass()
 

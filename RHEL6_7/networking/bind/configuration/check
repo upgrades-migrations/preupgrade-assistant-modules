@@ -14,7 +14,6 @@ check_rpm_to (check_rpm="", check_bin="python")
 
 #END GENERATED SECTION
 # exit functions are exit_{pass,not_applicable, fixed, fail, etc.}
-COMPONENT = "BIND"
 # logging functions are log_{error, warning, info, etc.}
 # for logging in-place risk use functions log_{extreme, high, medium, slight}_risk
 ConfFile = namedtuple("ConfFile", ["path", "buffer"])
@@ -639,5 +638,4 @@ def main():
 
 
 if __name__ == "__main__":
-    set_component(COMPONENT)
     main()

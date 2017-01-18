@@ -7,7 +7,6 @@ check_applies_to "initscripts"
 
 RC_LOCAL="/etc/rc.d/rc.local"
 
-COMPONENT="initscripts"
 
 if [ ! -f $VALUE_CONFIGCHANGED ]; then
     log_error "Missing generic part $VALUE_CONFIGCHANGED"

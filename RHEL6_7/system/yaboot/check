@@ -4,7 +4,6 @@
 
 #END GENERATED SECTION
 
-COMPONENT="YABOOT"
 
 myarch=`arch`
 yaboot="/usr/bin/yaboot"

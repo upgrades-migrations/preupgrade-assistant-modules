@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 . /usr/share/preupgrade/common.sh
 check_applies_to "libcgroup"
-COMPONENT="libcgroup"
 #END GENERATED SECTION
 
 CGROUPS_CONFIG_CGCONFIG='/etc/cgconfig.conf'

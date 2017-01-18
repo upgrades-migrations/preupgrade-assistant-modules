@@ -3,7 +3,6 @@
 . /usr/share/preupgrade/common.sh
 
 #END GENERATED SECTION
-COMPONENT="aide"
 AIDE_LOG="/var/log/aide/aide.log"
 FOUND=0
 

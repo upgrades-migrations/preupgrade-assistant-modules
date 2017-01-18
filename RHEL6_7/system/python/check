@@ -10,7 +10,6 @@ if [ -f "$PYTHON_DIRS" ]; then
     rm -f $PYTHON_DIRS
 fi
 
-COMPONENT="python"
 FOUND=0
 for py_dir in `find -P /usr/lib*/python*/site-packages/* -maxdepth 0 -type d`
 do

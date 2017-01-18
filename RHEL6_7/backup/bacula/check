@@ -8,7 +8,6 @@ BACULA_ETC=/etc/bacula
 BACULA_CONF=/etc/bacula/bacula-dir.conf
 BACULA_SQL=/etc/bacula/query.sql
 
-COMPONENT=bacula
 log_info "Check whether $BACULA_ETC has correct user and group IDs."
 
 exit_code=0

@@ -6,7 +6,6 @@ check_applies_to ""  "grep"
 switch_to_content
 #END GENERATED SECTION
 
-COMPONENT="distribution"
 [ ! -f "$VALUE_RPM_QA" ] && exit $RESULT_NOT_APPLICABLE
 
 #check for Red Hat RHEL 6 keys and filter them out.

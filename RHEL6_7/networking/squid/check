@@ -5,7 +5,6 @@
 . /usr/share/preupgrade/common.sh
 check_applies_to "squid"
 check_rpm_to "" ""
-COMPONENT="squid"
 #END GENERATED SECTION
 
 if [ ! -f /etc/squid/squid.conf ] ; then

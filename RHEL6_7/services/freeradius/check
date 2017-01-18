@@ -10,7 +10,6 @@ check_rpm_to (check_rpm="python",check_bin="/usr/sbin/radiusd")
 #END GENERATED SECTION
 
 RADIUSD = '/usr/sbin/radiusd'
-COMPONENT = 'freeradius'
 
 def get_int(string):
     try:
@@ -71,6 +70,5 @@ def main():
         exit_fail()
 
 if __name__ == "__main__":
-    set_component(COMPONENT)
     main()
     exit_pass()

@@ -3,7 +3,6 @@
 . /usr/share/preupgrade/common.sh
 
 #END GENERATED SECTION
-COMPONENT="grub"
 FILE_NAME="splash.xpm.gz"
 
 if [[ -f "/boot/grub/$FILE_NAME" ]]; then

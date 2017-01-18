@@ -1,7 +1,6 @@
 #!/bin/bash
 
 . /usr/share/preupgrade/common.sh
-COMPONENT="distribution"
 #END GENERATED SECTION
 
 FOUND=0

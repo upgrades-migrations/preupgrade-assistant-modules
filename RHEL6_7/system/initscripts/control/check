@@ -8,7 +8,6 @@ INITSCRIPTS="not_handled.txt"
 rm -f $INITSCRIPTS
 
 LEVEL=$(runlevel | awk '{ print $2 }')
-COMPONENT="initscripts"
 DISABLED_SERVICES="disabled.log"
 ENABLED_SERVICES="enabled.log"
 POSTUPGRADE_SCRIPT="services.py"

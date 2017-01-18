@@ -4,7 +4,6 @@
 
 #END GENERATED SECTION
 
-COMPONENT="distribution"
 [ ! -f "noverifycfg" ] || [ ! -f "verified_blacklist" ] && exit $RESULT_ERROR
 found=0
 DIRTYCONF_D="$VALUE_TMP_PREUPGRADE/dirtyconf"
