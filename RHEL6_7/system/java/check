@@ -121,8 +121,9 @@ check_java_gcj() {
     non_native_dep_pkgs="$(echo $(_filter_native_pkgs $dep_pkgs))"
     if [ -n "$non_native_dep_pkgs" ]; then
       # we found any dependent non-native package
-      log_medium_risk "The $pkg package is required by packages not signed" \
-                      "by Red Hat: $non_native_pkgs."
+      msg="The $pkg package is required by packages not signed by Red Hat:"
+      msg+=" $non_native_pkgs."
+      log_medium_risk "$msg"
     else
       log_medium_risk "The $pkg package is installed on the system."
     fi
@@ -156,13 +157,14 @@ check_java6() {
     # at least we back up config files
     old_jvmdir=$(get_jvm_dir "$pkg_old_java")
     if bp_jconfs "$old_jvmdir"; then
-      log_info \
-        "Configuration files for the OpenJDK Java 6 have been backed up to" \
-        "the ${DIRTY_DIR}${old_jvmdir} directory."
+      msg="Configuration files for the OpenJDK Java 6 have been backed up"
+      msg+="to the ${DIRTY_DIR}${old_jvmdir} directory."
+      log_info "$msg"
     else
-      log_high_risk "Some configuration files for the OpenJDK Java 6 have" \
-                    "not been backed up. Please, back up them manually" \
-                    "if you need them."
+      msg="Some configuration files for the OpenJDK Java 6 have"
+      msg+=" not been backed up. Please, back up them manually"
+      msg+=" if you need them."
+      log_high_risk "$msg"
     fi
   }
 }
@@ -186,14 +188,16 @@ check_java78() {
       "automatically."
 
     if bp_jconfs "$jvmdir"; then
-       log_info \
-         "The OpenJDK Java $version is installed. Your configuration" \
-         "have been backed up sucessfully and will be applied on the new" \
-         "system automatically."
-         set_result $RESULT_FIXED
+       msg="The OpenJDK Java $version is installed. Your configuration"
+       msg+=" have been backed up sucessfully and will be applied on the new"
+       msg+=" system automatically."
+       log_info "$msg"
+       set_result $RESULT_FIXED
     else
       # this is just for completion, but is not expected situation
-      log_error "Some configuration files for the OpenJDK Java $version have not been backed up."
+      msg="Some configuration files for the OpenJDK Java $version have not"
+      msg+=" been backed up."
+      log_error "$msg"
       set_result $RESULT_ERROR
     fi
 
@@ -203,6 +207,7 @@ check_java78() {
 ############################ MAIN ############################
 found=0
 found_gcj=0
+touch jvmdir_list current_alternatives
 
 
 for pkg in "java-1."{6,7,8}".0-openjdk"; do
@@ -226,9 +231,9 @@ done
   check_java78
 
   if [ $found -gt 1 ]; then
-    log_slight_risk \
-       "Found installed more versions of OpenJDK Java." \
-       "We recommend check of settings of java alternatives on new system."
+    msg="Found installed more versions of OpenJDK Java."
+    msg+=" We recommend check of settings of java alternatives on new system."
+    log_slight_risk "$msg"
     alternatives --display java \
         | grep "link currently" \
         | grep -o "/usr/lib.*$" \
