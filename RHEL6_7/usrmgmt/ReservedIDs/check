@@ -7,14 +7,14 @@ switch_to_content
 
 write_file()
 {
-log_warning "setup" "$1"
+log_warning "$1"
 echo "$1" >>solution.txt
 echo "$2" >>solution.txt
 founderror=1
 }
 
 
-[ ! -r uidgid ] && log_error generic Generic part of the content is missing! && \
+[ ! -r uidgid ] && log_error "Generic part of the content is missing!" && \
   exit $RESULT_ERROR
 
 founderror=0
@@ -58,10 +58,10 @@ then
  write_file "Invalid GID used for the $myname account - now `echo $nameline | cut -d':' -f4`, should be $mygid". "This might cause troubles when an exact static GID is expected by an application.")
 #check homedir (FIXME: Should we warn about this in preupgrade?)
 [ -n "$myhome" ] && ([ x`echo $nameline | cut -d':' -f6` == x"$myhome" ] || \
- log_info setup "Incorrect homedir used for the $myname account - now `echo $nameline | cut -d':' -f6`, should be $myhome based on the reservation data")
+ log_info "Incorrect homedir used for the $myname account - now `echo $nameline | cut -d':' -f6`, should be $myhome based on the reservation data")
 #check loginshell (FIXME: Should we warn about this in preupgrade?)
 [ -n "$myshell" ] && ([ x`echo $nameline | cut -d':' -f7` == x"$myshell" ] || \
- log_info setup "Incorrect shell used for the $myname account - now `echo $nameline | cut -d':' -f7`, should be $myshell based on the reservation data")
+ log_info "Incorrect shell used for the $myname account - now `echo $nameline | cut -d':' -f7`, should be $myshell based on the reservation data")
 fi
 
 #check for invalid reserveduid usage

@@ -126,14 +126,14 @@ while read line; do
   # head because of multilib pkgs..you know.. x86_64 and i686 versions installed at once...
   pkg_nvr_installed=$(rpm -q --qf "${QUERY_FORMAT}" $pkgname | sort -Vr | head -n 1)
   [ $? -ne 0 ] && {
-    log_error "rpm" "package $pkgname is not installed or there is a different problem with an rpm utility"
+    log_error "The $pkgname package is not installed or there is a different problem with an rpm utility"
     exit $RESULT_ERROR
   }
 
   ./rpmdev-vercmp "$pkg_nvr" "$pkg_nvr_installed" > /dev/null
   status=$?
   [ $status -ne 0 ] && [ $status -ne 11 ] && [ $status -ne 12 ] && {
-    log_error "SystemVersion" "rpm versions cannot be compared"
+    log_error "Versions of rpms cannot be compared"
     exit $RESULT_ERROR
   }
 

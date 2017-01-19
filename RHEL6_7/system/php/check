@@ -89,7 +89,7 @@ rpm -q php-cli >/dev/null 2>/dev/null || {
 }
 
 DIR=$( get_extension_dir $php_cli ) || {
-  log_error "php-common" "Cannot find the extension directory: $DIR"
+  log_error "Cannot find the extension directory: $DIR"
   exit_error
 }
 

@@ -6,7 +6,7 @@ check_applies_to ""  "grep,tail,cut,sort"
 switch_to_content
 #END GENERATED SECTION
 
-[ ! -r systemids ] && log_error Generic part of the content is missing! && \
+[ ! -r systemids ] && log_error "Generic part of the content is missing!" && \
   exit $RESULT_ERROR
 
 founderror=0

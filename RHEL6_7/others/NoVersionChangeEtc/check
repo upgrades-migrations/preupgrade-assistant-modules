@@ -6,7 +6,7 @@ check_applies_to ""  "cp,grep"
 switch_to_content
 #END GENERATED SECTION
 
-[ ! -r cansave ] && log_error generic Part of the content is missing! && \
+[ ! -r cansave ] && log_error "Generic part of the content is missing!" && \
   exit $RESULT_ERROR
 
 found=0
@@ -22,7 +22,7 @@ do
   do
     grep " $j$" $VALUE_CONFIGCHANGED >/dev/null && \
       cp --parents -a "$j" "$VALUE_TMP_PREUPGRADE"/cleanconf/ && \
-      log_info $i "user modified config file $j stored" && found=1
+      log_info "${i}: user modified config file $j stored" && found=1
   done
 done < cansave
 
