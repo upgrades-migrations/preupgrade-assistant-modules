@@ -7,6 +7,23 @@ check_root
 rm -f solution.txt
 touch solution.txt
 
+pkg_chks=0
+for pkg in rsyslog rsyslog7
+do
+    if is_pkg_installed "$pkg";then
+        if ! is_dist_native "$pkg";then
+            log_info "The $pkg package is not signed by Red Hat."
+            pkg_chks=$((pkg_chks+1))
+        fi
+    else
+       log_info "The $pkg package is not installed."
+       pkg_chks=$((pkg_chks+1)) 
+    fi
+done
+if [ "$pkg_chks" -gt 1 ];then
+      exit $RESULT_NOT_APPLICABLE
+fi
+
 print_info() {
   echo "
 See [0] and [1] for more information about a new logging system in Red Hat Enterprise Linux 7 and solutions
@@ -33,7 +50,8 @@ for you or process them before the upgrade.\n" >> solution.txt
   return 1
 }
 
-tmp="$(grep rsyslog "$VALUE_CONFIGCHANGED")"
+tmp="$(grep rsyslog "$VALUE_CONFIGCHANGED")" &&
+declare -a tmp=$(echo "$tmp" | awk '{print $3}')
 
 [ $? -eq 0 ] && {
   log_medium_risk "Some config files of rsyslog are changed and some manual action will be needed."
@@ -41,8 +59,17 @@ tmp="$(grep rsyslog "$VALUE_CONFIGCHANGED")"
 The files printed below are changed and cannot be
 updated automatically:
 
-$tmp
-" > solution.txt
+${tmp[@]}
+
+The original versions of the configuration files have been backed up to $VALUE_TMP_PREUPGRADE/dirtyconf directory
+" >> solution.txt
+
+printf '%s\n' ${tmp[@]} | while IFS=' ' read -r config
+do
+ if [[ -e "$config" ]];then
+    cp -a --parents "$config" "$VALUE_TMP_PREUPGRADE/dirtyconf"
+ fi
+done
 
   check_spool_files
   print_info
