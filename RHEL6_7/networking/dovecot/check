@@ -10,6 +10,7 @@ check_root
 # Copy your config file from RHEL6 (in case of scenario RHEL6_7)
 # to Temporary Directory
 CONFIG_FILE="/etc/dovecot/"
+uid_val="$(awk '/^first_valid_uid/ { print $3}' /etc/dovecot/conf.d/10-mail.conf)"
 cp --parents -ar $CONFIG_FILE $VALUE_TMP_PREUPGRADE/dirtyconf
 
 #workaround to openscap buggy missing PATH
@@ -28,10 +29,9 @@ EOF
 which doveconf >/dev/null 2>&1
 RET=$?
 set -o pipefail
-[ $RET = 0 ] && doveconf -n | sed -e '/^#/d' -e '/ssl =/d' -e '/ssl_cert =/d' -e '/ssl_key =/d' -e '/auth_username_format =/d' -e '/mbox_write_locks =/d' -e '/mail_privileged_group =/d' -e '/mail_access_groups =/d' -e '/mail_location =/d' -e '/managesieve_notify_capability =/d' -e '/managesieve_sieve_capability =/d' -e '/ *sieve =/d' -e '/ *sieve_dir =/d' -e '/plugin {/d' -e '/^ *}/d' >$TMPF1
+[ $RET -eq 0 ] && doveconf -n | sed -e '/^#/d' -e '/ssl =/d' -e '/ssl_cert =/d' -e '/ssl_key =/d' -e '/auth_username_format =/d' -e '/mbox_write_locks =/d' -e '/mail_privileged_group =/d' -e '/mail_access_groups =/d' -e '/mail_location =/d' -e '/managesieve_notify_capability =/d' -e '/managesieve_sieve_capability =/d' -e '/ *sieve =/d' -e '/ *sieve_dir =/d' -e '/plugin {/d' -e '/^ *}/d' >$TMPF1
 RET=$?
 
-fixed=false
 # auth_username_format default value has changed, so if it's not set explicitely, set it to original default value
 if ! doveconf -n | grep -q auth_username_format
 then
@@ -42,17 +42,15 @@ then
   else
     echo 'auth_username_format =' >>$AUTHCONF
   fi
-  fixed=true
 fi
 
-if [ $RET = 0 ]
+if [ $RET -eq 0 ]
 then
   cmp -s $TMPF1 $TMPF2
   RET=$?
-  if [ "$RET" = 0 ]
+  if [ "$RET" -eq 0 ]
   then
     rm -f $TMPF1 $TMPF2
-    $fixed && exit $RESULT_FIXED || exit $RESULT_PASS
   fi
 else
   log_error "Cannot use doveconf to parse the configuration files."
@@ -71,10 +69,13 @@ file manually on the new system.
 PREF=$POSTUPGRADE_DIR/dovecot
 mkdir -p $PREF
 sed '2,/^#!\//d' $0 >$PREF/dovecot_postupgrade.sh
+if ! [[ -z "$uid_val" ]] && [ "$uid_val" -lt 1000 ];then
+  export uid_val ; perl -pi -e '$_ .= qq(sed -i -e "s/first_valid_uid = 1000/first_valid_uid = $ENV{"uid_val"}/g" /etc/dovecot/conf.d/10-mail.conf\n) if  /restorecon -R $CONFIG_FILE/' "$PREF"/dovecot_postupgrade.sh
+fi
 chmod +x $PREF/dovecot_postupgrade.sh
 
 rm -f $TMPF1 $TMPF2
-exit $RESULT_FAILED
+exit $RESULT_FIXED
 
 ############################# postupgrade script ##########################################
 #!/bin/bash
@@ -121,7 +122,7 @@ mkdir $CONFIG_FILE
 mv /etc/dovecot.conf.preupnew $CONFIG_FILE/dovecot.conf
 restorecon -R $CONFIG_FILE
 
-if [ $ret = 0 ] && checkconfig
+if [ $ret -eq 0 ] && checkconfig
 then #regenerated configuration works
   rm -f $CONVLOG
   exit 0
