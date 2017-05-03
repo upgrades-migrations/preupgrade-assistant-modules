@@ -1,0 +1,36 @@
+#!/bin/bash
+
+grub_conf="/etc/default/grub"
+
+is_pkg_installed() {
+  rpm -q "$1" >/dev/null 2>&1
+}
+
+
+is_dist_native() {
+  queryf="%|DSAHEADER?{%{DSAHEADER:pgpsig}}"
+  queryf+=":{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none)}|}|\n"
+  rpm -q "$1" --qf "$queryf" \
+    | grep -q -e "[[:space:]]199e2f91fd431d51$" \
+              -e "[[:space:]]5326810137017186$" \
+              -e "[[:space:]]938a80caf21541eb$" \
+              -e "[[:space:]]fd372689897da07a$" \
+              -e "[[:space:]]45689c882fa658e0$" \
+    || return 1
+  return 0
+}
+
+####################### MAIN ##########################
+is_pkg_installed "yaboot" && is_dist_native "yaboot" || {
+  echo >&2 "Error: The yaboot package is not installed or it is not signed by Red Hat."
+  exit 1
+}
+
+[ -f "$grub_conf" ] || {
+  echo >&2 "Error: The $grub_conf configuration file for grub does not exist."
+  echo >&2 "    The file is crucial for correct upgrade to the new system,"
+  echo >&2 "    otherwise the system will not be bootable. Run the preupg"
+  echo >&2 "    command again and complete all recommended and required actions."
+  exit 1
+}
+

@@ -1,5 +1,4 @@
-The module is valid only on 64-bit PowerPC architecture and it checks if Yaboot is installed.
+The module is valid only on the 64-bit PowerPC architecture and it checks if Yaboot is installed.
 
-Yaboot cannot boot Red Hat Enterprise Linux 7. Redhat-upgrade-tool will install GRUB 2 during the upgrade. Create the /etc/default/grub file before running redhat-upgrade-tool to ensure the correct GRUB 2 configuration. Misconfiguration might make the system unbootable.
+Yaboot cannot boot the Red Hat Enterprise Linux 7 system. The Red Hat Upgrade Tool will install GRUB 2 during the upgrade. Create the /etc/default/grub file before running `redhat-upgrade-tool` to ensure the correct GRUB 2 configuration. A misconfiguration might make the system unbootable.
 
-The /etc/default/grub file has been created for this system. Kernel command-line options were converted to a new Red Hat Enterprise Linux 7 format and moved into the /etc/default/grub file.
