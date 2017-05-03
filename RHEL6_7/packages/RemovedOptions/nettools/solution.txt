@@ -1,7 +1,6 @@
-Some options were removed from the netstat binary of the net-tools package between
-Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of some of your scripts.
+Some options were removed from the netstat binary of the net-tools package between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of some of your scripts.
 All option removals with the solutions are listed below.
 
-netstat : -T or --notrim is renamed to -W or --wide
+netstat : The '-T' or '--notrim' option is renamed to '-W' or '--wide'.
 
 Check that your scripts are aware of these changes.

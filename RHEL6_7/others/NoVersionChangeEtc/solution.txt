@@ -1,1 +1,1 @@
-Some packages are the same in both Red Hat Enterprise Linux 7 and Red Hat Enterprise Linux 6. Therefore, the current configuration files for these packages can be safely reused. 
+Some packages are the same in both Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. Therefore, the current configuration files for these packages can be safely reused. 

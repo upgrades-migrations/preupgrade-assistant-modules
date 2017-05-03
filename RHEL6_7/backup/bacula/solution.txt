@@ -1,2 +1,2 @@
-The module verifies that the permissions on the /etc/bacula directory are correctly set.
+The module verifies that the permissions for the /etc/bacula/ directory are set correctly.
 

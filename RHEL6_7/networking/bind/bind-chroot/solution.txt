@@ -1,12 +1,5 @@
-The way BIND9 running in a chroot environment is started changed
-between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7.
+The way BIND9 running in a chroot environment is started changed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7.
 
-For more information, read the following Red Hat Knowledgebase
-article located at Customer Portal:
-https://access.redhat.com/site/node/770133/
-
-The article describes:
-- how BIND can be run in a chroot environment in Red Hat Enterprise Linux 7
-- the difference compared to Red Hat Enterprise Linux 6
-- recommendations when running BIND in a chroot environment
+For more information, see https://access.redhat.com/site/node/770133/.
+The article describes how BIND can be run in a chroot environment in Red Hat Enterprise Linux 7, the difference compared to Red Hat Enterprise Linux 6, and the recommendations when running BIND in a chroot environment.
 

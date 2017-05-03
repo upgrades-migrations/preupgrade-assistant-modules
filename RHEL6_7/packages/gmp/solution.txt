@@ -1,3 +1,3 @@
-GMP 6.0 is compatible with GMP 4.3 in major features. Incompatible changes affect only functions, which should not be used by user applications at all:
+GMP 6.0 is compatible with GMP 4.3 in major features. Incompatible changes affect only the functions that should not be used by user applications at all:
  - mpn_bdivmod function
  - BSDMP-like interface libmp.so

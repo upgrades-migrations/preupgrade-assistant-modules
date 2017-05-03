@@ -1,7 +1,7 @@
 The following options have been extended or added to the BIND utility version 9.9.4:
 
 * inline-signing
-This option can be used in zone Statement. If set to "yes", the unsecured zone, which is either loaded from the disk or transferred, is signed in real time and served as signed.
+This option can be used in a zone statement. If set to "yes", the unsecured zone, which is either loaded from the disk or transferred, is signed in real time and served as signed.
 
 * request-ixfr
 This option can now also be used in a zone block of the configuration. Setting this option overrides the global setting or the view setting for the respective zone.
@@ -15,4 +15,4 @@ This option now has the same syntax as the zone's "master" option. This means it
 * dnssec-loadkeys-interval
 This new option can be used to set the frequency of the checks for new keys if the zone has been configured with the "auto-dnssec maintain;" option. The time is specified in minutes with the default value set to 60 minutes. The minimum value is 1 minute and the maximum is 1440 minutes (24 hours). Any greater value is silently reduced to 1440 minutes.
 
-For more information, see the BIND9 Administrator Reference Manual located in the /usr/share/doc/bind-9.9.4/ directory.
+For more information, see the "BIND9 Administrator Reference Manual" located in the /usr/share/doc/bind-9.9.4/ directory.

@@ -1,2 +1,2 @@
-The module generates a list of binaries which need to be rebuilt at [link: kickstart/binaries]
+The module generates a list of binaries that need to be rebuilt at [link: kickstart/binaries].
 

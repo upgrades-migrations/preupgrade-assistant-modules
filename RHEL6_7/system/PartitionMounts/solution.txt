@@ -1,3 +1,3 @@
 Red Hat Enterprise Linux 7 now uses the XFS file system as a default file system instead of the ext4 file system. If you intend to migrate the system to another machine or create a new file system, consider using XFS instead of ext4. Users who use a Kickstart installation may consider modifying the Kickstart configuration to use XFS.
 
-Additionally, the information about the partitions and mounts configuration has been saved in the /root/preupgrade/kickstart/ directory. This information can be useful to users who choose to perform a system migration or convert their file systems to XFS.
+Additionally, the information about the partitions and the mounts configuration has been saved in the /root/preupgrade/kickstart/ directory. This information can be useful to users who choose to perform a system migration or convert their file systems to XFS.

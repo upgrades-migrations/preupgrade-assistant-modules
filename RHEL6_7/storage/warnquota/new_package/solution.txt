@@ -1,14 +1,9 @@
-The quota tool warnquota(8) has been moved from the "quota" package into the
-"quota-warnquota" package.
+The quota tool warnquota(8) has been moved from the quota package into the
+quota-warnquota package.
+If you used warnquota on the original system, install the quota-warnquota
+package on the new system with the following command:
 
-If you used warnquota on the old system, install the "quota-warnquota"
-package on the new system with this command:
+`# yum --assumeyes install quota-warnquota`
 
-# yum --assumeyes install quota-warnquota
-
-Do not forget to check the warnquota configuration files
-(/etc/quotagrpadmins, /etc/quotatab, and /etc/warnquota.conf) before using
-the tool.
-
-Install a cron job to execute the warnquota tool
-periodically, if you used it on the the old system. 
+Do not forget to check the warnquota configuration files (/etc/quotagrpadmins, /etc/quotatab, and /etc/warnquota.conf) before using the tool.
+Install a cron job to execute the warnquota tool periodically if you used it on the the original system. 

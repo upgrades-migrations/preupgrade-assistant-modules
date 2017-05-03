@@ -1,32 +1,32 @@
-Some options were removed or deprecated from util-linux-ng (in Red Hat Enterprise Linux 7 it
+Some options were removed or deprecated from the util-linux-ng (in Red Hat Enterprise Linux 7 it
 is renamed back to util-linux) package binaries between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7.
-This may break the functionality of some of your scripts. All option removals
+This might break the functionality of some of your scripts. All option removals
 with the solutions are listed below.
 
 blkid:
-    -w - option is deprecated (undocumented on Red Hat Enterprise Linux 7)
+    The '-w' option is deprecated (undocumented in Red Hat Enterprise Linux 7).
 
 fallocate:
-    --lenght - replaced by --length
+    The '--lenght' option is replaced by '--length'.
 
-findmnt
-    --fsroot - replaced by --nofsroot
+findmnt:
+    The '--fsroot' option is replaced by '--nofsroot'.
 
 losetup:
-    -s - short option removed, available only --show
+    The short '-s' option is removed, available only as the long '--show' option.
 
 mount:
-    -p, --pass-fd - options are deprecated (undocumented on Red Hat Enterprise Linux 7)
+    The '-p' and '--pass-fd' options are deprecated (undocumented in Red Hat Enterprise Linux 7).
 
 partx:
-    --gpt - undocumented and removed
+    The '--gpt' option is undocumented and removed.
 
 readprofile:
-    -t - removed
+    The '-t' option is removed.
 
 sfdisk:
-    -? - replaced by -h
+    The '-?' option is replaced by '-h'.
 
 blkid, fsck, hexdump, hwclock, mkfs, mount, renice:
-    -v is deprecated and replaced by -V
-    (print version)
+    The '-v' option is deprecated and replaced by '-V'.
+    

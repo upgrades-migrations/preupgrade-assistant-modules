@@ -4,9 +4,9 @@ the attribute defined by the uid_attribute configuration parameter. Multipath
 will issue warnings if /etc/multipath.conf defines getuid_callout in Red Hat Enterprise Linux 7, and
 will use the built-in value for uid_attribute instead.
 
-The way Multipath determines if a user defined device configuration should
+The way Multipath determines if a user-defined device configuration should
 modify a built-in device configuration or create a new device configuration has
-changed in Red Hat Enterprise Linux 7. By default in Red Hat Enterprise Linux 6, the user config only modified a built-in
+changed in Red Hat Enterprise Linux 7. By default, in Red Hat Enterprise Linux 6, the user config only modified a built-in
 one if the vendor, product, and revision strings of the user configuration
 exactly matched the vendor, product and revision strings in the built-in
 configuration. However, the vendor, product, and revision strings are
@@ -22,7 +22,7 @@ strings.  On upgrade, "hw_str_match yes" will be added to the defaults section
 of /etc/multipath.conf to force multipath to use the RHEL6 behavior, if
 necessary.
 
-The default multipath.conf file used on fresh Red Hat Enterprise Linux 7 installs enables
+The default multipath.conf file used on fresh Red Hat Enterprise Linux 7 installations enables
 find_multipaths by default. This will not be set on upgrades from Red Hat Enterprise Linux 6.
 
 A number of builtin configuration settings have changed in Red Hat Enterprise Linux 7.  These

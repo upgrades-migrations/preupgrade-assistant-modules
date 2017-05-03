@@ -1,8 +1,8 @@
-The files "/etc/sysconfig/[dhcpd|dhcpd6|dhcrelay]" used for specifying the user's 
+The /etc/sysconfig/[dhcpd|dhcpd6|dhcrelay] files used for specifying the user's 
 customization arguments are deprecated in Red Hat Enterprise Linux 7. Instead, these arguments can
-be specified in the "[dhcpd|dhcpd6|dhcrelay].service" files on the "ExecStart" line.
+be specified in the [dhcpd|dhcpd6|dhcrelay].service files on the "ExecStart" line.
 
-The specified arguments are automatically moved from /etc/sysconfig/*
-files into *.service files the during upgrade. Verify that they are moved
+The specified arguments are automatically moved from the /etc/sysconfig/*
+files into the *.service files during upgrade. Verify that they are moved
 correctly and everything works as expected.
 

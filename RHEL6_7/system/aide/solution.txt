@@ -1,3 +1,1 @@
-After the upgrade run a command:
-
-aide --update
+After the upgrade, type `aide --update` to update the AIDE tool.

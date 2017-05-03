@@ -1,3 +1,3 @@
-Red Hat Enterprise Linux 7 contains Python version 2.7.5. For more information about the differences from older versions and for further details, see [link:https://access.redhat.com/site/articles/676453]. 
+Red Hat Enterprise Linux 7 contains Python version 2.7.5. For more information about the differences from earlier versions and for further details, see [link:https://access.redhat.com/site/articles/676453]. 
 
 The files and directories listed above are not owned by any RPM packages or are owned by an RPM package that is not signed by Red Hat. These packages need to be rebuilt and reinstalled in order to work with Python 2.7.5. 

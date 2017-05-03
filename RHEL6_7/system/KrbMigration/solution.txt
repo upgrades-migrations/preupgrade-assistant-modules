@@ -1,6 +1,4 @@
-The configuration option KRB5REALM is merged with the option KRB5KDC_ARGS in the /etc/sysconfig/krb5kdc file in Red Hat Enterprise Linux 7. This module transforms the old configuration file to the new one while keeping the settings intact. No manual user action is necessary upon upgrade.
-
-
-Use openssh instead of the krb5-appl package which is no longer available in Red Hat Enterprise Linux 7. Instead of rcp and ftp use scp and sftp. Instead of telnet, rlogin or rsh use slogin and ssh.
-The clients and servers support GSSAPI authentication using Kerberos, and the sloging and ssh commands can be passed with -K flag to delegate the credentials to the remote host.
+The KRB5REALM configuration option is merged with the KRB5KDC_ARGS option in the /etc/sysconfig/krb5kdc file in Red Hat Enterprise Linux 7. This module transforms the original configuration file to the new one while keeping the settings intact. No manual user action is necessary upon upgrade.
+Use openssh instead of the krb5-appl package, which is no longer available in Red Hat Enterprise Linux 7. Instead of rcp and ftp use scp and sftp. Instead of telnet, rlogin, or rsh use slogin and ssh.
+The clients and servers support GSSAPI authentication using Kerberos, and the sloging and ssh commands can be passed with the '-K' flag to delegate the credentials to the remote host.
 

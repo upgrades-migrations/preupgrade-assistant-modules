@@ -1,10 +1,10 @@
-Some user data, such as user home directories and temporary files, are not tracked by the RPM database. This data will [bold:not] be migrated automatically. To assist you with migrating it, this module generates the following files:
+Some user data, such as user home directories and temporary files, are not tracked by the RPM database. This data will not be migrated automatically. To assist you with migrating it, this module generates the following files:
 
-* The [link:./kickstart/untrackedsystem] file lists the regular files on the system that will not be migrated. The list does not contain the files mounted over the network, files created by runtime system operations, files in temporary locations, or the user's files in the /home/ or /root/ directory.
+* The [link:./kickstart/untrackedsystem] file lists the regular files on the system that will not be migrated. The list does not contain the files mounted over the network, files created by runtime system operations, files in temporary locations, or the users' files in the /home/ or /root/ directory.
 
-* The [link:./kickstart/untrackeduser] file lists the regular local files in the /home/ and /root/ directories that will not be migrated. If the /home/ and /root/ directories are on a file system mounted over the network, this file may be empty.
+* The [link:./kickstart/untrackeduser] file lists the regular local files in the /home/ and /root/ directories that will not be migrated. If the /home/ and /root/ directories are on a file system mounted over the network, this file might be empty.
 
-* The [link:./kickstart/untrackedexpected] file lists the regular files and symlinks created by runtime system operations (for example handling runlevels, alternatives and active SELinux modules). Most likely you do not need to care about them, the list is available just for the sake of completeness.
+* The [link:./kickstart/untrackedexpected] file lists the regular files and symlinks created by runtime system operations (for example, handling runlevels, alternatives, and active SELinux modules). Most likely you do not need to care about them, the list is available just for the sake of completeness.
 
 * The [link:./kickstart/untrackedtemporary] file lists all temporary local files on the system that will not be migrated. This is essentially everything in the /cgroup/, /tmp/, and /var/ directories. Most likely you do not need to care about them, the list is available just for the sake of completeness.
 
@@ -12,4 +12,4 @@ It is recommended that you back up all the data before proceeding with the upgra
 
 If you are performing an in-place upgrade, this data should remain in their current location after the upgrade. The configuration files and other data should be reviewed to determine if any modifications are needed for the use with Red Hat Enterprise Linux 7. Verify that all the data was maintained successfully.
 
-If you are performing a migration upgrade, this data [bold:must] be backed up to another storage medium. Copy the data you wish to have on the new installation back into place after the upgrade is complete. The configuration files and other data should be reviewed to determine if any modifications are needed for the use with Red Hat Enterprise Linux 7.
+If you are performing a migration upgrade, this data must be backed up to another storage medium. Copy the data you wish to have on the new installation back into place after the upgrade is complete. The configuration files and other data should be reviewed to determine if any modifications are needed for the use with Red Hat Enterprise Linux 7.

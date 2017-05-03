@@ -1,4 +1,4 @@
-Red Hat Enterprise Linux 7 contains the FreeRADIUS service version 3.x, which is a major version upgrade from version 2.x on Red Hat Enterprise Linux 6. 
+Red Hat Enterprise Linux 7 contains the FreeRADIUS service version 3.x, which is a major version upgrade from version 2.x in Red Hat Enterprise Linux 6. 
 
 The configuration of the FreeRADIUS service version 3.x is not compatible with version 2.x. There are no automated mechanisms to convert a FreeRADIUS 2.x configuration into a FreeRADIUS 3.x configuration, therefore the conversion must be performed manually by an experienced administrator.
  
@@ -8,7 +8,7 @@ Available resources for performing the upgrade include the following:
 
 * Files located in the /usr/share/doc/freeradius*/ directories. Many of these documents are installed by the freeradius-doc subpackage. It is recommended that you install this package.
 
-* The FreeRADIUS man pages, especially unlang(5), and radiusd.conf(5). To see a list of available manpages, run the "man -k radius" command.
+* The FreeRADIUS man pages, especially unlang(5), and radiusd.conf(5). To see a list of available manpages, type `man -k radius`.
 
 * The in-line comments located within the configuration files in the /etc/raddb/ directory. This is where the majority of the FreeRADIUS documentation can be found, and it is of vital importance to read the contents of the configuration files.
 

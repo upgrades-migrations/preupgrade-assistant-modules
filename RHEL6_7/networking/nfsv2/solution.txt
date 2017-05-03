@@ -1,0 +1,2 @@
+NFS protocol version 2 is not supported in Red Hat Enterprise Linux 7.
+-----------------------------------------------------

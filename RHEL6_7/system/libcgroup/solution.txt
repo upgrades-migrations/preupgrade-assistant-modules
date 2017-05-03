@@ -7,9 +7,9 @@ process level to the application level by binding the cgroup hierarchy
 with the systemd unit hierarchy. Therefore, you can manage the cgroup tree
 with systemctl commands.
 
-For more details see Red Hat Enterprise Linux 7 Resource Management Guide:
-Chapter 2 (Using Control Groups):
+For more details, see "Red Hat Enterprise Linux 7 Resource Management Guide":
+- Chapter 2 (Using Control Groups):
 [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Resource_Management_Guide/chap-Using_Control_Groups.html]
-Chapter 3 (Using libcgroup Tools):
+- Chapter 3 (Using libcgroup Tools):
 [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Resource_Management_Guide/chap-Using_libcgroup_Tools.html]
 

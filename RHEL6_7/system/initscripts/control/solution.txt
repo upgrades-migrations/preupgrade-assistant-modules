@@ -1,1 +1,1 @@
-The module detects and lists the services which are disabled by default in Red Hat Enterprise Linux 7.
+The module detects and lists the services that are disabled by default in Red Hat Enterprise Linux 7.

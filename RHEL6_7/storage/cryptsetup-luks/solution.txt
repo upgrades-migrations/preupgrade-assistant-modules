@@ -1,10 +1,10 @@
 The libgcrypt library in Red Hat Enterprise Linux 6 has a flaw in the Whirlpool algorithm implementation.
 The bug is fixed in the later version of the library included in Red Hat Enterprise Linux 7. LUKS containers
-created using the libgcrypt present in Red Hat Enterprise Linux 6 cannot be unlocked using the one
+created by using the libgcrypt present in Red Hat Enterprise Linux 6 cannot be unlocked by using the one
 present in Red Hat Enterprise Linux 7 unless the GCRYPT_WHIRLPOOL_BUG environmental variable is set.
 
 For optional LUKS containers (not involved in the system boot) it is not a critical
-obstacle and admins can unlock such containers using the environmental variable above.
+obstacle and administrators can unlock such containers by using the environmental variable above.
 The situation is different when you deal with mandatory volumes: 
 In case the preupgrade script has detected the Whirlpool hash in one of the volumes
 involved in the system boot (any volume listed in the /etc/crypttab configuration file),
@@ -13,11 +13,11 @@ recommend to rehash the LUKS header using the cryptsetup-reencrypt package added
 Red Hat Enterprise Linux 6.6 and later.
 
 A command for rehashing the LUKS header without changing the master key:
-# cryptsetup-reencrypt -h sha1 --keep-key <path_to_luks_device>
+`# cryptsetup-reencrypt -h sha1 --keep-key <path_to_luks_device>`
 
 Supply a device identified to be using the Whirlpool hash instead of the
 pattern: <path_to_luks_device>.
 
-sha1 is a recommended hash function for LUKS headers in Red Hat Enterprise Linux 6 and also in Red Hat Enterprise Linux 7.
+The SHA-1 function is a recommended hash function for LUKS headers in Red Hat Enterprise Linux 6 and also in Red Hat Enterprise Linux 7.
 
 We also recommend to rehash all optional volumes.

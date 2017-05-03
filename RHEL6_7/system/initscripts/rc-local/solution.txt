@@ -1,8 +1,3 @@
-It is highly advisable to create your own systemd services or udev rules
-to run scripts after boot instead of using this file.
-
-In constrast to previous versions, due to parallel execution during boot 
-this script will NOT be run after all the other services.
-  
-Run 'chmod +x /etc/rc.d/rc.local' to ensure
-that this script will be executed during boot.
+It is highly advisable to create your own systemd services or udev rules to run scripts after boot instead of using this file.
+In contrast to previous versions, this script will not be run after all the other services due to the parallel execution during the boot process.
+Enter `chmod +x /etc/rc.d/rc.local` to ensure that this script will be executed during boot.

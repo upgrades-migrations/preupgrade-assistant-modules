@@ -1,9 +1,2 @@
-The taskjuggler and taskjuggler-libs packages are not available
-for Red Hat Enterprise Linux 7. Upstream stopped supporting TaskJuggler 2
-(as the rewrite to QT 4 is not an easy task) and TaskJuggler 3 written
-in Ruby is not compatible.
-
-Unfortunately, there is no replacement supported by Red Hat. If your processes
-require these packages, you may either compile the kdelibs 3 and kdepim 3
-stack (bringing QT 3 stuff into Red Hat Enterprise Linux 7) or migrate to TaskJuggler 3 (from
-upstream, at www.taskjuggler.org).
+The taskjuggler and taskjuggler-libs packages are not available for Red Hat Enterprise Linux 7. Upstream stopped supporting TaskJuggler 2, and TaskJuggler 3 written in Ruby is not compatible.
+Unfortunately, there is no replacement supported by Red Hat. If your processes require these packages, you may either compile the kdelibs 3 and kdepim 3 stack (bringing QT 3 stuff into Red Hat Enterprise Linux 7), or migrate to TaskJuggler 3 (from upstream, at www.taskjuggler.org).

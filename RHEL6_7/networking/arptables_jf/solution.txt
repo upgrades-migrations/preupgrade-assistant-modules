@@ -1,14 +1,14 @@
 The names of some basic chains have changed, for example, the IN and OUT chains in arptables_jf have become INPUT and OUTPUT in arptables.
 
-The output of the "arptables -L" command is different: in arptables_jf, the rules are listed in a human-readable tabular form, while in arptables, each rule is written as a list of "arptables -A chain ..." command-line options and values, which should be used to add the rule.
+The output of the `arptables -L` command is different: in arptables_jf, the rules are listed in a human-readable tabular form, while in arptables, each rule is written as a list of `arptables -A chain ...` command-line options and values, which should be used to add the rule.
 
-The arptables-save utility has been modified. In arptables_jf, arptables-save is a binary that accepts several command-line options and which produces output of rules in the form of a parameter list that can be used to add the rule and includes time stamps and COMMIT in the last line. In arptables, arptables-save is a Perl script that accepts no command-line options. The script runs the "arptables -t filter -L -n" command and modifies its output to look similar to the output of arptables-save in arptables_jf, but without time stamps and COMMIT in the last line.
+The arptables-save utility has been modified. In arptables_jf, arptables-save is a binary that accepts several command-line options. It produces the output of rules in the form of a parameter list, which can be used to add the rule and includes time stamps and COMMIT in the last line. In arptables, arptables-save is a Perl script that accepts no command-line options. The script runs the `arptables -t filter -L -n` command and modifies its output to look similar to the output of arptables-save in arptables_jf, but without time stamps and COMMIT in the last line.
 
 In arptables_jf, the arptables-restore utility is a binary, while in arptables, the utility is a Perl script.
 
 Also, the arptables packages contain an extension to classify an arp packet.
 
-The following list provides an overview of the changes to option names between arptables_jf and arptables.
+The following list provides an overview of the option names changes between arptables_jf and arptables.
 
 arptables_jf: -s --source --src
 arptables:    -s --source-ip --src-ip
