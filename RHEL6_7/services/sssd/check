@@ -14,8 +14,8 @@ function solution() {
 function check_problematic_option() {
     MATCH=$(grep -o -i -z "${2}" "${1}")
     if [ "$MATCH" != "" ]; then
-        solution "The configuration file \"${1}\" contains a problematic \
-option \"$MATCH\"."
+        solution "The ${1} configuration file contains a problematic \
+option '$MATCH'."
         return 0
     else
         return 1
@@ -27,7 +27,7 @@ CONF_FILE='/etc/sssd/sssd.conf'
 
 
 if [ ! -e "$CONF_FILE" ]; then
-    solution "The configuration file \"$CONF_FILE\" is missing on the old system."
+    solution "The $CONF_FILE configuration file is missing on the original system."
     exit_not_applicable
 fi
 
@@ -39,7 +39,7 @@ check_problematic_option "${CONF_FILE}" "\bkrb5_ccachedir\b" && PROBLEMATIC_OPT_
 check_problematic_option "${CONF_FILE}" "\bkrb5_ccname_template[[:space:]]*=[[:space:]]*DIR:" && PROBLEMATIC_OPT_FOUND=1
 
 if [ "$PROBLEMATIC_OPT_FOUND" == "1" ]; then
-    solution 'The Kerberos provider is no longer able to create public directories when evaluating the krb5_ccachedir option. This is a backwards-incompatible change. Creating public directories is something the system administrator should perform in order for the directories to have the correct permissions and allow the authentication daemon to create user directories as private only.'
+    solution 'The Kerberos provider is no longer able to create public directories when evaluating the krb5_ccachedir option. This is a change incompatible with earlier versions. The system administrator should create public directories with the correct permissions so that they allow the authentication daemon to create user directories as private only.'
     exit_informational
 fi
 

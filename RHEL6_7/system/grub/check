@@ -17,13 +17,13 @@ if [[ -f "/boot/grub/$FILE_NAME" ]]; then
 
     {
         echo
-        echo -n "File /boot/grub/splash.xpm.gz will be preserved as well"
-        echo -n " in order to work around behavior of legacy GRUB.  You"
-        echo -n " may safely delete this file once your GRUB2 setup is"
+        echo -n "The /boot/grub/splash.xpm.gz file will be preserved"
+        echo -n " in order to work around the behavior of legacy GRUB. You"
+        echo -n " may delete this file safely once your GRUB2 setup is"
         echo -n " working."
     } >> grub.txt
 
 fi
 
-log_medium_risk "After upgrade, manual migration of GRUB to GRUB2 will be necessary."
+log_medium_risk "After the upgrade, migrate GRUB to GRUB2 manually."
 exit_fail

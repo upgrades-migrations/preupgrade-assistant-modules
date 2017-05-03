@@ -9,7 +9,7 @@ rm -f solution.txt
 if [[ -d /run ]]; then
   log_medium_risk "Conflict with the file structure: the /run/ directory already exists."
   echo \
-"The actual data in the /run/ directory will not be accessible from the upgraded OS
+"The actual data in the /run/ directory will not be accessible from the upgraded operating system,
 because tmpfs will be mounted on this directory. Move the data.
 " >> solution.txt
   RESULT=$RESULT_FAIL
@@ -24,10 +24,10 @@ upgrade. The /run/ directory will be created instead.
 fi
 
 echo \
-"In Red Hat Enterprise Linux 7 the /run/ directory is the place where tmpfs is mounted for runtime data.
-The original /var/run/ directory is a symbolic link to /run/ and likewise /var/lock/ points
-to /run/lock/ now. The /run/ directory is emptied on reboot, so all runtime
-files must be created on boot again. See Red Hat Enterprise Linux 7 Migration Planning Guide." \
+"In Red Hat Enterprise Linux 7, the /run/ directory is the place where tmpfs is mounted for runtime data.
+The original /var/run/ directory is a symbolic link to the /run/ directory, and likewise the /var/lock/ directory points
+to the /run/lock/ directory now. The /run/ directory is emptied on reboot, so all runtime
+files must be created on boot again. See \"Red Hat Enterprise Linux 7 Migration Planning Guide\"." 
   >> solution.txt
 
 exit $RESULT

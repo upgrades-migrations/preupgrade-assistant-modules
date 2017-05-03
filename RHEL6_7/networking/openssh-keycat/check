@@ -6,13 +6,13 @@
 grep -E "^\s*AuthorizedKeysCommand /usr/libexec/openssh/ssh-keycat" /etc/ssh/sshd_config
 
 [[ $? -ne 0 ]] && {
-  log_medium_risk "The ssh-keycat files are moved to openssh-keycat."
-  echo "The following ssh-keycat files are moved to a new package 'openssh-keycat':
-/etc/pam.d/ssh-keycat
-/usr/libexec/openssh/ssh-keycat
-/usr/share/doc/openssh-server-5.3p1/HOWTO.ssh-keycat
+  log_medium_risk "The ssh-keycat files are moved to the openssh-keycat package."
+  echo "The following ssh-keycat files are moved to the openssh-keycat package:
+- /etc/pam.d/ssh-keycat
+- /usr/libexec/openssh/ssh-keycat
+- /usr/share/doc/openssh-server-5.3p1/HOWTO.ssh-keycat
 
-If you want ssh-keycat, you need to install the openssh-keycat package.
+To use ssh-keycat, install the openssh-keycat package.
 " >> solution.txt
   exit $RESULT_FAIL
 }

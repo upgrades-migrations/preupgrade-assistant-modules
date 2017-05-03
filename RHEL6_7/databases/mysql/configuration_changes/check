@@ -123,17 +123,17 @@ grep -q "^innodb_plugin_loaded" "$tmp_file" && {
         cat >> $SOLUTION_FILE <<EOF
 
 * The InnoDB plug-in is now a default storage engine in MariaDB 5.5.
-This configuration is using the old plugin-load=innodb= configuration option.
-You must either remove this directive from the configuration files or use
-ignore-builtin-innodb as the current directives will not work.
+This configuration is using the old 'plugin-load=innodb=' configuration option.
+Either remove this directive from the configuration files, or use
+'ignore-builtin-innodb' because the current directives will not work.
 EOF
 }
 
 grep -q "^innodb_file_io_threads" "$tmp_file" && {
         cat >> $SOLUTION_FILE <<EOF
 
-* The configuration option innodb_file_io_threads was removed in MariaDB 5.5
-and replaced with innodb_read_io_threads and innodb_write_io_threads.
+* The 'innodb_file_io_threads' configuration option was removed in MariaDB 5.5
+and replaced with 'innodb_read_io_threads' and 'innodb_write_io_threads'.
 To ensure the proper functionality, change your configuration to use the
 new configuration directives.
 EOF
@@ -142,9 +142,9 @@ EOF
 grep -q "^language$" "$tmp_file" && {
         cat >> $SOLUTION_FILE <<EOF
 
-* MySQL 5.1 used the language variable for specifying the directory which
+* MySQL 5.1 used the 'language' variable for specifying the directory which
 included the error message file. This option is now deprecated and has been
-replaced by the lc_messages_dir and lc_messages options.
+replaced by the 'lc_messages_dir' and 'lc_messages' options.
 This also applies to the options in the configuration files.
 EOF
 }
@@ -152,8 +152,7 @@ EOF
 grep -q "^obsolete_options_used" "$tmp_file" && {
  cat >> $SOLUTION_FILE <<EOF
 
-* The options log-bin-trust-routine-creators and table_lock_wait_timeout specified in your MySQL configuration files are not supported in MariaDB 5.5.
-They must be removed.
+* The options 'log-bin-trust-routine-creators' and 'table_lock_wait_timeout' specified in your MySQL configuration files are not supported in MariaDB 5.5. Remove them.
 EOF
 }
 
@@ -178,10 +177,10 @@ fi
 
 if [ ! -f "$OPTION_NOT_OK_FILE" ]; then
     [ ! -f "$OPTION_FIXED_FILE" ] \
-      && log_info "No option problems found in MySQL configuration."
+      && log_info "No option problems found in your MySQL configuration."
 else
     echo "\n
-Some options were not commented out in the files listed below and therefore MariaDB 5.5 might crash unexpectedly.
+Some options were not commented out in the files listed below and therefore MariaDB 5.5 might fail unexpectedly.
 The listed options should be replaced or commented out manually:" >> "$SOLUTION_FILE"
     cat "$OPTION_NOT_OK_FILE" | sort | uniq >> "$SOLUTION_FILE"
     result=$RESULT_FAILED
@@ -192,7 +191,7 @@ The files mentioned above are backups of your original configuration files.
 After the upgrade you must manually replace the contents of the default
 MariaDB 5.5 configuration (as is appropriate to your environment) with the
 information provided about the replaced or deprecated options listed in the
-backups.  You must restart MariaDB for these changes to take effect.
+backups. Afterwards, restart MariaDB for these changes to take effect.
 "
 
 rm -f "$tmp_file"

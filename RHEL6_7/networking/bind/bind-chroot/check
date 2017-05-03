@@ -21,11 +21,11 @@ if grep -wq "^ROOTDIR" /etc/sysconfig/named  && [[ -d "$chroot_dir" ]];then
         cp --parents -ar "$config" $VALUE_TMP_PREUPGRADE/cleanconf/
         fi
     done
-    echo "Your bind-chroot setup configuration files have been backed up" >> $SOLUTION_FILE
+    echo "Your bind-chroot setup configuration files have been backed up." >> $SOLUTION_FILE
 fi
 
 
-log_slight_risk "bind-chroot package has been detected"
+log_slight_risk "The bind-chroot package has been detected."
 
 #We need to make sure that admin reviews the solution.txt
 exit $RESULT_FAIL

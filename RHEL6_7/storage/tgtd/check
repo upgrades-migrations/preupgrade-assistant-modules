@@ -7,5 +7,5 @@ check_applies_to "scsi-target-utils"
 #END GENERATED SECTION
 
 #scsi-target-utils package availability check by common section requirements.
-log_medium_risk "Package scsi-target-utils installed on your system is not available on RHEL 7. RHEL 7 uses the LIO kernel target, configurable using the 'targetcli' package."
+log_medium_risk "The scsi-target-utils package installed on your system is not available in Red Hat Enterprise Linux 7, which uses the LIO kernel target, configurable by using the targetcli package."
 exit $RESULT_FAIL

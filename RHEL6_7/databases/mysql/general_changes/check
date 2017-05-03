@@ -19,25 +19,25 @@ Red Hat Enterprise Linux 6 contains MySQL 5.1 as a default MySQL implementation.
 Red Hat Enterprise Linux 7 contains MariaDB 5.5 as a default MySQL implementation.
 MariaDB is a community-developed drop-in replacement for MySQL.
 For more information about MariaDB project, see MariaDB Upstream
-Web [link: http://mariadb.org/en/about/].
+Web at [link: http://mariadb.org/en/about/].
 
 MariaDB upstream uses the same file names as original MySQL.
-That means MariaDB shell is called mysql, MariaDB daemon is called
-mysqld_safe and the client library is called libmysqlclient.so.
+That means that the MariaDB shell is called `mysql`, MariaDB daemon is called
+`mysqld_safe` and the client library is called `libmysqlclient.so`.
 
-In order to keep MariaDB packages properly distinguished from the original
+To keep MariaDB packages properly distinguished from the original
 MySQL packages, Red Hat Enterprise Linux 7 uses MariaDB names where not necessary to follow
 upstream. It means the following layout is used in Red Hat Enterprise Linux 7:
- - the MariaDB packages names are called mariadb, mariadb-libs, mariadb-server
-   and so on
- - only packages mariadb and mariadb-libs provide also RPM symbols "mysql"
-   and "mysql-libs"; the rest of packages do not provide alternative mysql names
- - the systemd unit file is called "mariadb.service"
- - the log file is called mariadb.log and is located in /var/log/mariadb
+ - The MariaDB packages names are called `mariadb`, `mariadb-libs`, `mariadb-server`,
+   and so on.
+ - Only the mariadb and mariadb-libs packages provide also RPM symbols `mysql`
+   and `mysql-libs`; the rest of the packages do not provide alternative mysql names.
+ - The systemd unit file is called `mariadb.service`.
+ - The log file is called `mariadb.log` and it is located in the /var/log/mariadb/
    directory by default. You can change the name and the location in the
    /etc/my.cnf file after the installation, but do not forget to adjust SELinux
    accordingly.
- - the logrotate script is called mariadb
+ - The logrotate script is called `mariadb`.
 EOF
 
 
@@ -61,7 +61,7 @@ check_packages_signed(){
     while [ -n "$1" ] ; do
         if ! is_dist_native $1; then
             ret=1
-            echo " - package $1 requires $required, which is not in RHEL-7" >>"$nonrh_mysql_deps_file"
+            echo "The $1 package requires $required, which is not in Red Hat Enterprise Linux 7." >>"$nonrh_mysql_deps_file"
         fi
         shift
     done
@@ -80,14 +80,14 @@ done
 if [ $nonrh_mysql_deps_issues -gt 0 ] ; then
     cat >>$SOLUTION_FILE <<EOF
 
-MariaDB RPM packages do not provide mysql names except mariadb,
-mariadb-libs and mariadb-devel. Packages requiring other packages
-(mysql-server, mysql-embedded, mysql-embedded-devel, mysql-test or mysql-bench)
-need to be rebuilt, so they would start reqiuring mariadb-* packages
+MariaDB RPM packages do not provide mysql names except `mariadb`,
+`mariadb-libs`, and `mariadb-devel`. Packages requiring other packages
+(mysql-server, mysql-embedded, mysql-embedded-devel, mysql-test, or mysql-bench)
+need to be rebuilt, so that they would start reqiuring mariadb-* packages
 instead. The following dependency issues have been found within the installed
 packages:
 $(cat $nonrh_mysql_deps_file | uniq)
-If you rebuild those packages or update to a newer version, it could
+If you rebuild those packages, or update to a newer version, it might
 fix this issue.
 EOF
 fi
@@ -100,10 +100,10 @@ fi
 # 2) See if the service is reported as an issue
 cat >>$SOLUTION_FILE <<EOF
 
-The mysql-server package provides a SysV init script called mysqld.
-The mariadb-server package provides a systemd unit file called mariadb.
-All packages that need to start after mariadb daemon need to use the
-correct name, which is mariadb.service.
+The mysql-server package provides a SysV init script called `mysqld`.
+The mariadb-server package provides a systemd unit file called `mariadb`.
+All packages that need to start after the mariadb daemon need to use the
+correct name, which is `mariadb.service`.
 EOF
 
 nonrh_service_deps=0
@@ -130,7 +130,7 @@ else
     cat >>$SOLUTION_FILE <<EOF
 
 No issues in the services have been found, but check your services anyway.
-In case a service requires mysqld in Red Hat Enterprise Linux 6 or it needs to start before
+In case a service requires mysqld in Red Hat Enterprise Linux 6, or it needs to start before
 mysqld, set Require=mariadb.service and After=mariadb.service in Red Hat Enterprise Linux 7 for
 those services.
 EOF
@@ -160,11 +160,10 @@ if [ $nonrh_plugins -gt 0 ] ; then
     cat >>$SOLUTION_FILE <<EOF
 
 All plug-ins not delivered by Red Hat Enterprise Linux 6 and compiled for MySQL 5.1 need
-to be rebuilt after the migration to Red Hat Enterprise Linux 7 for MariaDB 5.5. The following
+to be rebuilt for MariaDB 5.5 after the migration to Red Hat Enterprise Linux 7. The following
 potential issues have been spotted in the plug-in directory:
 $(cat $nonrh_plugins_file | uniq)
-Rebuild those plug-ins or update them to the latest release compatible
-with MariaDB.
+Rebuild those plug-ins or update them to the latest release compatible with MariaDB.
 EOF
 fi
 
@@ -179,8 +178,8 @@ EOF
 # overal test result evaluation
 if [ $nonrh_mysql_deps_issues -gt 0 ] || [ $nonrh_service_deps -gt 0 ] || [ $nonrh_plugins -gt 0 ] ; then
     [ $nonrh_mysql_deps_issues -gt 0 ] && log_high_risk "MariaDB RPM packages do not provide mysql names."
-    [ $nonrh_service_deps -gt 0 ] && log_high_risk "The package mariadb-server provides a systemd unit file called mariadb."
-    [ $nonrh_plugins -gt 0 ] && log_high_risk "All plugins not delivered by Red Hat Enterprise Linux 6 and compiled for MySQL 5.1, will need to be rebuilt after migration to Red Hat Enterprise Linux 7 for MariaDB 5.5."
+    [ $nonrh_service_deps -gt 0 ] && log_high_risk "The mariadb-server package provides a systemd unit file called `mariadb`."
+    [ $nonrh_plugins -gt 0 ] && log_high_risk "All plug-ins not delivered by Red Hat Enterprise Linux 6 and compiled for MySQL 5.1 need to be rebuilt for MariaDB 5.5 after the migration to Red Hat Enterprise Linux 7."
     result=$RESULT_FAIL
 else
     result=$RESULT_INFORMATIONAL

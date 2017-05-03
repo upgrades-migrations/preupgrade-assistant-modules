@@ -19,8 +19,8 @@ function config_file_changed() {
 function check_deprecated_option() {
     MATCH=$(grep -o -i -z "${2}" "${1}")
     if [ "$MATCH" != "" ]; then
-        solution "Configuration file \"${1}\" contains a deprecated \
-option \"$MATCH\"."
+        solution "The ${1} configuration file contains a deprecated \
+option '$MATCH'."
         return 0
     else
         return 1
@@ -34,7 +34,7 @@ solution 'Note that future versions of bind-dyndb-ldap will require
 RFC 4533 compliant LDAP server.'
 
 if [ ! -e "$CONF_FILE" ]; then
-    solution "Configuration file \"$CONF_FILE\" is missing on the old system."
+    solution "The $CONF_FILE configuration file is missing on the original system."
     exit_not_applicable
 fi
 

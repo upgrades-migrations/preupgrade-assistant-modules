@@ -48,12 +48,12 @@ def ro_dirs(paths):
 	for mtab_line in mtab:
 		if ro_flag(mtab_line):
 			ret = True
-			log_medium_risk("Mount point "+mtab_line[1]+" is mounted read-only.")
+			log_medium_risk("The mount point "+mtab_line[1]+" is mounted read-only.")
 	return ret
 
 if __name__ == "__main__":
 	if os.geteuid() != 0:
-		log_error("The script needs to be run under the root account")
+		log_error("The script needs to be run under the root account.")
 		exit_error()
 	ro_dirs_result = ro_dirs((r"/usr", r"/var", r"/var/run", r"/var/lock"))
 	if ro_dirs_result:

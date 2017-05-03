@@ -43,7 +43,7 @@ ret=$RESULT_INFORMATIONAL
 
 check_base_modules() {
     echo "\
-* httpd.conf loads modules which are loaded in conf.modules.d/*conf
+* httpd.conf loads the modules that are loaded in conf.modules.d/*conf
   in the new httpd version. Therefore, the following modules will be removed from
   httpd.conf:
 " >> $SOLUTION_FILE
@@ -57,8 +57,8 @@ check_base_modules() {
     echo >> $SOLUTION_FILE
 
     echo "\
-* httpd.conf loads default modules which have been removed in the new version
-  of httpd. Following modules will be therefore removed from httpd.conf:
+* httpd.conf loads the default modules that have been removed in the new version
+  of httpd. The following modules will be therefore removed from httpd.conf:
 " >> $SOLUTION_FILE
     while read line
     do
@@ -133,11 +133,11 @@ if [ $? -eq 0 ]; then
   configuration. Reconfigure httpd manually so that it does not use mod_perl.
 " >> $SOLUTION_FILE
         ret=$RESULT_FAIL
-        log_medium_risk "mod_perl is currently enabled but it is no longer provided in Red Hat Enterprise Linux 7"
+        log_medium_risk "mod_perl is currently enabled, but it is no longer provided in Red Hat Enterprise Linux 7"
     else
         echo "\
 * mod_perl is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
-  configuration but it does not seem to be used. This module will be unloaded
+  configuration, but it does not seem to be used. This module will be unloaded
   automatically.
 " >> $SOLUTION_FILE
     fi
@@ -156,7 +156,7 @@ if [ $? -eq 0 ]; then
     else
         echo "\
 * mod_dnssd is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
-  configuration but not enabled. This module will be unloaded automatically.
+  configuration, but not enabled. This module will be unloaded automatically.
 " >> $SOLUTION_FILE
     fi
 fi
@@ -175,7 +175,7 @@ if [ $? -eq 0 ]; then
     else
         echo "\
 * mod_auth_pgsql is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
-  configuration but it does not seem to be used. This module will be unloaded
+  configuration, but it does not seem to be used. This module will be unloaded
   automatically.
 " >> $SOLUTION_FILE
     fi
@@ -195,7 +195,7 @@ if [ $? -eq 0 ]; then
     else
         echo "\
 * mod_auth_mysql is no longer provided in Red Hat Enterprise Linux 7. It is loaded in the httpd
-  configuration but it does not seem to be used. This module will be unloaded
+  configuration, but it does not seem to be used. This module will be unloaded
   automatically.
 " >> $SOLUTION_FILE
     fi
@@ -277,7 +277,7 @@ if [ $ret -ne $RESULT_PASS ]; then
 fi
 
 echo >> $SOLUTION_FILE
-echo "Following is the difference between this system configuration of httpd
+echo "The difference between this system configuration of httpd
 and the default httpd 2.2 configuration:" >> $SOLUTION_FILE
 echo >> $SOLUTION_FILE
 
@@ -298,7 +298,7 @@ yum install -y mod_ldap || {
     yum install -y mod_ldap
 }
 [ \$? -eq 0 ] || {
-  echo \"The 'mod_ldap' package was not installed and you must install it manually.\" >&2
+  echo \"The mod_ldap package was not installed and you must install it manually.\" >&2
 }
 
 " >> "$POSTUPGRADE_DIR/httpd.sh"

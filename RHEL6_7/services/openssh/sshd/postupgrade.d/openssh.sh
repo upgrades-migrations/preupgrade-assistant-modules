@@ -3,11 +3,11 @@
 CONFIG_FILE=/etc/sysconfig/sshd
 
 if [ ! -f "$CONFIG_FILE" ]; then
-    echo "Configuration file does not exist"
+    echo "The configuration file does not exist."
     exit 0
 fi
 
-echo "Check whether exports are available in $CONFIG_FILE"
+echo "Check whether exports are available in the $CONFIG_FILE file."
 grep "^export" $CONFIG_FILE
 if [ $? -eq 0 ]; then
     sed -i -e 's/^export //' $CONFIG_FILE

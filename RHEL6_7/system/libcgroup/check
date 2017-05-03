@@ -25,7 +25,7 @@ fi
 # CGROUPS_CONFIG_DIR
 if [ -s $CGROUPS_CONFIG_DIR ]
 then
-	log_high_risk "additional libcgroup configuration files were created ($CGROUPS_CONFIG_DIR)"
+	log_high_risk "Additional libcgroup configuration files were created ($CGROUPS_CONFIG_DIR)."
 	exit $RESULT_FAIL
 fi
 

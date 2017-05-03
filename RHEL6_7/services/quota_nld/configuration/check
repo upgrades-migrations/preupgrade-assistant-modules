@@ -17,7 +17,7 @@ CONF_FILE='/etc/sysconfig/quota_nld'
 solution 'The quota_nld service configuration is fully compatible.'
 
 if [ ! -e "$CONF_FILE" ]; then
-    solution 'The service configuration is missing on the old system.'
+    solution 'The service configuration is missing on the original system.'
     solution 'The default configuration will be used on the new system.'
     exit_pass
 fi
@@ -30,12 +30,12 @@ if config_file_changed  "${CONF_FILE}"; then
         exit_error
     cp -p "$CONF_FILE" "${VALUE_TMP_PREUPGRADE}/cleanconf" || exit_error
 
-    solution "The configuration file \"${CONF_FILE}\" has been backed up.
+    solution "The ${CONF_FILE} configuration file has been backed up.
 It can be used on the new system safely."
     exit_fixed
 fi
 
-solution 'The service is in factory settings.'
+solution 'The service has factory settings.'
 solution 'The default configuration will be used on the new system.'
 exit_pass
 

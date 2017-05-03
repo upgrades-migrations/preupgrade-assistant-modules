@@ -696,9 +696,9 @@ class ElementTree(object):
         if path[:1] == "/":
             path = "." + path
             warnings.warn(
-                "This search is broken in 1.3 and earlier, and will be "
+                "This search is broken in version 1.3 and earlier, and will be "
                 "fixed in a future version.  If you rely on the current "
-                "behaviour, change it to %r" % path,
+                "behavior, change it to %r" % path,
                 FutureWarning, stacklevel=2
                 )
         return self._root.find(path, namespaces)
@@ -720,9 +720,9 @@ class ElementTree(object):
         if path[:1] == "/":
             path = "." + path
             warnings.warn(
-                "This search is broken in 1.3 and earlier, and will be "
+                "This search is broken in version 1.3 and earlier, and will be "
                 "fixed in a future version.  If you rely on the current "
-                "behaviour, change it to %r" % path,
+                "behavior, change it to %r" % path,
                 FutureWarning, stacklevel=2
                 )
         return self._root.findtext(path, default, namespaces)
@@ -741,9 +741,9 @@ class ElementTree(object):
         if path[:1] == "/":
             path = "." + path
             warnings.warn(
-                "This search is broken in 1.3 and earlier, and will be "
+                "This search is broken in version 1.3 and earlier, and will be "
                 "fixed in a future version.  If you rely on the current "
-                "behaviour, change it to %r" % path,
+                "behavior, change it to %r" % path,
                 FutureWarning, stacklevel=2
                 )
         return self._root.findall(path, namespaces)
@@ -763,9 +763,9 @@ class ElementTree(object):
         if path[:1] == "/":
             path = "." + path
             warnings.warn(
-                "This search is broken in 1.3 and earlier, and will be "
+                "This search is broken in version 1.3 and earlier, and will be "
                 "fixed in a future version.  If you rely on the current "
-                "behaviour, change it to %r" % path,
+                "behavior, change it to %r" % path,
                 FutureWarning, stacklevel=2
                 )
         return self._root.iterfind(path, namespaces)

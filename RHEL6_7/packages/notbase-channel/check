@@ -13,7 +13,7 @@ FILENAME_BASIS="RHRHEL7rpmlist_kept"
 
 
 [ -r "$COMMON_DIR" ] && ls -1d "$COMMON_DIR"/default* >/dev/null 2>/dev/null || {
-  log_error "Common file directory missing.  Please contact support."
+  log_error "Common file directory is missing. Contact the support."
   exit_error
 }
 
@@ -57,7 +57,7 @@ get_req_pkgs() {
 
 ###################################################
 generate_req_msg() {
-  [ -n "$1" ] && echo " (required by Non Red Hat signed package(s):$1)"
+  [ -n "$1" ] && echo " (required by Non Red Hat signed packages:$1)"
 }
 
 ###################################################
@@ -78,7 +78,7 @@ cat $(print_base_files) | grep -o "^[^[:space:]]*" > "$KeptBasePkgs"
 get_dist_native_list > "$DistNativePkgs"
 
 [ ! -r "$OptionalPkgs" ] || [ ! -r "$AddonPkgs" ] || [ ! -r "$KeptBasePkgs" ] || [ ! -r "$DistNativePkgs" ] && {
-  log_error "Generic part of the content is missing!"
+  log_error "Generic part of the module is missing."
   rm -f "$OptionalPkgs" "$AddonPkgs" "$KeptBasePkgs" "$DistNativePkgs"
   exit_error
 }
@@ -90,9 +90,9 @@ rm -f solution.txt
 
 echo \
 "
-Some installed packages are either from outside of the base channel for Red Hat Enterprise Linux 6, or replaced by a package in a Red Hat Enterprise Linux 7 non base channel. Repositories such as 'Optional' will cause this message.
+Some installed packages are either from outside of the Base channel for Red Hat Enterprise Linux 6, or replaced by a package in a Red Hat Enterprise Linux 7 'not-base' channel. Repositories such as 'Optional' will cause this message.
 
-This will probably cause a failure in the upgrade of your system.
+This will probably result in a failure of the upgrade of your system.
 
 The following packages are affected:
 " > solution.txt
@@ -108,9 +108,9 @@ while read line; do
 
   echo $line | grep -q " kept "; # is moved or kept?
   if [ $? -ne 0 ]; then
-    log_high_risk "Package $pkgname$msg_req moved to the Optional channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
+    log_high_risk "The $pkgname$msg_req package moved to the Optional channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   else
-    log_high_risk "Package $pkgname$msg_req is available in the Optional channel."
+    log_high_risk "The $pkgname$msg_req package is available in the Optional channel."
   fi
   echo "$pkgname$msg_req (optional channel)" >> solution.txt
   echo "$pkgname|$req_pkgs|$pkgname|$(get_repo_id "optional")" >> "$KICKSTART_DIR/${FILENAME_BASIS}-notbase"
@@ -130,10 +130,10 @@ while read line; do
   echo $line | grep -q " kept "; # is moved or kept?
   if [ $? -ne 0 ]; then
     channel=$(echo "$line" | rev | cut -d "_" -f1 | rev)
-    log_high_risk "Package $pkgname$msg_req moved to $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
+    log_high_risk "The $pkgname$msg_req package moved to the $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   else
     channel=$(echo "$line" | sed -r "s/^.*default-(.*)_kept-uncommon$/\1/")
-    log_high_risk "Package $pkgname$msg_req is available in $channel channel."
+    log_high_risk "The $pkgname$msg_req package is available in the $channel channel."
   fi
 
   echo "$pkgname$msg_req ($channel channel)" >> solution.txt
@@ -168,22 +168,22 @@ rm -f "$OptionalPkgs" "$AddonPkgs" "$KeptBasePkgs" "$DistNativePkgs"
   [ $UPGRADE -eq 1 ] && {
     echo \
 "
-To enable the updating of packages that are now located in the Red Hat Enterprise Linux 7 Optional repository, please provide the location of the Optional channel repository to redhat-upgrade-tool.
+To enable the updating of the packages that are now located in the Red Hat Enterprise Linux 7 Optional repository, provide the location of the Optional channel repository to redhat-upgrade-tool.
 The syntax for the additional parameter is:
 
     --addrepo rhel-7-optional=<path to the optional repository>
 
-Alternatively, you could remove all packages which reside in the Red Hat Enterprise Linux 7 Optional repository before starting the system upgrade.
+Alternatively, you could remove all the packages that reside in the Red Hat Enterprise Linux 7 Optional repository before starting the system upgrade.
 " >> solution.txt
     echo "${other_repositories}" | grep -qe "optional $" -e "^$" || {
-      log_high_risk "Red Hat packages from other channels than Base or Optional, are not supported for inplace upgrade"
+      log_high_risk "Red Hat packages from the channels other than Base or Optional are not supported for the in-place upgrade."
       echo \
 "
-You have some packages which are available in specific channels other than Base or Optional on Red Hat Enterprise Linux 7.
+You have some packages that are available in specific channels other than Base or Optional in Red Hat Enterprise Linux 7.
 
-This is not a supported scenario for inplace upgrade.
+This is not a supported scenario for the in-place upgrade.
 
-You should remove these packages before upgrade, otherwise the upgrade may fail.
+Remove these packages before the upgrade, otherwise the upgrade might fail.
 " >> solution.txt
     }
   }
@@ -195,10 +195,10 @@ You should remove these packages before upgrade, otherwise the upgrade may fail.
     echo \
 "
 One or more packages are available only in other repositories.
-If you want to install them later, you will need to attach subscriptions that provide:
+If you want to install them later, attach the subscriptions that provide:
 $repos_texts
 
-Then you must enable any equivalent repositories (if they are disabled) and install any needed packages.
+Then, enable any equivalent repositories (if they are disabled), and install any needed packages.
 For this purpose, you can run a prepared script:
 
 $_DST_NOAUTO_POSTSCRIPT <path/to/pkglist-file>
@@ -209,8 +209,8 @@ See ${KICKSTART_README} for details on 'pkglist' files.
 }
 
 echo -n "
-  * ${FILENAME_BASIS} - This file contains a list of packages which you have installed on your system and are available on Red Hat Enterprise Linux 7 system in the 'base' channel. These packages will be installed automatically.
-  * ${FILENAME_BASIS}-notbase - Similar to ${FILENAME_BASIS} but the package are available from other channels. Probably you will need install them manually.
+  * ${FILENAME_BASIS} - This file contains a list of packages that you have installed on your system, and that are available on the Red Hat Enterprise Linux 7 system in the Base channel. These packages will be installed automatically.
+  * ${FILENAME_BASIS}-notbase - Similar to ${FILENAME_BASIS}, but the packages are available from other channels. Probably you will need to install them manually.
 " >> "$KICKSTART_README"
 
 test $fail -eq 0 && exit_pass || exit_fail

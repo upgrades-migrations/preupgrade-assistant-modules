@@ -16,7 +16,7 @@ get_domainname() {
             DOMAINNAME=$NISDOMAIN
             log_debug "The domain is '$DOMAINNAME' "
         else
-            log_debug "The domain not found"
+            log_debug "The domain was not found."
             exit $RESULT_NOT_APPLICABLE
         fi
     fi

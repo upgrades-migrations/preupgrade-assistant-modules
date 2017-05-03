@@ -5,7 +5,7 @@
 #END GENERATED SECTION
 
 [ ! -f "$VALUE_RPM_RHSIGNED" ] || [ ! -r "$COMMON_DIR" ] && {
-  log_error "Generic common content part is missing."
+  log_error "Generic common part of the module is missing."
   exit $RESULT_ERROR
 }
 
@@ -15,7 +15,7 @@ cat "$COMMON_DIR"/default*_soversioned-kept "$COMMON_DIR"/default*_so-kept >$Kep
 cat "$COMMON_DIR"/default*_so*-moved_* "$COMMON_DIR"/default*_so*obsoleted >$MovedReplacedLibs
 
 [ ! -r "$KeptLibs" ] || [ ! -r "$MovedReplacedLibs" ] && {
-  log_error "Generic part of content is missing."
+  log_error "Generic part of the module is missing."
   rm -f "$KeptLibs" "$MovedReplacedLibs"
   exit $RESULT_ERROR
 }
@@ -69,7 +69,7 @@ done < "$MovedReplacedLibs"
 rm -rf "$KeptLibs" "$MovedReplacedLibs"
 
 echo -n "
- * NoSonameBumpLibs - this informational file tells you all sonames of libraries, where the soname is the same in Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. If your binaries not signed by Red Hat depend on these libraries only, they might work without being rebuilt after the upgrade.
+ * NoSonameBumpLibs: This informational file tells you all sonames of libraries, where the soname is the same in Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. If your binaries not signed by Red Hat depend on these libraries only, they might work without being rebuilt after the upgrade.
 " >>"$KICKSTART_README" && exit $RESULT_INFORMATIONAL
 
 exit $RESULT_PASS

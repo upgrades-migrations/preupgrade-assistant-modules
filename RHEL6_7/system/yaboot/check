@@ -39,12 +39,12 @@ cp -f $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
 DEFAULT_FILE=/etc/default/grub
 ./cmdline-to-default-grub > default-grub
 if [ -e "$DEFAULT_FILE" ] && ! cmp "$DEFAULT_FILE" default-grub; then
-    log_error "Wanted to create the $DEFAULT_FILE file but it exists already. Remove it before the execution of preupg. Custom modifications can be made subsequently."
+    log_error "Wanted to create the $DEFAULT_FILE file, but it exists already. Remove it before the execution of 'preupg'. Custom modifications can be made subsequently."
     exit_error
 fi
 
 mkdir -p /etc/default/
 /bin/cp default-grub $DEFAULT_FILE
 
-log_medium_risk "The /etc/default/grub file generated for this system. Review its content, especially the value of GRUB_CMDLINE_LINUX. Improper values might result in an unbootable system. See the manual page for the GRUB 2 configuration."
+log_medium_risk "The /etc/default/grub file was generated for this system. Review its content, especially the value of GRUB_CMDLINE_LINUX. Improper values might result in an unbootable system. See the manual page for the GRUB 2 configuration."
 exit_fail

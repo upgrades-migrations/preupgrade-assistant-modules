@@ -31,8 +31,8 @@ def open_file(filename):
 try:
     preset = open_file(PRESET_FILE)
 except IOError:
-    print "ERROR: Unable to open a default preset file. Services will not be handled."
-    print "       Set required services manually."
+    print "ERROR: Unable to open a default preset file. The services will not be handled."
+    print "       Set the required services manually."
     sys.exit(1)
 
 
@@ -77,7 +77,7 @@ def check_preset(service, control="enable"):
                 for service_type in all_service_files:
                     control_service(service_type, control=control)
         else:
-            sys.stderr.write("The %s service is not mentioned in the 90-default.preset file and therefore the postupgrade script will not handle it\n" % service)
+            sys.stderr.write("The %s service is not mentioned in the 90-default.preset file, and therefore the postupgrade script will not handle it\n" % service)
 
 def determine_services(services):
     found_services = []

@@ -42,23 +42,23 @@ PRIVATE_POST_DIR   = os.path.join(POSTUPGRADE_DIR, "services/tomcat")
 # contians messages which could be printed in solution text
 solutionTexts = {
     "info_paths_changed" : (
-        "* Paths changed on the Red Hat Enterprise Linux 7 system because"
+        "* Paths changed in Red Hat Enterprise Linux 7 because"
         " the packages were renamed (tomcat6* is renamed to tomcat*). Your"
-        " configuration files and web applications inside the directories mentioned"
+        " configuration files and web applications in the directories mentioned"
         " below will be moved to the new paths automatically:\n"
         "  /etc/tomcat6/ -> /etc/tomcat/\n"
         "  /usr/share/tomcat6/webapps/ -> /usr/share/tomcat/webapps/"
         ),
     "manager_role" : (
         "* The roles that are required to use the Manager application changed from a single manager"
-        " role to manager-gui, manager-script, manager-jmx, and manager-status roles. You will"
-        " need to assign the role(s) required for the functionality you wish to access."
+        " role to the manager-gui, manager-script, manager-jmx, and manager-status roles. You will"
+        " need to assign the roles required for the functionality you wish to access."
         " The manager role will be updated to manager-gui by the postupgrade script automatically,"
         " but a further update might be required if you use the other roles."
         ),
     "admin_role" : (
         "* The roles that are required to use the Host Manager application changed from a single"
-        " admin role to admin-gui and admin-script roles. You will need to assign the role(s)"
+        " admin role to the admin-gui and admin-script roles. You will need to assign the roles"
         " required for the functionality you wish to access."
         " The admin role will be updated to admin-gui by the postupgrade script automatically,"
         " but a further update might be required if you use the admin-script role."
@@ -80,7 +80,7 @@ solutionTexts = {
         " can occur."
         ),
     "attr_filter" : (
-        "* The filter attribute is in use and utilizes the tomcat6 regex list instead of a single"
+        "* The 'filter' attribute is in use and utilizes the tomcat6 regex list instead of a single"
         " expression. Previous versions of Tomcat allowed a list, but this version takes a single"
         " expression only. This needs to be addressed before an update can occur."
         ),
@@ -118,7 +118,7 @@ solutionTexts = {
         ),
     "tomcatEPEL" : (
         "* A tomcat package from EPEL or a third party is installed and conflicts with the upgrade."
-        " The package must be removed prior to the upgrade."
+        " Remove the package before the upgrade."
         ),
     "defaultDiff" : (
         "* The difference between the '%s' system configuration file of tomcat6 and the default tomcat6"
@@ -205,7 +205,7 @@ def print_info_diff():
     if len(diff_lines) > 0:
         _print_solution("defaultDiff")
         log_info("The difference between this system's tomcat6 configuration file"
-                 " and the default configuration file has been stored to %s."
+                 " and the default configuration file is stored in %s."
                  % (DEFAULT_DIFF_FILE.replace(get_dest_dir()+"/", ""))
                 )
     else:
@@ -261,7 +261,7 @@ def check_users(fname, verbose=True):
     def _my_log_medium_risk(fname, role):
         log_medium_risk(
             "%s: The %s role is in use and has been changed in Tomcat 7. It will be"
-            " automatically updated to a new %s-gui role, but might require a further"
+            " automatically updated to a new %s-gui role, but it might require a further"
             " intervention." % (fname, role, role)
             )
 
@@ -321,7 +321,7 @@ def check_session_manager(fname, verbose=True):
             manager.attrib.pop("randomClass")
             if not changedSec and verbose:
                 _print_solution("randomClass")
-                log_info("%s: The attribut randomClass will be changed to secureRandomClass"
+                log_info("%s: The 'randomClass' attribute  will be changed to 'secureRandomClass'"
                          " automatically." % fname)
             _set_exit_func(exit_fixed)
             changedSec = True
@@ -413,7 +413,7 @@ def check_regex_attr(fname):
     def my_log_attr(fname, attr):
         log_high_risk("%s: The %s attribute is in use and utilizes"
                       " the tomcat6 regex list instead of a single expression."
-                      " See the Remediation description" % (fname,attr))
+                      " See the Remediation description." % (fname,attr))
 
     # return True when separator [;,] is included in string x
     has_sep = lambda x: ',' in x or ';' in x

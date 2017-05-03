@@ -9,7 +9,7 @@ COLLECTIONS=`scl --list`
 if [ x"$COLLECTIONS" == "x" ]; then
 	exit_pass
 fi
-log_info "List of installed collections:"
+log_info "A list of installed collections:"
 for collection in $COLLECTIONS
 do
     log_info "$collection"

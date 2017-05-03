@@ -58,10 +58,10 @@ else
   exit $RESULT_FAILED
 fi
 
-log_info "The config files from $CONFIG_FILE will be fixed by postupgrade script"
-log_slight_risk "In some corner cases your configuration might not be migrated automatically but this is not usually expected."
+log_info "The configuration files from $CONFIG_FILE will be fixed by the postupgrade script."
+log_slight_risk "In some corner cases your configuration might not be migrated automatically."
 echo "\
-The doveconf tool should be able to migrate your configuration but there is a slight risk
+The doveconf tool should be able to migrate your configuration, but there is a slight risk
 that you use some no longer supported options or plug-ins. In that case, update your configuration
 file manually on the new system.
 " > solution.txt

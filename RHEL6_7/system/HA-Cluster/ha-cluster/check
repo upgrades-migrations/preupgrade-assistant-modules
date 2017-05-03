@@ -29,7 +29,7 @@ do
 done
 if [ $found -eq 1 ]; then
     log_high_risk "High Availability Add-On packages are installed. The upgrade is not possible."
-    echo "If you do not use the following cluster&HA related packages:$packages , uninstall them and run the Preupgrade Assistant again." >> "$SOLUTION_FILE"
+    echo "If you do not use the following cluster&HA related packages, uninstall them, and run the Preupgrade Assistant again: $packages." >> "$SOLUTION_FILE"
     # create pre-ugprade script to inhibit inplace upgrade till user keeps
     # installed any package from $PACKAGE_LIST
     cp "pre-hacluster.sh" "$PREUPG_PREDIR/pre-hacluster.sh"

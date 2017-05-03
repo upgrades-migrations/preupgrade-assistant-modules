@@ -6,7 +6,7 @@
 export LC_ALL=C
 
 if ! [ -x /usr/bin/my_print_defaults ] ; then
-    log_error "/usr/bin/my_print_defaults not found"
+    log_error "The /usr/bin/my_print_defaults file was not found."
     exit_error
 fi
 
@@ -17,7 +17,7 @@ fi
 # with the more specific ones later; hence take the last match.
 get_mysql_option(){
 	if [ $# -ne 3 ] ; then
-		log_warning "get_mysql_option requires three arguments: section option default_value"
+		log_warning "get_mysql_option requires three arguments: section, option, and default_value"
 		return
 	fi
 	sections="$1"
@@ -79,7 +79,7 @@ backup_config() {
         log_debug "The ${1} file was backed up to ${VALUE_TMP_PREUPGRADE}${1}."
         return 0
     else
-        log_debug "Backing up the ${1} file failed: ${ret}"
+        log_debug "The backup of the ${1} file failed: ${ret}"
         return 1
     fi
 }

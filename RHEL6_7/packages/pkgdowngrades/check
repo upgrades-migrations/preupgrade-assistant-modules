@@ -68,8 +68,8 @@ case "$rv" in
     1)
         # Don't double-quote $packages here, intentional
         packages=$(set -f;  echo $packages)
-        log_error "at least the following packages are downgraded in Red Hat Enterprise Linux 7: $packages "
-        log_medium_risk "having one of the following packages installed might break the upgrade: $packages "
+        log_error "At least the following packages are downgraded in Red Hat Enterprise Linux 7: $packages "
+        log_medium_risk "Having one of the following packages installed might break the upgrade: $packages "
 
         generate_postupgrade_script
 

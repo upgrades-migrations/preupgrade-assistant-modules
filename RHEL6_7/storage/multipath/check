@@ -23,11 +23,11 @@ if [ -f "$MULTIPATH_CONF" ]; then
 		ERR=1
 	fi
 	if grep -q "devices[[:space:]]*{" $MULTIPATH_CONF; then
-		log_high_risk "Multipath matches user device configs with built-in device configs differently on Red Hat Enterprise Linux 7."
+		log_high_risk "Multipath matches user device configs with built-in device configs differently in Red Hat Enterprise Linux 7."
 		FIX=1
 	fi
 fi
-log_medium_risk "The number of default configuation settings have changed in Red Hat Enterprise Linux 7. Users should verify that their devices are still optimally configured."
+log_medium_risk "The number of default configuation settings have changed in Red Hat Enterprise Linux 7. Verify that your devices are still optimally configured."
 
 test "$ERR" -ne 0 && exit $RESULT_FAIL
 test "$FIX" -ne 0 && exit $RESULT_FIXED

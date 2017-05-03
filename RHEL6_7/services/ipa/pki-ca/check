@@ -14,7 +14,7 @@ if [ -d ${pki_ca_registry} ] ; then
         # There is an IPA CA installed;
         # return an error since in-place upgrade of an
         # IPA CA from RHEL 6 to RHEL 7 is unsupported!
-        log_extreme_risk "Identity Management Server CA cannot be upgraded in-place."
+        log_extreme_risk "Identity Management Server CA cannot be in-place upgraded."
         exit_fail
     fi
 fi

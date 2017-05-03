@@ -48,8 +48,8 @@ def splitFilename(filename):
     return name, ver, rel, epoch, arch
 
 def main():
-	"""read VALUE_EXECUTABLES, ignore those from Red Hat and check if they are linked against hal-libs."""
-	"""check if any package depends on hal, again ignore Red Hat"""
+	"""Read VALUE_EXECUTABLES, ignore those from Red Hat, and check if they are linked against hal-libs."""
+	"""Check if any package depends on hal, and again ignore Red Hat packages."""
 
 	def is_elf(file_path):
 		"""check for elf magic number, true for match"""
@@ -73,7 +73,7 @@ def main():
 		return True
 
 	def run_command(cmd):
-		"""run external command specified as a list of argv, return status code and output as a list of lines"""
+		"""Run external command specified as a list of argv, return status code, and output as a list of lines."""
 		output = os.tmpfile()
         	try:
         		return_code = subprocess.Popen(cmd,
@@ -91,7 +91,7 @@ def main():
 		return (return_code, output.read())
 
 	def get_package(file_path):
-		"""ask rpm if the file belongs to a package, return its name"""
+		"""Ask rpm if the file belongs to a package, and return its name."""
 		cmd = ["rpm", "-qf", file_path]
 		(return_code, output) = run_command(cmd)
 		if return_code !=  0:
@@ -99,8 +99,8 @@ def main():
 		return output.strip()
 
 	def is_redhat(file_path, redhat_list, filetopkgdict):
-		"""check if the executable is from red hat signed package, those are covered elsewhere."""
-		"""expects redhat_list - list of redhat package names"""
+		"""Check if the executable is from a Red Hat signed package, those are covered elsewhere."""
+		"""expects redhat_list - list of Red Hat package names"""
 		"""expects filetopkgdict - dict of file to package mapping"""
 		try:
 			return filetopkgdict[file_path] in redhat_list
@@ -205,7 +205,7 @@ def main():
 if __name__ == "__main__":
 	if os.geteuid() != 0:
 		sys.stdout.write("Need to be root.\n")
-		log_slight_risk("The script needs to be run under the root account")
+		log_slight_risk("The script needs to be run under the root account.")
 		exit_error()
 	if main():
 		exit_fail()

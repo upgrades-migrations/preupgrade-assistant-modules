@@ -25,10 +25,10 @@ done
 rm -f solution.txt
 # Generate solution.txt
 if test "$RESULT" = "$RESULT_FAIL"; then
-    echo "GNOME Desktop Environment as a part of the yum group 'Desktop' underwent a serious redesign in its user interface as well as in underlying technologies in Red Hat Enterprise Linux 7. The users of the desktop environment need to be educated about these changes before the upgrade. GNOME classic user interface is provided in Red Hat Enterprise Linux 7 to minimize the impact of this change but the interface still contains several differences from the older version and the users need to be aware of them. More on the topic at [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Desktop_Migration_and_Administration_Guide/index.html]" >> solution.txt
+    echo "The GNOME Desktop Environment as a part of the yum group 'Desktop' underwent a serious redesign in its user interface as well as in underlying technologies in Red Hat Enterprise Linux 7. The users of the desktop environment need to be educated about these changes before the upgrade. The GNOME Classic user interface is provided in Red Hat Enterprise Linux 7 to minimize the impact of this change but the interface still contains several differences from the earlier version, and the users need to be aware of them. More on the topic at [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Desktop_Migration_and_Administration_Guide/index.html]" >> solution.txt
 fi
 
 if test -n "$DPKGS"; then
-    echo "The following packages from yum group 'Desktop' that provides GNOME Desktop Environment were detected to be installed in your system:$DPKGS" >> solution.txt
+    echo "The following packages from the yum group 'Desktop', which provides the GNOME Desktop Environment, were detected to be installed on your system:$DPKGS" >> solution.txt
 fi
 exit "$RESULT"

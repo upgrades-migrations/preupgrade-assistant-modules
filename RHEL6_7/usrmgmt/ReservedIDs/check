@@ -14,7 +14,7 @@ founderror=1
 }
 
 
-[ ! -r uidgid ] && log_error "Generic part of the content is missing!" && \
+[ ! -r uidgid ] && log_error "Generic part of the module is missing." && \
   exit $RESULT_ERROR
 
 founderror=0
@@ -22,7 +22,7 @@ rm solution.txt
 
 
 echo \
-"The packages might create system accounts with static IDs based on the reservation in the /usr/share/doc/setup-*/uidgid file. If you have any violations against the uidgid file reservation, the applications might not work properly, or they might cause some unexpected behaviour. As the reservations between different releases of Red Hat Enterprise Linux might differ, check carefully the findings below.
+"The packages might create system accounts with static IDs based on the reservation in the /usr/share/doc/setup-*/uidgid file. If you have any violations against the uidgid file reservation, the applications might not work properly, or they might cause some unexpected behavior. As the reservations between different releases of Red Hat Enterprise Linux might differ, check the findings below carefully.
 
 Especially the cases when an ID reserved by an application is used by a different account are really important. Using a different account than the reserved one might cause interoperability issues.
 " > solution.txt
@@ -78,9 +78,9 @@ fi
 done
 echo " These issues do not usually cause critical failures, but in rare cases they might contribute to some hard-to-analyze failures in the case where the system ID values are hard-coded in the application. " >> solution.txt
 
-[ $founderror -eq 1 ] &&  log_medium_risk "Reserved user and group IDs by setup package changed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7"; exit $RESULT_FAIL
+[ $founderror -eq 1 ] &&  log_medium_risk "Reserved user and group IDs by the setup package changed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."; exit $RESULT_FAIL
 
 #no issues found, so remake solution text
 rm solution.txt
-echo \ "The packages might create system accounts with static IDs based on the reservation in the /usr/share/doc/setup-*/uidgid file. If you have any violations against the uidgid file reservation, the applications might not work properly or they might cause some unexpected behavior. In your case, no important divergence from the reservations was found. Even small findings (such as different login shells and application home directories) might be worth checking. See these in the warnings. Flaws in reserved IDs were not found on your system so this check passed, although the warnings might exist. " >solution.txt
+echo \ "The packages might create system accounts with static IDs based on the reservation in the /usr/share/doc/setup-*/uidgid file. If you have any violations against the uidgid file reservation, the applications might not work properly, or they might cause some unexpected behavior. In your case, no important divergence from the reservations was found. Even small findings (such as different login shells and application home directories) might be worth checking. See these in the warnings. Flaws in reserved IDs were not found on your system so this check passed, although the warnings might exist. " >solution.txt
 exit $RESULT_PASS

@@ -38,7 +38,7 @@ save_files+=" $(find /etc/ntp/crypto -type f -not -name 'pw' -or -type l)"
 [[ $save_files == */* ]] || exit_pass
 
 cat > $SOLUTION_FILE <<-EOF
-The Red Hat Enterprise Linux 6 ntp and ntpdate configuration can be used without changes on Red Hat Enterprise Linux 7.
+The Red Hat Enterprise Linux 6 ntp and ntpdate configuration can be used without changes in Red Hat Enterprise Linux 7.
 The following configuration files are modified, but not tracked by RPM,
 or not included in the packages:
 
@@ -64,12 +64,12 @@ done
 
 cat >> $SOLUTION_FILE <<-EOF
 
-The files have been saved to /root/preupgrade/cleanconf.
+The files have been saved to the /root/preupgrade/cleanconf/ directory.
 The configuration files tracked by RPM are saved to the same directory by the
 "Store modified config files for packages with unchanged version" rule.
 
-Please note that the NTP package installed by default in Red Hat Enterprise Linux 7 is chrony.
-To switch back to ntp, run "yum install ntp" and "yum remove chrony".
+Note that the ntp package installed by default in Red Hat Enterprise Linux 7 is chrony.
+To switch back to ntp, type `yum install ntp` and `yum remove chrony`.
 EOF
 
 exit_informational

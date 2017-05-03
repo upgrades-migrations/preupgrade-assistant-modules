@@ -87,7 +87,7 @@ bp_jconfs() {
   }
 
   [ -d "$1" ] || {
-    log_error "The '$1' directory does not exist."
+    log_error "The $1 directory does not exist."
     exit_error
   }
 
@@ -95,7 +95,7 @@ bp_jconfs() {
   for conf in $(get_configs); do
     if [ -f "$1/$conf" ]; then
       cp -anp --parents "$1/$conf" $DIRTY_DIR || {
-        log_warning "The config file $1/$conf was not backed up."
+        log_warning "The $1/$conf configuration file was not backed up."
         state=1
       }
     fi
@@ -121,7 +121,7 @@ check_java_gcj() {
     non_native_dep_pkgs="$(echo $(_filter_native_pkgs $dep_pkgs))"
     if [ -n "$non_native_dep_pkgs" ]; then
       # we found any dependent non-native package
-      msg="The $pkg package is required by packages not signed by Red Hat:"
+      msg="The $pkg package is required by the following packages not signed by Red Hat:"
       msg+=" $non_native_pkgs."
       log_medium_risk "$msg"
     else
@@ -129,11 +129,11 @@ check_java_gcj() {
     fi
   done
   echo >> "$SOLUTION_FILE" \
-    "* You have installed java-1.5.0-gcj or libgcj packages. The GCJ is not" \
-    "supported on Red Hat Enterprise Linux 7 system and your current" \
-    "Java applications compiled by GCJ will not work. Please, update your" \
-    "Java applications to be sure that they run with OpenJDK Java" \
-    "of version 7 or 8."
+    "* You have installed java-1.5.0-gcj or libgcj packages. GCJ is not" \
+    "supported in Red Hat Enterprise Linux 7 and your current" \
+    "Java applications compiled by GCJ will not work. Update your" \
+    "Java applications to be sure that they run with OpenJDK" \
+    "version 7 or 8."
   set_result $RESULT_FAILED
 }
 
@@ -146,23 +146,23 @@ check_java6() {
   pkg_old_java="java-1.6.0-openjdk"
   is_pkg_installed "$pkg_old_java" && is_dist_native "$pkg_old_java" && {
     echo >> "$SOLUTION_FILE" \
-      "* The OpenJDK Java 6 is not supported for inplace upgrade as support" \
-      "of the OpenJDK Java 6 has been ended on 31st of December 2016." \
-      "We recommend update of your applications to use OpenJDK Java 7 or 8," \
-      "and if it is possible remove the old OpenJDK Java 6," \
-      "before you update to new system Red Hat Enterprise Linux 7."
-    log_high_risk "The '$pkg_old_java' is installed but it is not supported for upgrades."
+      "* OpenJDK 6 is not supported for the in-place upgrade because the support" \
+      "of OpenJDK 6 ended on 31 December 2016." \
+      "We recommend the update of your applications to use OpenJDK 7 or 8," \
+      "and if it is possible, remove OpenJDK 6" \
+      "before you upgrade to Red Hat Enterprise Linux 7."
+    log_high_risk "The $pkg_old_java package is installed, but it is not supported for upgrades."
     set_result $RESULT_FAILED
 
     # at least we back up config files
     old_jvmdir=$(get_jvm_dir "$pkg_old_java")
     if bp_jconfs "$old_jvmdir"; then
-      msg="Configuration files for the OpenJDK Java 6 have been backed up"
+      msg="The configuration files for OpenJDK 6 have been backed up"
       msg+="to the ${DIRTY_DIR}${old_jvmdir} directory."
       log_info "$msg"
     else
-      msg="Some configuration files for the OpenJDK Java 6 have"
-      msg+=" not been backed up. Please, back up them manually"
+      msg="Some configuration files for OpenJDK 6 have"
+      msg+=" not been backed up. Back them up manually"
       msg+=" if you need them."
       log_high_risk "$msg"
     fi
@@ -183,19 +183,19 @@ check_java78() {
     echo "$pkg|$jvmdir" >> "jvmdir_list"
 
     echo >> "$SOLUTION_FILE" \
-      "* The OpenJDK Java $version is installed. Configuration files"\
-      "will be backed up and then will be restored by post-upgrade script" \
+      "* OpenJDK $version is installed. The configuration files"\
+      "will be backed up, and then they will be restored by the post-upgrade script" \
       "automatically."
 
     if bp_jconfs "$jvmdir"; then
-       msg="The OpenJDK Java $version is installed. Your configuration"
-       msg+=" have been backed up sucessfully and will be applied on the new"
+       msg="OpenJDK $version is installed. Your configuration"
+       msg+=" has been backed up sucessfully and it will be applied on the new"
        msg+=" system automatically."
        log_info "$msg"
        set_result $RESULT_FIXED
     else
       # this is just for completion, but is not expected situation
-      msg="Some configuration files for the OpenJDK Java $version have not"
+      msg="Some configuration files for the OpenJDK $version have not"
       msg+=" been backed up."
       log_error "$msg"
       set_result $RESULT_ERROR
@@ -231,8 +231,8 @@ done
   check_java78
 
   if [ $found -gt 1 ]; then
-    msg="Found installed more versions of OpenJDK Java."
-    msg+=" We recommend check of settings of java alternatives on new system."
+    msg="More versions of OpenJDK were found installed."
+    msg+=" We recommend that you check the settings of Java alternatives on the new system."
     log_slight_risk "$msg"
     alternatives --display java \
         | grep "link currently" \

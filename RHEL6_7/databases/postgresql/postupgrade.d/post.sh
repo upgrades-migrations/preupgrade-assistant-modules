@@ -31,7 +31,7 @@ prep_source_right() {
 
 
 if [ "$(id -u)" != 0 ]; then
-    echo >&2 "please, run this under 'root' user"
+    echo >&2 "Run this under root."
     exit 1
 fi
 
@@ -41,6 +41,6 @@ yum install postgresql-upgrade -y || {
 }
 
 [ $? -eq 0 ] || {
-  echo "Package postfresql-upgrade couldn't be installed. Please install it manually"
+  echo "The postfresql-upgrade package could not be installed automatically. Install it manually."
   exit 1
 }

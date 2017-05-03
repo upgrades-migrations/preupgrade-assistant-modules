@@ -13,26 +13,26 @@ cp --parents -ar $confdir $VALUE_TMP_PREUPGRADE/dirtyconf/
 
 
 if ! [ -e "$confile" ];then
-   echo " $confile doesn't exist, if you have slapd configuration file in alternative location run 
-the following command to test it's consistency:
+   echo " The $confile configuration file does not exist. If you have the slapd configuration file in an alternative location, run 
+the following command to test its consistency:
 slaptest -v -f $cust_confile" >> $SOLUTION_FILE
-   echo "It is recommended to use new directory format of slapd configuration on RHEL 7. If you wish to migrate your slapd configuration to the new format use the following commands:
+   echo "It is recommended to use a new directory format of the slapd configuration in Red Hat Enterprise Linux 7. If you wish to migrate your slapd configuration to the new format, type:
 slaptest -f $cust_confile -F $confdir
 chown -R ldap:ldap $cust_confdir " >> $SOLUTION_FILE
-   log_medium_risk "Directory format is recommended for slapd configuration"
+   log_medium_risk "Directory format is recommended for the slapd configuration."
    exit_fail
 else
-   echo "It is recommended to use new directory format of slapd configuration on RHEL 7. If you wish to migrate your slapd configuration to the new format use the following commands:
+   echo "It is recommended to use a new directory format of the slapd configuration in Red Hat Enterprise Linux 7. If you wish to migrate your slapd configuration to the new format, type:
 slaptest -f $confile -F $confdir
 chown -R ldap:ldap $confdir " >> $SOLUTION_FILE
   slaptest -v -f "$confile" 2>&1 | grep "database ldbm" > /dev/null
    if [[ "$?" -eq 0 ]];then
 
-      echo "Change database directive in $confile to bdb" >> $SOLUTION_FILE
-      log_high_risk "back-ldbm database backend is obsolete and should not be used"
+      echo "Change the database directive in the $confile file to 'bdb'." >> $SOLUTION_FILE
+      log_high_risk "The back-ldbm database backend is obsolete and should not be used."
       exit_fail
    else
-      log_medium_risk "Directory format is recommended for slapd configuration"
+      log_medium_risk "Directory format is recommended for the slapd configuration."
       exit_fail
    fi
 fi

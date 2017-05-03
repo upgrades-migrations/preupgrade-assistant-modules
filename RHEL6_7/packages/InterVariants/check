@@ -54,7 +54,7 @@ $OTHER_VARIANT_PKGS" >> solution.txt
 [ -n "$ADDON_PKGS" ] && {
   result=$RESULT_FAIL
   log_high_risk "You have installed packages signed by Red Hat which need special subscriptions."
-  echo "Some packages signed by Red Hat are available only in special systems which require
+  echo "Some packages signed by Red Hat are available only on special systems that require
 additional subscriptions. Make sure you have all the subscriptions needed for these packages:
 $ADDON_PKGS" >> solution.txt
 }

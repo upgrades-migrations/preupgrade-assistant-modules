@@ -12,12 +12,12 @@ function remove_packages {
         $RPM_ERASE $pkg
     done
 }
-echo "Remove preupgrade-assistant packages"
+echo "Remove preupgrade-assistant packages."
 remove_packages preupgrade-assistant
 
 rpm -qa | grep "el6" > $RPM_QA 2>/dev/null
 # First we remove all debug-info packages and 32multilib packages automatically
-echo "Remove all debuginfo and 32bit multilib packages ..."
+echo "Remove all debuginfo and 32-bit multilib packages."
 for line in `cat $RPM_QA`; do
     NAME=`rpm -q --qf '%{NAME}' $line`
     # Check for debuginfo packages
@@ -31,15 +31,15 @@ for line in `cat $RPM_QA`; do
     ARCH=`rpm -q --qf '%{NAME}' $line`
     echo "$ARCH" | grep "i{356}86" 1>/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        echo "32bit multilib package $NAME will be uninstalled."
+        echo "The 32-bit multilib package $NAME will be uninstalled."
         $RPM_ERASE $NAME
         continue
     fi
 done
-echo "Remove all debuginfo and 32bit multilib packages done"
+echo "All debuginfo and 32-bit multilib packages were removed."
 cat $RHELUP_CONFIG
 if [ ! -f "$RHELUP_CONFIG" ]; then
-    echo "redhat-upgrade-tool config file $RHELUP_CONFIG was not found on the system."
+    echo "The redhat-upgrade-tool $RHELUP_CONFIG configuration file was not found on the system."
     echo "No Red Hat Enterprise Linux 6 packages will be deleted."
     exit 0
 fi
@@ -64,19 +64,19 @@ fi
 
 grep '[postupgrade]' $RHELUP_CONFIG 1>/dev/null 2>&1
 if [ $? -ne 0 ]; then
-   echo "redhat-upgrade-tool was not called with an option --cleanup-post."
+   echo "redhat-upgrade-tool was not called with the '--cleanup-post' option."
    exit 0
 fi
 grep '^cleanup[[:space:]]*=[[:space:]]*True' $RHELUP_CONFIG 1>/dev/null 2>&1
 if [ $? -ne 0 ]; then
-   echo "redhat-upgrade-tool was not called with an option --cleanup-post."
+   echo "redhat-upgrade-tool was not called with the '--cleanup-post' option."
    exit 0
 fi
 for line in `cat $RPM_QA`; do
     NAME=`rpm -q --qf '%{NAME}' $line`
     grep $NAME $RHSIGNED_PKGS 2>/dev/null 1>/dev/null
     if [ $? -ne 0 ]; then
-       echo "The $NAME package is not signed by Red Hat and will not be erased."
+       echo "The $NAME package is not signed by Red Hat, and it will not be erased."
     else
        $RPM_ERASE $NAME
     fi

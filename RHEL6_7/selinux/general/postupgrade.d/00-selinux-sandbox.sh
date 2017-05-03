@@ -38,7 +38,7 @@ yum install --nogpgcheck --enablerepo="redhat-upgrade-*" -y ${PKG} || {
 }
 
 [ $? -eq 0 ] || {
-  echo "Package $PKG couldn't be installed. Please install it manually."
+  echo "The $PKG package could not be installed automatically. Install it manually."
   exit 1
 }
 
@@ -46,7 +46,7 @@ INST_IS_OK=${?}
 
 if [[ ${INST_IS_OK} -ne 0 ]]
 then
-    echo "installation of ${PKG} failed"
+    echo "The installation of the ${PKG} package failed."
 fi
 
 exit ${INST_IS_OK}

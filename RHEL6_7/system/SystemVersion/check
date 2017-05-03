@@ -25,32 +25,32 @@ rhel_latest=$(cat versions | head -n 1 | grep "#\s*release:" | grep -oE "6\.[0-9
 }
 
 QUERY_FORMAT="%{NAME}-%{VERSION}-%{RELEASE}\n"
-MISSING_VARIANT_MSG="The variant of your system was not detected. The upgrade/migration
-without required packages is not supported. Please install the
-package redhat-release and then run preupg again. Use the command:
+MISSING_VARIANT_MSG="The variant of your system was not detected. The upgrade or migration
+without required packages is not supported. Install the
+redhat-release package and then run 'preupg' again. Type:
 
 # yum install redhat-release && preupg
 "
-UNSUPPORTED_VARIANT_MSG="Only the upgrade of Red Hat Enterprise Linux Server or ComputeNode
+UNSUPPORTED_VARIANT_MSG="Only the upgrade of Red Hat Enterprise Linux Server or Compute Node
 variant is supported at the moment. The upgrade of Workstation and Client variants
 is not supported."
 
 if [ $UPGRADE -eq 1 ]; then
   local_log_risk="log_extreme_risk"
   ERROR_MSG="For a successful upgrade you need the latest release of Red Hat Enterprise Linux 6 system. Update
-your system to the last Red Hat Enterprise Linux 6 release and then run preupg again."
+your system to the latest Red Hat Enterprise Linux 6 release and then run 'preupg' again."
 else
   local_log_risk="log_high_risk"
   ERROR_MSG="For the best result of the migration to the new system it is recommended
-(but not required) to update your system to the Red Hat Enterprise Linux $rhel_latest release first
-and then run preupg again."
+(but not required) to update your system to the Red Hat Enterprise Linux $rhel_latest release first,
+and then run 'preupg' again."
 fi
 
 check_variant_release() {
   [ $UPGRADE -eq 1 ] && {
     grep -qE "Red Hat Enterprise Linux (Server|ComputeNode)" "/etc/redhat-release" || {
       $local_log_risk "This system is $(cat /etc/redhat-release)."
-      $local_log_risk "Only the upgrade of the latest version of Red Hat Enterprise Linux 6 Server or ComputeNode is supported."
+      $local_log_risk "Only the upgrade of the latest version of Red Hat Enterprise Linux 6 Server or Compute Node is supported."
       echo "$UNSUPPORTED_VARIANT_MSG" >> solution.txt
       exit $RESULT_FAIL
     }
@@ -101,14 +101,14 @@ if [ -f "/etc/redhat-release" ]; then
 else
   VARIANT="$(get_variant_by_yum)"
   [ -n "$VARIANT" ] || {
-    log_extreme_risk "The system variant was not detected. The package redhat-release is missing."
+    log_extreme_risk "The system variant was not detected. The redhat-release package is missing."
     echo "$MISSING_VARIANT" >> solution.txt
     exit $RESULT_FAIL
   }
 
   echo $VARIANT | grep -qE "Server|ComputeNode" || {
-    $local_log_risk "This system is Red Hat Enterprise Linux $Variant 6"
-    $local_log_risk "Only the upgrade of the latest version of Red Hat Enterprise Linux 6 Server or ComputeNode is supported."
+    $local_log_risk "This system is Red Hat Enterprise Linux $Variant 6."
+    $local_log_risk "Only the upgrade of the latest version of Red Hat Enterprise Linux 6 Server or Compute Node is supported."
     echo "$UNSUPPORTED_VARIANT_MSG" >> solution.txt
     exit $RESULT_FAIL
   }
@@ -126,14 +126,14 @@ while read line; do
   # head because of multilib pkgs..you know.. x86_64 and i686 versions installed at once...
   pkg_nvr_installed=$(rpm -q --qf "${QUERY_FORMAT}" $pkgname | sort -Vr | head -n 1)
   [ $? -ne 0 ] && {
-    log_error "The $pkgname package is not installed or there is a different problem with an rpm utility"
+    log_error "The $pkgname package is not installed, or there is a different problem with the rpm utility."
     exit $RESULT_ERROR
   }
 
   ./rpmdev-vercmp "$pkg_nvr" "$pkg_nvr_installed" > /dev/null
   status=$?
   [ $status -ne 0 ] && [ $status -ne 11 ] && [ $status -ne 12 ] && {
-    log_error "Versions of rpms cannot be compared"
+    log_error "Versions of RPMs cannot be compared."
     exit $RESULT_ERROR
   }
 

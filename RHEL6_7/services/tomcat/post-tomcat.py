@@ -24,7 +24,7 @@ etreeDict = dict()
 ##############################################################################
 ### just get file list with given path ###
 def get_file_list(path):
-    "Return a list of all files in the path, including the files in subdirectories."
+    "Return a list of all files in the path, including the files in its subdirectories."
     fList = list()
     for root, dummy_dirs, dummy_files in os.walk(path):
         fList.append(root)
@@ -52,8 +52,8 @@ def check_users(fname, verbose=True):
 
     def _my_log_medium_risk(fname, role):
         log_medium_risk(
-            "%s: The %s role is in use and has been changed in Tomcat 7. It will be"
-            " automatically updated to a new %s-gui role, but might require a further"
+            "%s: The %s role is in use and it has been changed in Tomcat 7. It will be"
+            " automatically updated to a new %s-gui role, but it might require a further"
             " intervention." % (fname, role, role)
             )
 
@@ -193,11 +193,11 @@ def mv_webapps():
 
     Move web applications from the APP_WEB_HOME directory to a new directory
     for Tomcat 7. When the files in the new destination already exist, it will be
-    moved to backup directory (see below).
+    moved to a backup directory (see below).
 
     The new tomcat directory for web apps, which is created by the tomcat package, is moved
-    to /usr/share/tomcat/webapps-preupg-backup/. Move is used because of possible
-    troubles with copy when data take lots of space.
+    to the /usr/share/tomcat/webapps-preupg-backup/ directory. It is moved instead of copied due to possible problems
+    if the data takes lots of space.
 
     Return True on success or return False otherwise.
     """
@@ -206,8 +206,8 @@ def mv_webapps():
         # be stored on different place
         log_warning(
             "The original directory %s does not exist now, which means that you probably"
-            " did not have your own web applications on the original system"
-            " or a different path was used. In case you had some web"
+            " did not have your own web applications on the original system,"
+            " or a different path was used. In the case that you had some web"
             " applications previously, copy them to a new directory:"
             " %s." % (APP_WEB_HOME, APP_WEB_HOME_NEW)
             )
@@ -223,7 +223,7 @@ def mv_webapps():
     if os.system("/bin/mv %s %s" % (APP_WEB_HOME, APP_WEB_HOME_NEW)):
         log_error(
             "Original web applications inside %s have not been moved to the new"
-            " %s directory, so tomcat cannot be used with them as previously."
+            " %s directory, so tomcat cannot be used with them as it was before."
             " Move your old web applications manually."
               % (APP_WEB_HOME, APP_WEB_HOME_NEW)
             )
@@ -310,7 +310,7 @@ for key,val in etreeDict.iteritems():
     if os.path.isfile(key) is False and val is None:
         continue
     if val is None:
-        log_warning("The '%s' file has not been parsed." % key)
+        log_warning("The %s file has not been parsed." % key)
         continue
     if os.path.isfile(key):
         # back up original file before rewrite if exists
@@ -329,8 +329,8 @@ new_packages = " ".join(map(lambda x: x.split("|")[1] , packages))
 if os.system("yum install -y %s" % new_packages) != 0:
     log_error(
         "No new tomcat packages have been installed."
-        " Install these packages manually and then copy the modified"
-        " tomcat6 configuration files to new directories. The new packages are:"
+        " Install the following packages manually, and then copy the modified"
+        " tomcat6 configuration files to their new directories. The new packages are:"
         " %s." % new_packages
         )
     sys.exit(1)
@@ -340,9 +340,9 @@ status = True
 for pkg in new_packages.split():
     if os.system("rpm -q %s >/dev/null" % pkg):
         log_warning(
-            "The package %s has not been installed."
+            "The %s package has not been installed."
             " It might not be available now. You need to install"
-            " it after the upgrade manually and maybe copy the old configuration"
+            " it after the upgrade manually, and you might need to copy the original configuration"
             " files manually too." % pkg
             )
         status = False

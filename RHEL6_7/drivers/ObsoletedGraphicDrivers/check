@@ -20,7 +20,7 @@ DEP_LIST=""
 # Removed modules first
 for mod in $LDM_LIST; do
 	if grep -q -e "^$mod\$" modRemovedList; then
-		log_extreme_risk "Your last X11 session loaded the module '$mod' that was removed in Red Hat Enterprise Linux 7."
+		log_extreme_risk "Your last X11 session loaded the '$mod' module, which was removed in Red Hat Enterprise Linux 7."
 		RESULT="$RESULT_FAIL"
 		RM_LIST="$RM_LIST\n\t$mod"
 	fi
@@ -29,7 +29,7 @@ done
 # Deprecated modules second
 for mod in $LDM_LIST; do
 	if grep -q -e "^$mod\$" modDeprecatedList; then
-		log_medium_risk "Your last X11 session loaded the module '$mod' that was deprecated in Red Hat Enterprise Linux 7."
+		log_medium_risk "Your last X11 session loaded the '$mod' module, which was deprecated in Red Hat Enterprise Linux 7."
 		RESULT="$RESULT_FAIL"
 		DEP_LIST="$DEP_LIST\n\t$mod"
 	fi
@@ -44,7 +44,7 @@ fi
 
 if test -n "$DEP_LIST"; then
 	echo -e \
-	"Your last X11 session loaded graphic drivers modules that were deprecated in Red Hat Enterprise Linux 7. All the drivers have KMS drivers that are replacing them. The list of the deprecated modules follows: $DEP_LIST" >> solution.txt
+	"Your last X11 session loaded graphic drivers modules that were deprecated in Red Hat Enterprise Linux 7. All the drivers have KMS drivers, which are replacing them. The list of the deprecated modules follows: $DEP_LIST" >> solution.txt
 fi
 
 exit $RESULT

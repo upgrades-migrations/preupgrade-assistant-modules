@@ -47,7 +47,7 @@ fi
 
 if [ -n "$BROWSESHORTNAMES" ]; then
     if ! grep -qiw "$BROWSESHORTNAMES" <(echo $TRUE); then
-	log_high_risk "The "BrowseShortNames No" CUPS directive cannot be migrated to cups-browsed."
+	log_high_risk "The 'BrowseShortNames No' CUPS directive cannot be migrated to cups-browsed."
 	RESULT=$RESULT_FAILED
     fi
 fi
@@ -147,7 +147,7 @@ else
     solution_file "$BACKGROUND
 Your configuration cannot be migrated automatically. You should either migrate to DNS-SD or, to continue to use the CUPS Browsing protocol, adjust your configuration for cups-browsed.conf.
 
-By default, CUPS uses DNS-SD to advertise print queues on the network. Discovery is performed by the applications. GTK+ applications do this as part of the print dialog implementation. To use DNS-SD, enable the \"avahi\" service and make sure to allow mDNS (UDP port 5353) through the firewall.
+By default, CUPS uses DNS-SD to advertise print queues on the network. Discovery is performed by the applications. GTK+ applications do this as part of the print dialog implementation. To use DNS-SD, enable the 'avahi' service and make sure to allow mDNS (UDP port 5353) through the firewall.
 
 Alternatively, you can use the cups-browsed service, which provides basic CUPS Browsing compatibility. The main browsing configuration has been moved to the [link:cleanconf/etc/cups/cups-browsed.conf] file.
 "

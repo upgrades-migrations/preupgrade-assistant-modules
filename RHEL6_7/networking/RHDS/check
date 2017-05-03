@@ -27,17 +27,17 @@ do
     fi
 done
 
-echo "Directory server configuration files were copied into $VALUE_TMP_PREUPGRADE/dirtyconf/ directory.
-      If you are using preupgrade-assistant for in-place upgrade of the system, make sure to backup them in 
-      the external location" >> $SOLUTION_FILE
+echo "Directory server configuration files were copied into the $VALUE_TMP_PREUPGRADE/dirtyconf/ directory.
+      If you are using the Preupgrade Assistant for the in-place upgrade of your system, back up the directory server configuration files in 
+      an external location." >> $SOLUTION_FILE
 
 
 }
 
 rhds_base_info () {
 
-echo "Use the following commands to backup your database directories. Please notice, that we are using Perl versions of the scripts. 
-      These are to be used with running dirserv instance. Shell versions must be run with stopped dirserv instance and
+echo "Use the following commands to back up your database directories. Notice that Perl versions of the scripts are used. 
+      These are to be used with running dirserv instance. Shell versions must be run with stopped dirserv instance, and they
       are not meant for master server backup.
 
       ldapsearch -b cn=config -x -D '<rootdn>' -W  -H ldap://localhost -LLL '(objectClass=nsBackendInstance)' cn
@@ -49,10 +49,10 @@ echo "Use the following commands to backup your database directories. Please not
       /usr/lib64/dirsrv/slapd-rl6-ldap/db2ldif.pl -D \"<rootdn>\" -w <password> -r -n <backend_instance>
       # example : /usr/lib64/dirsrv/slapd-rl6-ldap/db2ldif.pl -D \"cn=Directory Manager\" -w 12ldap389 -r -n userRoot
 
-      If you are using preupgrade-assistant for in-place upgrade of the system, make sure to backup them in the
-      external location
+      If you are using the Preupgrade Assistant for the in-place upgrade of your system, back up the database directories in an
+      external location.
 
-      Use the following command to upgrade backend DB to new DN format AFTER the upgrade but before running the setup script:
+      Use the following command to upgrade the backend DB to a new DN format after the upgrade, but before running the setup script:
       upgradednformat -n <backend_instance> -a </path/to_backend/instance/dir>
       # example : upgradednformat -n userRoot -a /var/lib/dirsrv/slapd-ldapserver/db/userRoot/ 
                                                                                               " >> $SOLUTION_FILE
@@ -63,7 +63,7 @@ echo "Use the following commands to backup your database directories. Please not
 
 rhds_info () {
 
-echo 'Note: Only directory server package is checked. This version does not assist with the admin server and the console suits upgrade' >> $SOLUTION_FILE
+echo 'Note: Only the directory server package is checked. This version does not assist with the admin server and the console suits upgrade.' >> $SOLUTION_FILE
 
 rhds_base_info
 
@@ -72,12 +72,12 @@ rhds_base_info
 
 389_base_info () {
 
-echo '389-ds or 389-ds-base  are NOT supported as stand-alone packages, please review the scope of support below:
+echo '389-ds or 389-ds-base are not supported as stand-alone packages, review the scope of the support below:
       https://access.redhat.com/solutions/2440481             
       https://access.redhat.com/articles/65032
       https://access.redhat.com/support/offerings/production/soc
 
-      In-place upgrade of 389-ds or 389-ds-base packages is not supported. 
+      The in-place upgrade of 389-ds or 389-ds-base packages is not supported. 
       If you want to proceed with the update, you can find the following info helpful, but without any warranty:' >> $SOLUTION_FILE
 echo >> $SOLUTION_FILE
 
@@ -86,7 +86,7 @@ rhds_base_info
 }
 
 389_info () {
-echo 'Note: Only directory server package is checked. This version does not assist with the admin server and the console suits upgrade' >> $SOLUTION_FILE
+echo 'Note: Only the directory server package is checked. This version does not assist with the admin server and the console suits upgrade.' >> $SOLUTION_FILE
 
 389_base_info
 
@@ -102,7 +102,7 @@ if [ $? -eq 0 ];then
    else
       rhds_base_info
    fi
-   log_high_risk "Above info should help you with Red Hat Directory Server upgrade"
+   log_high_risk "The above information should help you with the Red Hat Directory Server upgrade."
    exit_fail
 else
    is_pkg_installed "389-ds"
@@ -111,6 +111,6 @@ else
    else
       389_base_info
    fi
-   log_extreme_risk "389-ds or 389-ds-base upgrade is NOT supported"
+   log_extreme_risk "The 389-ds or 389-ds-base upgrade is not supported."
    exit_fail
 fi

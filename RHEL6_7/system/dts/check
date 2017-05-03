@@ -5,7 +5,7 @@
 
 FOUND=0
 if [ ! -f "$VALUE_RPM_QA" ]; then
-    log_error "The $VALUE_RPM_QA fiel with all RPM packages is required."
+    log_error "$VALUE_RPM_QA with all RPM packages is required."
     exit_error
 fi
 

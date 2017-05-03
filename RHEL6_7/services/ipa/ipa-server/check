@@ -18,14 +18,14 @@ except ImportError:
 
 def main():
     if not ipaserver_installed:
-        log_info("The ipa-server package not installed")
+        log_info("The ipa-server package is not installed.")
         exit_not_applicable()
 
     if not installutils.is_ipa_configured():
-        log_info("Identity Managament Server not configured")
+        log_info("Identity Managament Server is not configured.")
         exit_not_applicable()
 
-    log_extreme_risk("Identity Management Server cannot be upgraded in-place")
+    log_extreme_risk("Identity Management Server cannot be in-place upgraded.")
     exit_fail()
 
 if __name__ == "__main__":

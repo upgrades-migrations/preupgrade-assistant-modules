@@ -25,9 +25,9 @@ log_warning() {
 try_install() {
   pkgs=$(echo "$1" | tr "," " ")
   yum -y install $pkgs || {
-    log_error "The $1 has not been installed. Please, install it manually" \
-              "Your original JVM configuration is stored inside the '$2'" \
-              "directory. You would need to recover it manually too."
+    log_error "The $1 package has not been installed. Install it manually." \
+              "Your original JVM configuration is stored in the $2" \
+              "directory. You also need to recover it manually."
     estatus=1
     return 1
   }
@@ -54,9 +54,9 @@ while read line || [ -n "$line" ]; do
   # new jvm dir is NVRA of main openjdk package (dir owns now sub-package)
   new_jvmdir="/usr/lib/jvm/$(rpm -q "$pkg")"
   [ -d "$new_jvmdir" ] || {
-    log_error "The expected '$new_jvmdir' does not exist. Recover of" \
-              "original configuration for '$pkg' failed. Please, recover" \
-              "original configuration manually from '$old_jvmdir'".
+    log_error "The expected '$new_jvmdir' does not exist. The recovery of" \
+              "the original configuration for the $pkg package failed. Recover" \
+              "the original configuration manually from '$old_jvmdir'".
     estatus=1
     continue
   }
@@ -89,13 +89,13 @@ for pkg in "java-1."{7,8}".0-openjdk"; do
   rpm -q "${pkg}-headless" >/dev/null 2>/dev/null && pkg_hl="${pkg}-headless"
   rpm -e $pkg $pkg_hl 2>java_tmprpm
   [ $? -eq 0 ] && {
-    log_info "Removed $pkg $pkg_hl which were not installed previously."
+    log_info "Removed $pkg $pkg_hl that were not installed previously."
     continue
   }
 
   #remove was not sucessful
-  log_warning  "The $pkg package was not installed on previous system but now" \
-            "it is installed and can't be removed because of these" \
+  log_warning  "The $pkg package was not installed on the previous system, but now" \
+            "it is installed and it cannot be removed because of these" \
             "dependencies:"
   grep "needed by" "java_tmprmp" >&2
   rm -f "java_tmprmp"

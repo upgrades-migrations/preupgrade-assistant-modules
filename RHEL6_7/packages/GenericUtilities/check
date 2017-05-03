@@ -43,11 +43,11 @@ ALL_AFFECTED_PKGS=$( comm -1 -2 \
 
 [ -n "$ALL_AFFECTED_PKGS" ] || exit $RESULT_PASS # improbable situation
 
-echo "Some utilities were replaced, removed, moved between packages or their path changed.
+echo "Some utilities were replaced, removed, moved between packages, or their path changed.
 Check your scripts for possible problems. 
 
-The list below does not contain utilities from removed packages which were not replaced
-by other packages or utilities which were moved into
+The list below does not contain utilities from the removed packages that were not replaced
+by other packages. It also does not contain utilities that were moved into
 packages replacing obsolete original packages." >> solution.txt
 
 declare -a arr_rm arr_repl arr_mv arr_ch arr_mvch
@@ -90,16 +90,16 @@ done
   }
 
   [ ${#arr_ch[@]} -ne 0 ] && {
-    echo -e "\nUtilities which changed their original location (the package remained unchanged):"
+    echo -e "\nUtilities that changed their original location (the package remained unchanged):"
     printf -- "%s\n" "${arr_ch[@]}"
   }
 
   [ ${#arr_mvch[@]} -ne 0 ] && {
-    echo -e "\nUtilities which changed their original package and location:"
+    echo -e "\nUtilities that changed their original package and location:"
     printf -- "%s\n" "${arr_mvch[@]}"
   }
 } >> solution.txt
 
-log_slight_risk "Some utilities were replaced, removed, moved between packages or their location changed."
+log_slight_risk "Some utilities were replaced, removed, moved between packages, or their location changed."
 exit $RESULT_FAIL # probably always will be failed
 

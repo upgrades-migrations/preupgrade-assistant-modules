@@ -24,10 +24,10 @@ done
 rm -f solution.txt
 # Generate solution.txt
 if test "$RESULT" = "$RESULT_FAIL"; then
-    echo "KDE Desktop Environment as a part of the yum group 'KDE Desktop' underwent a redesign in its user interface as well as in underlying technologies in Red Hat Enterprise Linux 7. The users of the desktop environment need to be educated about these changes before the upgrade." >> solution.txt
+    echo "The KDE Desktop Environment as a part of the yum group 'KDE Desktop' underwent a redesign in its user interface as well as in underlying technologies in Red Hat Enterprise Linux 7. The users of the desktop environment need to be informed about these changes before the upgrade." >> solution.txt
 fi
 
 if test -n "$DPKGS"; then
-    echo "The following packages from yum group 'KDE Desktop' that provides KDE Desktop Environment were detected to be installed in your system:$DPKGS" >> solution.txt
+    echo "The following packages from the yum group 'KDE Desktop', which provides the KDE Desktop Environment, were detected to be installed on your system:$DPKGS" >> solution.txt
 fi
 exit "$RESULT"

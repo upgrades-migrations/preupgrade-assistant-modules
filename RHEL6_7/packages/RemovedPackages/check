@@ -13,7 +13,7 @@ cat "$COMMON_DIR"/default*_removed* | grep -v "\.so" | cut -f1 -d' ' | sort | un
   exit $RESULT_ERROR
 
 [ ! -r "$RemovedPkgs" ] && \
-  log_error "Generic part of the content is missing." && \
+  log_error "Generic part of the module is missing." && \
   exit $RESULT_ERROR
 
 SCRIPT_NAME="postupgrade_cleanup.sh"
@@ -28,7 +28,7 @@ get_dist_native_list > $POSTUPGRADE_DIR/$(basename $VALUE_RPM_RHSIGNED)
 found=0
 rm -f solution.txt
 echo \
-"Some packages were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This may break
+"Some packages were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break
 the upgrade for some of your packages. We are not aware of any compatible
 replacement for these packages.
 
@@ -59,20 +59,20 @@ grep -v required solution.txt | grep -v " " | grep -v "^$" >> "$KICKSTART_DIR/Re
 grep required "$KICKSTART_DIR/RemovedPkg-required" >/dev/null || rm "$KICKSTART_DIR/RemovedPkg-required"
 grep [a-zA-Z] "$KICKSTART_DIR/RemovedPkg-optional" >/dev/null || rm "$KICKSTART_DIR/RemovedPkg-optional"
 [ -f "$KICKSTART_DIR/RemovedPkg-required" ] && \
-  echo " * RemovedPkg-required - This file contains all Red Hat Enterprise Linux 6 packages which were removed in Red Hat Enterprise Linux 7. There is no known compatible-enough alternative for them. As some of your packages depend on them, check the changes carefully." >>"$KICKSTART_README"
+  echo " * RemovedPkg-required - This file contains all Red Hat Enterprise Linux 6 packages that were removed in Red Hat Enterprise Linux 7. There is no known compatible-enough alternative for them. As some of your packages depend on them, check the changes carefully." >>"$KICKSTART_README"
 [ -f "$KICKSTART_DIR/RemovedPkg-optional" ] && \
-  echo " * RemovedPkg-optional - Similar to RemovedPkg-required, but in this case no package not signed by Red Hat requires this. It is more of an informational thing for you so that you can deal with the unavailability of these packages." >>"$KICKSTART_DIR/README"
+  echo " * RemovedPkg-optional - Similar to the RemovedPkg-required file, but in this case, no package not signed by Red Hat requires this. It is more of an informational thing for you, so that you can deal with the unavailability of these packages." >>"$KICKSTART_DIR/README"
 
 echo \
 "
 If a package not signed by Red Hat requires these packages, you may need to ask your
-vendor to provide an alternative solution or get the missing package from
-different sources than Red Hat Enterprise Linux.
+vendor to provide an alternative solution, or you may get the missing package from
+other sources than Red Hat Enterprise Linux.
 " >>solution.txt
-[ $found -eq 1 ] && log_high_risk "After upgrading to Red Hat Enterprise Linux 7 there are still some el6 packages left. Add --cleanup-post option to redhat-upgrade-tool if you want to remove them automatically."
+[ $found -eq 1 ] && log_high_risk "After upgrading to Red Hat Enterprise Linux 7, there are still some el6 packages left. Add the '--cleanup-post' option to redhat-upgrade-tool if you want to remove them automatically."
 
 [ $found -eq 1 ] && log_medium_risk "\
-We detected that some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This may break the functionality of the packages depending on them." && exit $RESULT_FAIL
+We detected that some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of the packages that depend on the removed packages." && exit $RESULT_FAIL
 
 rm -f solution.txt && touch solution.txt
 

@@ -77,25 +77,25 @@ do
     NOT_FOUND_SYSTEMD=0
     RPM=`rpm -qf /etc/init.d/$i`
     if [ $? -ne 0 ]; then
-        log_medium_risk "The service $i is not handled by any package and will not be automatically enabled after the in-place upgrade."
+        log_medium_risk "The $i service is not handled by any package and it will not be automatically enabled after the in-place upgrade."
         RESULT=1
         continue
     fi
     RPM_NAME=`rpm -q --qf "%{NAME}" $RPM`
     is_dist_native "$RPM_NAME"
     if [ $? -ne 0 ]; then
-        log_medium_risk "The service $i is not installed by Red Hat signed packages and will not be automatically enabled after the in-place upgrade."
+        log_medium_risk "The $i service is not installed by Red Hat signed packages and it will not be automatically enabled after the in-place upgrade."
         continue
     fi
     grep "/etc/init.d/$i" $VALUE_CONFIGCHANGED > /dev/null 2>&1
     if [ $? -eq 0 ]; then
-        log_slight_risk "The service $i was modified."
+        log_slight_risk "The $i service was modified."
     fi
     detection_name_change "$i"
     if [ $NOT_FOUND_SYSTEMD -eq 0 ]; then
         grep "enable $i." $PRESET_FILE > /dev/null 2>/dev/null
         if [ $? -ne 0 ]; then
-            log_high_risk "The service $i is disabled by default in Red Hat Enterprise Linux 7. Enable it via commands: systemctl enable $i && systemctl start $i.service ."
+            log_high_risk "The $i service is disabled by default in Red Hat Enterprise Linux 7. Enable it by typing the following commands: systemctl enable $i && systemctl start $i.service ."
         fi
     fi
     echo "$i" >> $ENABLED_SERVICES
@@ -110,25 +110,25 @@ do
     fi
     RPM=`rpm -qf /etc/xinetd.d/$i`
     if [ $? -ne 0 ]; then
-        log_medium_risk "The service $i is not handled by any package and will not be automatically enabled after the in-place upgrade."
+        log_medium_risk "The $i service is not handled by any package and it will not be automatically enabled after the in-place upgrade."
         RESULT=1
         continue
     fi
     RPM_NAME=`rpm -q --qf "%{NAME}" $RPM`
     is_dist_native "$RPM_NAME"
     if [ $? -ne 0 ]; then
-        log_medium_risk "The service $i is not installed by Red Hat signed packages and will not be automatically enabled after the in-place upgrade."
+        log_medium_risk "The $i service is not installed by Red Hat signed packages and it will not be automatically enabled after the in-place upgrade."
         continue
     fi
     grep "/etc/xinetd.d/$i" $VALUE_CONFIGCHANGED > /dev/null 2>&1
     if [ $? -eq 0 ]; then
-        log_slight_risk "The service $i was modified."
+        log_slight_risk "The $i service was modified."
     fi
     detection_name_change "$i"
     if [ $NOT_FOUND_SYSTEMD -eq 0 ]; then
         grep "enable $i." $PRESET_FILE > /dev/null 2>/dev/null
         if [ $? -ne 0 ]; then
-            log_high_risk "The service $i is disabled by default in Red Hat Enterprise Linux 7. Enable it via commands: systemctl enable $i && systemctl start $i.service ."
+            log_high_risk "The $i service is disabled by default in Red Hat Enterprise Linux 7. Enable it by typing the following commands: systemctl enable $i && systemctl start $i.service ."
         fi
     fi
     echo "$i" >> $ENABLED_SERVICES
@@ -139,20 +139,20 @@ do
     NOT_FOUND_SYSTEMD=0
     RPM=`rpm -qf /etc/init.d/$i`
     if [ $? -ne 0 ]; then
-        log_medium_risk "The service $i is disabled and not handled by any package. It will be disabled after the in-place upgrade."
+        log_medium_risk "The $i service is disabled and it is not handled by any package. It will be disabled after the in-place upgrade."
         RESULT=1
         continue
     fi
     RPM_NAME=`rpm -q --qf "%{NAME}" $RPM`
     is_dist_native "$RPM_NAME"
     if [ $? -ne 0 ]; then
-        log_medium_risk "The service $i is disabled and not installed by Red Hat signed packages. It will be disabled after the in-place upgrade."
+        log_medium_risk "The $i service is disabled and it is not installed by Red Hat signed packages. It will be disabled after the in-place upgrade."
         RESULT=1
         continue
     fi
     grep "/etc/init.d/$i" $VALUE_CONFIGCHANGED > /dev/null 2>&1
     if [ $? -eq 0 ]; then
-        log_slight_risk "The service $i was modified and is disabled."
+        log_slight_risk "The $i service was modified and it is disabled."
         RESULT=1
     fi
     detection_name_change "$i"

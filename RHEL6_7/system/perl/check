@@ -12,8 +12,8 @@ function log_file() {
 }
 
 cat > "$SOLUTION_FILE" <<'EOM'
-Perl was updated from version 5.10 to version 5.16. Read Perl
-section in the Red Hat Enterprise Linux 7 Developer Guide for more details:
+Perl was updated from version 5.10 to version 5.16. Read the Perl
+section in the "Red Hat Enterprise Linux 7 Developer Guide" for more details:
 [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Developer_Guide/lib.details.html#libraries.perl]
 
 The following Perl module files located in system Perl paths are either not
@@ -26,14 +26,14 @@ PERL_DIRS=$(perl -MConfig -e '$,=q{ }; print @Config{installarchlib,installprivl
 for file in $(find -P $PERL_DIRS -type f -name '*.pm'); do
     RPM=$(rpm -qf "$file")
     if [ $? -ne 0 ]; then
-        log_slight_risk "The perl module $file is not handled by any package."
+        log_slight_risk "The $file perl module is not handled by any package."
         log_file "$file"
         continue
     fi
     RPM_NAME=$(rpm -q --qf '%{NAME}' "$RPM")
     is_dist_native "$RPM_NAME"
     if [ $? -ne 0 ]; then
-        log_slight_risk "The perl module $file was not installed by any package signed by Red Hat."
+        log_slight_risk "The $file perl module was not installed by any package signed by Red Hat."
         log_file "$file"
     fi
 done
