@@ -66,6 +66,7 @@
 /etc/publican-website.cfg
 /etc/sysconfig/rhn/up2date
 /etc/sysconfig/rhn/up2date
+/etc/selinux/config
 /etc/selinux/*/seusers
 /etc/selinux/*/modules/active/seusers.final
 /etc/selinux/*/modules/active/users_extra

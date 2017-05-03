@@ -29,6 +29,7 @@
 /etc/publican-website.cfg -- OK
 /etc/rndc.conf -- OK
 /etc/rpc -- OK
+/etc/selinux/config -- OK - ghost file which is compatible with RHEL7
 /etc/selinux/*/modules/active/seusers.final -- OK? contenty pro selinux
 /etc/selinux/*/modules/active/users_extra -- OK? contenty pro selinux
 /etc/selinux/*/seusers -- OK? - contenty pro selinux
