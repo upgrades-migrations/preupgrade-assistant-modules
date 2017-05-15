@@ -58,6 +58,241 @@ section of Red Hat Enterprise Linux 7 Networking Guide."""
 # object used for creating solution text
 sol_text = SolutionText()
 
+###########################################################
+### function for parsing of config files
+###########################################################
+def is_comment_start(istr, index=0):
+    if istr[index] == "#" or (
+            index+1 < len(istr) and istr[index:index+2] in ["//", "/*"]):
+        return True
+    return False
+
+def find_end_of_comment(istr, index=0):
+    """
+    Returns index where the comment ends.
+
+    :param istr: input string
+    :param index: begin search from the index; from the start by default
+
+    Support usual comments till the end of line (//, #) and block comment
+    like (/* comment */). In case that index is outside of the string or end
+    of the comment is not found, return -1.
+
+    In case of block comment, returned index is position of slash after star.
+    """
+    length = len(istr)
+
+    if index >= length or index < 0:
+        return -1
+
+    if istr[index] == "#" or istr[index:].startswith("//"):
+        return istr.find("\n", index)
+
+    if index+2 < length and istr[index:index+2] == "/*":
+        res = istr.find("*/", index+2)
+        if res != -1:
+            return res + 1
+
+    return -1
+
+def is_opening_char(c):
+     return c in "\"'{(["
+
+def find_next_token(istr,index=0):
+    """
+    Return index of another interesting token or -1 when there is not next.
+
+    :param istr: input string
+    :param index: begin search from the index; from the start by default
+
+    In case that initial index contains already some token, skip to another.
+    But when searching starts on whitespace or beginning of the comment,
+    choose the first one.
+
+    The function would be confusing in case of brackets, but content between
+    brackets is not evaulated as new tokens.
+    E.g.:
+
+    "find { me };"      : 5
+    " me"               : 1
+    "find /* me */ me " : 13
+    "/* me */ me"       : 9
+    "me;"               : 2
+    "{ me }; me"        : 6
+    "{ me }  me"        : 8
+    "me }  me"          : 3
+    "}} me"             : 1
+    "me"                : -1
+    "{ me } "           : -1
+    """
+    length = len(istr)
+    if index >= length or index < 0:
+        return -1
+
+    #skip to the end of the current token
+    if is_opening_char(istr[index]):
+        index2 = find_closing_char(istr, index)
+        if index2 == -1:
+            return -1
+        index = index2 +1;
+    elif is_comment_start(istr, index):
+        index2 = find_end_of_comment(istr, index)
+        if index2 == -1:
+            return -1
+        index = index2 +1
+    elif istr[index] not in "\n\t ;})]":
+        # so we have to skip to the end of the current token
+        index += 1
+        while index < length:
+            if (istr[index] in "\n\t ;})]"
+                    or is_comment_start(istr, index)
+                    or is_opening_char(istr[index])):
+                break
+            index += 1
+    elif istr[index] in ";)]}":
+        index += 1
+
+    # find next token (can be already under the current index)
+    while index < length:
+        if is_comment_start(istr, index):
+            index = find_end_of_comment(istr, index)
+            if index == -1:
+                break
+        elif is_opening_char(istr[index]) or istr[index] not in "\t\n ":
+            return index
+        index += 1
+    return -1
+
+
+def find_closing_char(istr, index=0):
+    """
+    Returns index of equivalent closing character.
+
+    :param istr: input string
+
+    It's similar to the "find" method that returns index of the first character
+    of the searched character or -1. But in this function the corresponding
+    closing character is looked up, ignoring characters inside strings
+    and comments. E.g. for
+        "(hello (world) /* ) */ ), he would say"
+    index of the third ")" is returned.
+    """
+    important_chars = { #TODO: should be that rather global var?
+        "{" : "}",
+        "(" : ")",
+        "[" : "]",
+        "\"" : "\"",
+        }
+    length = len(istr)
+
+    if length < 2:
+        return -1
+
+    if index >= length or index < 0:
+        return -1
+
+    closing_char = important_chars.get(istr[index], None)
+    if closing_char is None:
+        return -1
+
+    isString = istr[index] in "\""
+    index += 1
+    curr_c = ""
+    while index < length:
+        curr_c = istr[index]
+        if is_comment_start(istr, index) and not isString:
+            index = find_end_of_comment(istr, index)
+            if index == -1:
+                return -1
+        elif not isString and is_opening_char(curr_c):
+            deep_close = find_closing_char(istr[index:])
+            if deep_close == -1:
+                break
+            index += deep_close
+        elif curr_c == closing_char:
+            return index
+        index += 1
+
+    return -1
+
+def remove_comments(istr):
+    """
+    Removes all comments from the given string.
+
+    :param istr: input string
+    :return: return
+    """
+
+    isCommented = False
+    isBlockComment = False
+    str_open = "\""
+    ostr = ""
+
+    length = len(istr)
+    index = 0
+
+    while index < length:
+        if is_comment_start(istr, index):
+            index = find_end_of_comment(istr,index)
+            if index == -1:
+                # comment till EOF
+                break
+            if istr[index] == "\n":
+                ostr += "\n"
+        elif istr[index] in str_open:
+            end_str = find_closing_char(istr, index)
+            if end_str == -1:
+                ostr += istr[index:]
+                break
+            ostr += istr[index:end_str+1]
+            index = end_str
+        else:
+            ostr += istr[index]
+        index += 1
+
+    return ostr
+
+def find_key(istr, key, index=0):
+    """
+    Return index of the key or -1.
+
+    :param istr: input string; it could be whole file or content of a section
+    :param index: start searching from the index
+    :param key: name of the searched key in the current scope
+
+    Funtion is not recursive. Searched key has to be in the current scope.
+    Attention:
+
+     In case that input string contains data outside of section by
+    mistake, the closing character is ignored and the key outside of scope
+    could be found. Example of such wrong input could be:
+          key1 "val"
+          key2 { key-ignored "val-ignored" };
+        };
+        controls { ... };
+    In this case, the key "controls" is outside of original scope.
+    """
+    length = len(istr)
+    keylen = len(key)
+    notFirstKey = False
+
+    if index >= length or index < 0:
+        return -1
+
+    while index != -1:
+        if istr.startswith(key, index):
+            if index+keylen < length and istr[index+keylen] in "\n\t {;":
+                # key has been found
+                return index
+
+        while notFirstKey and index != -1 and istr[index] != ";":
+            index = find_next_token(istr, index)
+        index = find_next_token(istr, index)
+
+    return -1
+
+
+
 
 #######################################################
 ### CONFIGURATION CHECKS PART - BEGIN
@@ -93,7 +328,7 @@ def run_checks(files_to_check):
     result = check_empty_zones_complex()
     if result > gl_result:
         gl_result = result
-    
+
     log_info("Running check: \"check_default_runtime_dir\"")
     result = check_default_runtime_dir()
     if result > gl_result:
@@ -211,7 +446,7 @@ def check_masterfile_format(file_path, buff):
                 log_medium_risk("Found slave zone \"" + zone.group(1) + "\" in \"" +
                                 file_path + "\" without \"masterfile-format\" statement.")
                 status = EXIT_FAIL
-    
+
     if status == EXIT_FAIL:
         sol_text.add_solution(
 """Slave zone definition without the 'masterfile-format' statement:
@@ -330,7 +565,7 @@ def check_empty_zones_complex():
             log_high_risk("Found a zone \"" + empty_zone + "\" in BIND9 " +
                           "configuration. This zone will be overridden by a built-in " +
                           "empty zone if not disabled.")
-    
+
     if status == EXIT_FAIL:
         sol_text.add_solution(
 """Zone declaration that conflicts with built-in empty zones:
@@ -356,9 +591,10 @@ def check_default_runtime_dir():
     for fpath, buff in FILES_TO_CHECK:
         configuration += buff + "\n"
 
+    #TODO: find_key_recursive? use parser
     pid_file_pattern = re.compile("pid-file\s+\"\/run\/named\/named\.pid\"")
     session_keyfile_pattern = re.compile("session-keyfile\s+\"\/run\/named\/session\.key\"")
-    
+
     # Check for 'pid-file' statement
     found = pid_file_pattern.findall(configuration)
     if not found:
@@ -378,7 +614,7 @@ def check_default_runtime_dir():
         else:
             log_slight_risk("Did not find the \"session-keyfile\" statement in the BIND9 configuration.")
             status = EXIT_FAIL
-    
+
     if status == EXIT_FAIL:
         sol_text.add_solution(
 """No 'pid-file' or 'session-keyfile' statement found:
@@ -389,7 +625,7 @@ As a result, the PID file has been moved from its default location
 In addition, the session-key file has been moved to '/run/named/session.key'.
 These locations need to be specified by statements in the options section.
 To fix this, add the following statements into the options section of your BIND9 configuration:
-- 'pid-file  "/run/named/named.pid";' 
+- 'pid-file  "/run/named/named.pid";'
 - 'session-keyfile  "/run/named/session.key";'""")
     else:
         sol_text.add_solution(
@@ -418,22 +654,26 @@ def fix_pid_file_statement():
     Adds the 'pid-file' statement into the named.conf file
     """
     try:
-        new_config = FIXED_CONFIGS[CONFIG_FILE]
+        config = FIXED_CONFIGS[CONFIG_FILE]
     except KeyError:
         with open(CONFIG_FILE, "r") as f:
-            new_config = f.read()
+            config = f.read()
 
-    options_pattern = re.compile("options\s+\{(([^\{\}]*)|(\{[^\{\}]*\};)|(.*?))*\};", re.DOTALL)
-    matches = re.finditer(options_pattern, new_config)
+    index = find_key(config, "options")
+    if option_index == -1:
+        # options has not been found
+        return False
 
-    match = None
-    for m in matches:
-        match = m
-        break
+    index = find_next_token(config, index)
+    if index == -1 or config[index] = "{":
+        # that's really unexpected situation - maybe wrong config file
+        return False
+    index = find_closing_char(config, index)
 
-    if match:
-        new_config = new_config[0:match.end()-2] + '\tpid-file "/run/named/named.pid";\n' + new_config[match.end()-2:]
-        FIXED_CONFIGS[CONFIG_FILE] = new_config
+    if index != -1 and config[index] == "}":
+        fill_str = '\tpid-file "/run/named/named.pid";\n'
+        fixed_config = config[:index] + fill_str + config[index:]
+        FIXED_CONFIGS[CONFIG_FILE] = fixed_config
         return True
     else:
         return False
@@ -444,22 +684,26 @@ def fix_session_keyfile_statement():
     Adds the 'session-keyfile' statement into the named.conf file
     """
     try:
-        new_config = FIXED_CONFIGS[CONFIG_FILE]
+        config = FIXED_CONFIGS[CONFIG_FILE]
     except KeyError:
         with open(CONFIG_FILE, "r") as f:
-            new_config = f.read()
+            config = f.read()
 
-    options_pattern = re.compile("options\s+\{(([^\{\}]*)|(\{[^\{\}]*\};)|(.*?))*\};", re.DOTALL)
-    matches = re.finditer(options_pattern, new_config)
+    index = find_key(config, "options")
+    if option_index == -1:
+        # options has not been found
+        return False
 
-    match = None
-    for m in matches:
-        match = m
-        break
+    index = find_next_token(config, index)
+    if index == -1 or config[index] = "{":
+        # that's really unexpected situation - maybe wrong config file
+        return False
+    index = find_closing_char(config, index)
 
-    if match:
-        new_config = new_config[0:match.end()-2] + '\tsession-keyfile  "/run/named/session.key";\n' + new_config[match.end()-2:]
-        FIXED_CONFIGS[CONFIG_FILE] = new_config
+    if index != -1 and config[index] == "}":
+        fill_str = '\tsession-keyfile  "/run/named/session.key";\n'
+        fixed_config = config[:index] + fill_str + new_config[index:]
+        FIXED_CONFIGS[CONFIG_FILE] = fixed_config
         return True
     else:
         return False
@@ -539,18 +783,6 @@ def check_user(uid=0):
         exit_error()
 
 
-def remove_comments(string):
-    """
-    Removes the following types of comments from the passed string and returns it:
-    // .*
-    # .*
-    /* (.|\n)* */
-    """
-    pattern = "(\/\*(.|\n)*\*\/)|(#.*\n)|(\/\/.*\n)"
-    replacer = ""
-    return re.sub(pattern, replacer, string)
-
-
 def is_file_loaded(path=""):
     """
     Checks if the file with a given 'path' is already loaded in FILES_TO_CHECK.
@@ -566,6 +798,7 @@ def load_included_files():
     Finds the configuration files that are included in some configuration
     file, reads it, closes and adds into the FILES_TO_CHECK list.
     """
+    #TODO: use parser instead of regexp
     pattern = re.compile("include\s*\"(.+?)\"\s*;")
     # find includes in all files
     for ch_file in FILES_TO_CHECK:
@@ -613,7 +846,7 @@ def main():
     load_included_files()
     # need to check also paths of included files
     if not is_config_changed():
-        return_with_code(EXIT_PASS)    
+        return_with_code(EXIT_PASS)
     result = run_checks(FILES_TO_CHECK)
     # write the config into the respective dir
     write_fixed_configs_to_disk(result)
