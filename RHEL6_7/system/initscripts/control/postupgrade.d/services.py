@@ -2,6 +2,7 @@
 # -*- Mode: Python; python-indent: 8; indent-tabs-mode: t -*-
 
 import sys, os
+import re, fnmatch
 import subprocess
 
 ENABLED_SERVICES = "enabled.log"
@@ -11,7 +12,7 @@ SYSTEMD_DIR = "/lib/systemd/system"
 SYSTEMCTL = "/usr/bin/systemctl"
 enabled_services = []
 disabled_services = []
-preset = []
+preset_re = []
 
 def open_file(filename):
     try:
@@ -26,14 +27,23 @@ def open_file(filename):
         f.close()
     return line
 
-# just for now because previous version didn't work correctly
-# and the module will be rewritten completely
-try:
-    preset = open_file(PRESET_FILE)
-except IOError:
-    print "ERROR: Unable to open a default preset file. The services will not be handled."
-    print "       Set the required services manually."
-    sys.exit(1)
+
+def parse_presetfile(filename):
+    """ computes the list of services (regex) to be enabled at boot """
+
+    # just for now because previous version didn't work correctly
+    # and the module will be rewritten completely
+    try:
+        arr = open_file(filename)
+    except IOError:
+        print "ERROR: Unable to open a default preset file. Services will not be handled."
+        print "       Set required services manually."
+        sys.exit(1)
+
+    enable_re = re.compile("^enable (.*)$")
+    for l in arr:
+        r = enable_re.match(l)
+        if r: preset_re.append(re.compile(fnmatch.translate(r.group(1))))
 
 
 def run_subprocess(cmd):
@@ -65,19 +75,11 @@ def find_service_files(service):
 
 
 def check_preset(service, control="enable"):
-        service_file, extension = service.split('.')
-        preset_found = filter(lambda x: service in x, preset)
-        if preset_found:
-            # If preset contains just <name>.service then enable directory
-            if service_file in ''.join(preset_found):
-                control_service(service_file, control=control)
-            # Found all services for relevant <name>
-            else:
-                all_service_files = find_service_files(service)
-                for service_type in all_service_files:
-                    control_service(service_type, control=control)
-        else:
-            sys.stderr.write("The %s service is not mentioned in the 90-default.preset file, and therefore the postupgrade script will not handle it\n" % service)
+        try:
+            next(x for x in preset_re if x.match(service))
+            control_service(service, control=control)
+        except StopIteration:
+            sys.stderr.write("The %s service is not mentioned in the 90-default.preset file and therefore the postupgrade script will not handle it\n" % service)
 
 def determine_services(services):
     found_services = []
@@ -122,6 +124,7 @@ def disable_services():
         check_preset(service, control="disable")
 
 def main():
+    parse_presetfile(PRESET_FILE)
     disable_services()
     enable_services()
 
