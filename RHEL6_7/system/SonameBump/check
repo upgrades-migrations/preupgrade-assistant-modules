@@ -58,7 +58,7 @@ while read line; do
     }
     pkgs_msg=""
 
-    rq_msg=" (required by package(s) not signed by Red Hat:"
+    rq_msg=" (required by packages not signed by Red Hat:"
     for l in $(rpm -q --whatrequires $pkg | grep -v "no package requires" | \
      rev | cut -d'-' -f3- | rev)
     do
@@ -70,9 +70,9 @@ while read line; do
     [ -n "$npkgs" ] && [[ "$pkg" !=  "$npkgs" ]] \
       && pkgs_msg=" (in Red Hat Enterprise Linux 7 available in: $npkgs)"
     [ "$rq_msg" == " (required by packages not signed by Red Hat:)" ] && rq_msg=""
-    [ -n "$rq_msg" ] && $tmp_log_risk "The $pkg$rq_msg library changed its soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 ${pkg_msg}"
-    echo "$old_lib from $pkg$rq_msg changed to $new_lib$pkg_msg" >>solution.txt
-    echo "$old_lib from $pkg$rq_msg changed to $new_lib$pkg_msg" >>"$sonamed_tmp"
+    [ -n "$rq_msg" ] && $tmp_log_risk "The $pkg$rq_msg library changed its soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 ${pkgs_msg}"
+    echo "$old_lib from $pkg$rq_msg changed to $new_lib$pkgs_msg" >>solution.txt
+    echo "$old_lib from $pkg$rq_msg changed to $new_lib$pkgs_msg" >>"$sonamed_tmp"
     found=1
   done
 done < "$BumpedLibs"
