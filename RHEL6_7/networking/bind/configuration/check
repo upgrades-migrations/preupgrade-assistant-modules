@@ -98,12 +98,13 @@ def find_end_of_comment(istr, index=0):
 def is_opening_char(c):
      return c in "\"'{(["
 
-def find_next_token(istr,index=0):
+def find_next_token(istr,index=0, end_index=-1):
     """
     Return index of another interesting token or -1 when there is not next.
 
     :param istr: input string
     :param index: begin search from the index; from the start by default
+    :param end_index: stop searching at the end_index or end of the string
 
     In case that initial index contains already some token, skip to another.
     But when searching starts on whitespace or beginning of the comment,
@@ -126,7 +127,10 @@ def find_next_token(istr,index=0):
     "{ me } "           : -1
     """
     length = len(istr)
-    if index >= length or index < 0:
+    if length < end_index or end_index < 0:
+        end_index = length
+
+    if index >= end_index or index < 0:
         return -1
 
     #skip to the end of the current token
@@ -143,7 +147,7 @@ def find_next_token(istr,index=0):
     elif istr[index] not in "\n\t ;})]":
         # so we have to skip to the end of the current token
         index += 1
-        while index < length:
+        while index < end_index:
             if (istr[index] in "\n\t ;})]"
                     or is_comment_start(istr, index)
                     or is_opening_char(istr[index])):
@@ -153,7 +157,7 @@ def find_next_token(istr,index=0):
         index += 1
 
     # find next token (can be already under the current index)
-    while index < length:
+    while index < end_index:
         if is_comment_start(istr, index):
             index = find_end_of_comment(istr, index)
             if index == -1:
@@ -252,36 +256,43 @@ def remove_comments(istr):
 
     return ostr
 
-def find_key(istr, key, index=0):
+def find_key(istr, key, index=0, end_index=-1):
     """
     Return index of the key or -1.
 
     :param istr: input string; it could be whole file or content of a section
-    :param index: start searching from the index
     :param key: name of the searched key in the current scope
+    :param index: start searching from the index
+    :param end_index: stop searching at the end_index or end of the string
 
     Funtion is not recursive. Searched key has to be in the current scope.
     Attention:
 
-     In case that input string contains data outside of section by
-    mistake, the closing character is ignored and the key outside of scope
-    could be found. Example of such wrong input could be:
+    In case that input string contains data outside of section by mistake,
+    the closing character is ignored and the key outside of scope could be
+    found. Example of such wrong input could be:
           key1 "val"
           key2 { key-ignored "val-ignored" };
         };
         controls { ... };
-    In this case, the key "controls" is outside of original scope.
+    In this case, the key "controls" is outside of original scope. But for this
+    cases you can set end_index to value, where searching should end. In case
+    you set end_index higher then length of the string, end_index will be
+    automatically corrected to the end of the input string.
     """
     length = len(istr)
     keylen = len(key)
     notFirstKey = False
 
-    if index >= length or index < 0:
+    if length < end_index or end_index < 0:
+        end_index = length
+
+    if index >= end_index or index < 0:
         return -1
 
     while index != -1:
         if istr.startswith(key, index):
-            if index+keylen < length and istr[index+keylen] in "\n\t {;":
+            if index+keylen < end_index and istr[index+keylen] in "\n\t {;":
                 # key has been found
                 return index
 
@@ -291,8 +302,19 @@ def find_key(istr, key, index=0):
 
     return -1
 
+def find_val_bounds_of_key(config, key, index=0, end_index=-1):
+    """
+    Return indexes of beginning and end of the value of the key.
 
-
+    Otherwise return pair -1, -1.
+    """
+    index = find_next_token(config, find_key(config, key, index, end_index))
+    if index == -1 or config[index] not in "\"{":
+        return -1, -1
+    close_index = find_closing_char(config, index)
+    if close_index == -1 or (close_index > end_index and end_index > 0):
+        return -1, -1
+    return index, close_index
 
 #######################################################
 ### CONFIGURATION CHECKS PART - BEGIN
@@ -586,60 +608,62 @@ def check_default_runtime_dir():
     """
     status = EXIT_PASS
 
-    # Create a global config
-    configuration = ""
-    for fpath, buff in FILES_TO_CHECK:
-        configuration += buff + "\n"
+    # find configuration file with the options section
+    config_file = config_content = ""
+    opt_sec_start = opt_sec_end = -1
+    for fpath, fcontent in FILES_TO_CHECK:
+        opt_sec_start, opt_sec_end = find_val_bounds_of_key(fcontent, "options")
+        if opt_sec_start >= 0:
+            config_file = fpath
+            config_content = fcontent
+            break
 
-    #TODO: find_key_recursive? use parser
-    pid_file_pattern = re.compile("pid-file\s+\"\/run\/named\/named\.pid\"")
-    session_keyfile_pattern = re.compile("session-keyfile\s+\"\/run\/named\/session\.key\"")
+    if -1 in [opt_sec_start, opt_sec_end]:
+        # unexpected error when BIND is used and works correctly
+        log_error("The options statement has not been found or configuration "
+                  "is broken.")
+        return EXIT_ERROR
 
-    # Check for 'pid-file' statement
-    found = pid_file_pattern.findall(configuration)
-    if not found:
-        ret = fix_pid_file_statement()
-        if ret:
-            status = EXIT_FIXED
-        else:
-            log_slight_risk("Did not find the \"pid-file\" statement in the BIND9 configuration.")
-            status = EXIT_FAIL
+    for (key, val) in [("pid-file", '"/run/named/named.pid"'),
+                       ("session-keyfile", '"/run/named/session.key"')]:
+        val_start, val_end = find_val_bounds_of_key(config_content, key,
+                opt_sec_start +1, opt_sec_end)
+        if -1 in [val_start, val_end] or val != config_content[val_start:val_end+1]:
+            ret = fix_statement(config_file, "options", key, val)
+            if ret is False:
+                log_slight_risk("The \"%s\" statement cannot be fixed in the "
+                                "BIND9 configuration automatically." % key)
+                status = EXIT_FAIL
+            else:
+                log_info("The %s statement has been set to expected value: %s"
+                         % (key, val))
+                if status < EXIT_FIXED:
+                    status = EXIT_FIXED
+    if status == EXIT_PASS:
+        return status
 
-    # Check for 'session-keyfile' statement
-    found = session_keyfile_pattern.findall(configuration)
-    if not found:
-        ret = fix_session_keyfile_statement()
-        if ret:
-            status = EXIT_FIXED
-        else:
-            log_slight_risk("Did not find the \"session-keyfile\" statement in the BIND9 configuration.")
-            status = EXIT_FAIL
+    sol_msg = (
+"""New values of the 'pid-file' and the 'session-keyfile' statement:
+The directory used by named for runtime data has been moved from the BIND
+default location, which was the /var/run/named/ directory, to the /run/named/ directory.
+As a result, the PID file has been moved from its default location
+'/var/run/named/named.pid' to a new location '/run/named/named.pid'.
+In addition, the session-key file has been moved to '/run/named/session.key'.
+These locations need to be specified by statements in the options section.\n""")
 
     if status == EXIT_FAIL:
-        sol_text.add_solution(
-"""No 'pid-file' or 'session-keyfile' statement found:
-The directory used by named for runtime data has been moved from the BIND
-default location, which was the /var/run/named/ directory, to the /run/named/ directory.
-As a result, the PID file has been moved from its default location
-'/var/run/named/named.pid' to a new location '/run/named/named.pid'.
-In addition, the session-key file has been moved to '/run/named/session.key'.
-These locations need to be specified by statements in the options section.
-To fix this, add the following statements into the options section of your BIND9 configuration:
-- 'pid-file  "/run/named/named.pid";'
-- 'session-keyfile  "/run/named/session.key";'""")
+        sol_msg += ("To fix this, add the following statements into"
+                    " the options section of your BIND9 configuration:")
     else:
-        sol_text.add_solution(
-"""[FIXED] No 'pid-file' or 'session-keyfile' statement found:
-The directory used by named for runtime data has been moved from the BIND
-default location, which was the /var/run/named/ directory, to the /run/named/ directory.
-As a result, the PID file has been moved from its default location
-'/var/run/named/named.pid' to a new location '/run/named/named.pid'.
-In addition, the session-key file has been moved to '/run/named/session.key'.
-These locations need to be specified by statements in the options section.
-To fix this, the following statements were added into the options section of your BIND9 configuration:
+        sol_msg += ("To fix this, the following statements have been set"
+                    " (or added) inside the options section of your BIND9"
+                    " configuration (modified files will be applied"
+                    " automatically on the target system):")
+
+    sol_msg += ("""
 - 'pid-file  "/run/named/named.pid";'
 - 'session-keyfile  "/run/named/session.key";'""")
-
+    sol_text.add_solution("[FIXED] %s" % sol_msg)
     return status
 
 
@@ -648,65 +672,74 @@ To fix this, the following statements were added into the options section of you
 #######################################################
 ### CONFIGURATION fixes PART - BEGIN
 #######################################################
+def change_val(config, section, key, val):
+    """
+    Change value of key inside the section.
 
-def fix_pid_file_statement():
+    val has to include all characters, including even curly brackets or quotes.
+    Return modified string or None.
     """
-    Adds the 'pid-file' statement into the named.conf file
+    index = find_key(config, section)
+    if index == -1:
+        return None
+
+    # find boundaries of the section
+    index = find_next_token(config, index)
+    if index == -1 or config[index] != "{":
+        # that's really unexpected situation - maybe wrong config file
+        return None
+    end_index = find_closing_char(config, index)
+    if end_index == -1 or config[end_index] != "}":
+        # invalid config file?
+        return None
+
+    # find boundaries of value
+    index, end_index = find_val_bounds_of_key(config, key, index+1, end_index)
+    if -1 in [index, end_index] or config[index] != "\"":
+        return None
+
+    return config[:index] + val + config[end_index+1:]
+
+def add_keyval(config, section, key, val):
     """
+    Add key with value to the section.
+
+    val has to include all characters, including even curly brackets or quotes.
+    Return modified string or None.
+    """
+    index = find_key(config, section)
+    if index == -1:
+        return None
+
+    # find end of the section
+    index = find_next_token(config, index)
+    if index == -1 or config[index] != "{":
+        # that's really unexpected situation - maybe wrong config file
+        return None
+    index = find_closing_char(config, index)
+    if index == -1 or config[index] != "}":
+        # invalid config file?
+        return None
+
+    new_config = "%s\n\t%s %s;\n%s" % (config[:index], key, val, config[index:])
+    return new_config
+
+def fix_statement(confile, section, key, val):
+    """Add or change statement into the section of the config file."""
     try:
-        config = FIXED_CONFIGS[CONFIG_FILE]
+        config = FIXED_CONFIGS[confile]
     except KeyError:
-        with open(CONFIG_FILE, "r") as f:
+        with open(confile, "r") as f:
             config = f.read()
 
-    index = find_key(config, "options")
-    if option_index == -1:
-        # options has not been found
+    fixed_config = change_val(config, section, key, val)
+    if fixed_config is None:
+        fixed_config = add_keyval(config, section, key, val)
+    if fixed_config is None:
         return False
 
-    index = find_next_token(config, index)
-    if index == -1 or config[index] = "{":
-        # that's really unexpected situation - maybe wrong config file
-        return False
-    index = find_closing_char(config, index)
-
-    if index != -1 and config[index] == "}":
-        fill_str = '\tpid-file "/run/named/named.pid";\n'
-        fixed_config = config[:index] + fill_str + config[index:]
-        FIXED_CONFIGS[CONFIG_FILE] = fixed_config
-        return True
-    else:
-        return False
-
-
-def fix_session_keyfile_statement():
-    """
-    Adds the 'session-keyfile' statement into the named.conf file
-    """
-    try:
-        config = FIXED_CONFIGS[CONFIG_FILE]
-    except KeyError:
-        with open(CONFIG_FILE, "r") as f:
-            config = f.read()
-
-    index = find_key(config, "options")
-    if option_index == -1:
-        # options has not been found
-        return False
-
-    index = find_next_token(config, index)
-    if index == -1 or config[index] = "{":
-        # that's really unexpected situation - maybe wrong config file
-        return False
-    index = find_closing_char(config, index)
-
-    if index != -1 and config[index] == "}":
-        fill_str = '\tsession-keyfile  "/run/named/session.key";\n'
-        fixed_config = config[:index] + fill_str + new_config[index:]
-        FIXED_CONFIGS[CONFIG_FILE] = fixed_config
-        return True
-    else:
-        return False
+    FIXED_CONFIGS[confile] = fixed_config
+    return True
 
 
 #######################################################
@@ -742,8 +775,6 @@ def write_fixed_configs_to_disk(result):
         msg = "Written Fixed config file to '" + curr_path + "'"
         log_info(msg)
         sol_text.add_solution(msg)
-
-
 
 def is_config_changed():
     """
