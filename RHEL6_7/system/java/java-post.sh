@@ -47,7 +47,7 @@ while read line || [ -n "$line" ]; do
   # NOTE: jvm directory is part of java-1.x.0-openjdk-headless directory. This
   #       could be missing sometimes because of special cases when packages
   #       are downgraded
-  rpm -q "$pkg" >/dev/null 2>dev/null \
+  rpm -q "$pkg" >/dev/null 2>/dev/null \
     || try_install "$pkg,${pkg}-headless" "$old_jvmdir" \
     || continue
 
