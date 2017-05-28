@@ -7,8 +7,8 @@ FSTAB="/etc/fstab"
 
 log_debug "The script checks if the /usr/ directory is located on a separate partition."
 log_debug "Checking the $FSTAB file"
-grep [[:space:]]/usr[[:space:]] $FSTAB > /dev/null
-if [ $? -eq 0 ]; then
+grep -vE "^[[:space:]]*#" $FSTAB | awk '{if($2 == "/usr"){exit 1}}'
+if [ $? -eq 1 ]; then
     log_extreme_risk "The /usr/ directory is located on a separate partition. The in-place upgrade is not possible."
     exit $RESULT_FAIL
 fi
