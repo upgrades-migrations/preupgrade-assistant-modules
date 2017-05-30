@@ -36,7 +36,7 @@ fi
 RESULT=$RESULT_FIXED
 
 if grep -qiw LDAP <(echo "$BROWSELOCALPROTOCOLS $BROWSEREMOTEPROTOCOLS"); then
-    log_high_risk "Lightweight Directory Access Protocol (LDAP) browsing is no longer available in CUPS."
+    log_high_risk "LDAP browsing is no longer available in CUPS."
     RESULT=$RESULT_FAILED
 fi
 

@@ -148,8 +148,8 @@ check_java6() {
     echo >> "$SOLUTION_FILE" \
       "* OpenJDK 6 is not supported for the in-place upgrade because the support" \
       "of OpenJDK 6 ended on 31 December 2016." \
-      "We recommend the update of your applications to use OpenJDK 7 or 8," \
-      "and if it is possible, remove OpenJDK 6" \
+      "We recommend the update of your applications to use OpenJDK 7 or 8." \
+      "If it is possible, remove OpenJDK 6" \
       "before you upgrade to Red Hat Enterprise Linux 7."
     log_high_risk "The $pkg_old_java package is installed, but it is not supported for upgrades."
     set_result $RESULT_FAILED
@@ -189,7 +189,7 @@ check_java78() {
 
     if bp_jconfs "$jvmdir"; then
        msg="OpenJDK $version is installed. Your configuration"
-       msg+=" has been backed up sucessfully and it will be applied on the new"
+       msg+=" has been backed up sucessfully, and it will be applied on the new"
        msg+=" system automatically."
        log_info "$msg"
        set_result $RESULT_FIXED

@@ -116,7 +116,7 @@ Modify your logformat directive manually if you want to preserve the behavior of
 This option will be removed from your squid.conf file.
 " >> $SOLUTION_FILE
 
-    log_slight_risk "log_ip_on_direct option will be erased"
+    log_slight_risk "The 'log_ip_on_direct' option will be erased."
     sed -i '/^[[:space:]]log_ip_on_direct/d' $VALUE_TMP_PREUPGRADE/cleanconf/$CONFIG_FILE
     ret=$RESULT_FAIL
 fi 
