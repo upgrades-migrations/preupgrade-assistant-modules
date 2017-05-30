@@ -1,2 +1,2 @@
 By default, Red Hat Enterprise Linux 6 system listens on IPv4 sockets only. You can change it by switching "listen=NO" and "listen_ipv6=YES", after which the daemon listens on IPv6 sockets only.
-Red Hat Enterprise Linux 7, however, listens on both IPv4 and IPv6 by default. If you want to listen on a particular socket type, you must run two instances of vsftpd with different configuration files. See man(5) vsftpd.conf for more details.
+Red Hat Enterprise Linux 7, however, listens on both IPv4 and IPv6 by default. If you want to listen on a particular socket type, you must run two instances of vsftpd with different configuration files. See the vsftpd.conf(5) man pages for more details.
