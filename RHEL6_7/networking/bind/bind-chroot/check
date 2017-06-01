@@ -5,22 +5,62 @@
 #END GENERATED SECTION
 
 chroot_dir=$(grep "^ROOTDIR" /etc/sysconfig/named | awk -F'=' '!/^($|[[:space:]]*#)/{print $2}')
+zone_chroot_dir="$chroot_dir"/var/named/
+count_size=0
+zonefile_list="$VALUE_TMP_PREUPGRADE/cleanconf/var/named/chroot/zone_files_list"
 
+#Checking if chroot directory is defined
 if grep -wq "^ROOTDIR" /etc/sysconfig/named  && [[ -d "$chroot_dir" ]];then
     cp --parents -ar  /etc/sysconfig/named  $VALUE_TMP_PREUPGRADE/dirtyconf
-    declare -a bind_chroot_configs=( "$chroot_dir"/etc/rndc.key /etc/rndc.conf "$chroot_dir"/etc/named.conf )
-    for file in /var/named/chroot/var/named/db.*;do
-        if [[ -e "$file" ]];then
-          bind_chroot_configs+=( "$chroot_dir"/var/named/db.* )
+#Gettting the list of relevant configuration files
+    declare -a bind_chroot_configs=( "$chroot_dir"/etc/rndc.key /etc/rndc.conf "$chroot_dir"/etc/named.conf $(awk -F'"' '/^include/ {print $2}' "$chroot_dir/etc/named.conf" ) )
+    declare -a bind_chroot_zonefiles=()
+#Getting the list of zone files
+    for config in "${bind_chroot_configs[@]}"
+    do
+        if [[ -e "$config"  ]];then
+            bind_chroot_zonefiles+=( "$(awk '/^zone/{flag=1; next} /^};/{flag=0} flag' $config | awk -F'"' '/file/ {print $2}')")
+
         fi
-        break
     done
+#Backuping  the configuration files
+
     printf '%s\n' ${bind_chroot_configs[@]} | while IFS= read -r config
     do
         if [[ -e "$config"  ]];then
-        cp --parents -ar "$config" $VALUE_TMP_PREUPGRADE/cleanconf/
+            cp --parents -ar "$config" "$VALUE_TMP_PREUPGRADE/cleanconf/"
         fi
     done
+#Counting the total size of the zone files
+    cat /dev/null > "$zonefile_list"
+    bind_chroot_zonefiles=($( echo "${bind_chroot_zonefiles[@]}" |tr ' ' '\n' | sort -u | tr '\n' ' '))
+    for zonefile in ${bind_chroot_zonefiles[@]}
+    do
+        if [[ -f "${zone_chroot_dir}""$zonefile" ]];then
+            zonefile="${zone_chroot_dir}""$zonefile"
+            file_size=$(du -b "$zonefile" | awk '{print $1}')
+            count_size=$(expr "$count_size" + "$file_size")
+            echo "$zonefile" >> "$zonefile_list"
+        fi
+    done
+    if [[ "$count_size" -ge 1000000 ]];then
+       total_size=$(echo "scale=1;$count_size/1000000"| bc)MB
+    elif [[ "$count_size" -ge 1000 ]];then
+       total_size=$(echo "scale=1;$count_size/1000"| bc)kB
+    else
+       total_size="$count_size"B
+    fi
+#User info
+
+    echo "Your zonefiles under the chrooted directory take $total_size of space. Please backup them manually" >> $SOLUTION_FILE
+    echo "To backup your zone files,you can use the following commands:
+
+          tar -cvzf zonefiles.tar.gz -T $zonefile_list
+          scp -p zonefiles.tar.gz root@1<REMOTE_HOST>:/path/to/backup/
+         " >> $SOLUTION_FILE
+
+    log_high_risk "Zone files under the $zone_chroot_dir must be backed up manually"
+
     echo "Your bind-chroot setup configuration files have been backed up." >> $SOLUTION_FILE
 fi
 
