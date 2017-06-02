@@ -1,0 +1,37 @@
+========================
+Description for testing:
+When find some bumped library (below) in RH signed package:
+a) when the package is required by some 3rd party packages
+ - join this into to output message,
+ - same info available inside [4]
+ - and log risk
+   -- MEDIUM - when used only mode migrate (--mode migrate)
+   -- HIGH - otherwise
+
+b) when library is available inside different package(s) on new system, add
+   this info to output message - in this case, this info will be printed even
+   in the case, that library is available inside 2+ packages and one of them
+   is same like old package (may it's little more chatty)
+
+c) when tha package is not required by any 3rd party package, print output
+   message to [5] too
+
+d) at least one is found - log medium risk that some bumped libs were found
+   and exit result FAILED
+
+Exit results:
+ - PASS - not found any bumped library (irrelevant now probably)
+ - FAIL - found at least one bumped library
+ - ERROR - [2] or [3] don't exist (+ log error will be printed)
+
+Bumped libraries
+  - old library is not available anymore, but there is library with higher
+    version. These are inside static lists. To get list of all relevant files,
+    use:
+# cd /root/preupgrade/RHEL6_7/common
+# ls default*_soversioned*bumped*
+
+[2] /root/preupgrade/RHEL6_7/common
+[3] /var/cache/preupgrade/common/rpm_rhsigned.log
+[4] /root/preupgrade/kickstart/SonameBumpedLibs-required
+[5] /root/preupgrade/kickstart/SonameBumpedLibs-optional

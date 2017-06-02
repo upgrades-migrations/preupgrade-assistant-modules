@@ -1,0 +1,58 @@
+RESULT           | COND
+=================+====================================
+FIXED            | java-1.7.0-openjdk | java-1.8.0-openjdk
+NEED_INSPECTION  | java-1.5.0-gcj | libgcj
+NEEDS_ACTION     | java-1.6.0-openjdk
+NOT_APPLICABLE   | Nor Java OpenJDK neither GCJ are installed
+
+* When java-1.5.0-gcj or libgcj are installed, log medium risk + solution
+  text. If these are required by some non-native packages, a list of them
+  is part of log.
+* When java-1.6.0-openjdk is installed, log high risk + solution text
+* When OpenJDK 6+ are installed, backup these files from each relevant JVM
+  directory into dirtyconf:
+    jre/lib/calendars.properties
+    jre/lib/content-types.properties
+    jre/lib/flavormap.properties
+    jre/lib/logging.properties
+    jre/lib/net.properties
+    jre/lib/psfontj2d.properties
+    jre/lib/sound.properties
+    jre/lib/deployment.properties
+    jre/lib/deployment.config
+    jre/lib/security/US_export_policy.jar
+    jre/lib/security/java.policy
+    jre/lib/security/java.security
+    jre/lib/security/local_policy.jar
+    jre/lib/security/nss.cfg
+    jre/lib/ext
+  (the last one is directory, backed up are all files inside)
+  JVM dir is e.g. '/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.121.x86_64'.
+  Simply, name is NVA of rpm.
+
+* When OpenJDK 7 and/or 8 are installed, append info about JVM dir
+  inside [1], in format:
+    rpmname|JVMdir
+  (e.g.: java-1.7.0-openjdk|/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.121.x86_64)
+  and copy post-upgrade script into [2].
+  - post-upgrade script (only for OpenJDK 7+):
+    - when expected Java OpenJDK is not installed (according to [1]), install
+      it (and java-1.?.0-openjdk-headless, which owns the JVM directory on
+      the RHEL 7). Log error when installation fail and skip to another java
+      in list)
+    - recover backed up files (JVM dir on rhel 7 has name == NVRA of the
+      java-1.?.0-openjdk rpm). When backed up file is identical to one stored
+      on the system, skip it. Otherwise replaced file back up with '.preupg'
+      suffix
+    - remove OpenJDK java that was not installed on previous system if it is
+      possible and log info. Otherwise log warning.
+
+* When more then 1 OpenJDK are installed, log sligh risk and save currently
+  used alternatives for java in [0] (currently any action is not done with
+  this info, it seems that it will be relevant for migration only in future.)
+
+
+[0] /root/preupgrade/postupgrade.d/system/java/current_alternatives
+[1] /root/preupgrade/postupgrade.d/system/java/jvmdir_list
+[2] /root/preupgrade/postupgrade.d/system/java/java-post.sh
+

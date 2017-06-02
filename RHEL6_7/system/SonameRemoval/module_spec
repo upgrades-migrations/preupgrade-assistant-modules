@@ -1,0 +1,29 @@
+===========================
+Description for testing of content:
+Print information about found removed libraries (below). When some relevant library is found (only from packages signed by RH):
+a) when some 3rd party package requires package where is the library, add this
+  info to printed messages, e.g. "(required by NonRH signed package(s):.*)"
+  and set high risk,
+  - message inside [0] too
+b) otherwise just print info to output and [1]
+c) on the end log medium risk that some of these libraries are found and may break some 3rd party applications
+
+Removed libraries are not available on new system and are not bumped. To get list of all relevant files, use:
+# cd /root/preupgrade/RHEL6_7/common
+# ls default*_so*-removed
+
+
+exits codes
+a) PASS - not found anything
+c) FAILED
+  - when 3rd party package requires package where library was found
+    - log MEDIUM risk when --mode migrate is choosed only
+    - log HIGH risk otherwise
+d) ERROR - missing:
+  /var/cache/preupgrade/common/rpm_rhsigned.log
+ /root/preupgrade/RHEL6_7
+
+
+[0] /root/preupgrade/kickstart/RemovedLibs-required
+[1] /root/preupgrade/kickstart/RemovedLibs-optional
+

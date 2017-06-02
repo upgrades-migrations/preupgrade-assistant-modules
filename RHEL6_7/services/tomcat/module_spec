@@ -1,0 +1,79 @@
+==============================================================================
+Whole description of the module:
+==============================================================================
+The module reads configuration files of tomcat and webapps:
+  /etc/tomcat6/server.xml
+  /etc/tomcat6/web.xml
+  /etc/tomcat6/context.xml
+  /etc/tomcat6/tomcat-users.xml
+  /usr/share/tomcat6/webapps/*/WEB-INF/web.xml
+  /usr/share/tomcat6/webapps/*/WEB-INF/context.xml
+
+and check them for incompatibilities mentioned in:
+  https://tomcat.apache.org/migration-7.html#Java_6_required
+
+See solutuionTexts in check.py script, for better understanding. However
+briefly (post below means post-upgrade script something does):
+
+- check & modifications of XML files
+  - when "manager" or  "admin" roles exist (tag rolename in role)
+     - solution text + medium risk + exit failed
+     - post: modify
+         admin -> admin-gui
+         manager -> manager-gui
+       result is not fixed because behaviour can be different
+  - when attrib "randomClass" in "Manager" is used
+     - solution + log info + exit fixed
+     - post: modify
+         randomClass -> secureRandomClass
+  - when attrib "emptySessionPath" in "Connector" is used
+     - log medium risk + exit failed
+     -post:  remove attrib from a tag
+  - when attrib "disableURLRewriting" in "Context" is used:
+     - solution + medium risk + exit fail
+     - post: remove an attrib from a tag
+  - when "param-name" of a "servlet" contains "genStrAsCharArray":
+     - solution + log info + exit fixed
+     - post: modify
+         genStrAsCharArray -> genStringAsCharArray
+  - when "Host" or "Context" contain a "copyXML" attrib:
+     - solution + medium tisk + exit failed
+
+  - when "allow", "deny", "internalProxies" or "trustedProxies"
+    are set as attrib of Valve or set inside servlet (see
+    "init-param" in /etc/tomcat6/web.xml):
+    - solution + log high risk + exit failed
+      (each of them can be logged max. once per file)
+
+  - when attrib "filter" is used in "Valve":
+    - solution + log high risk + exit failed
+      (logged once per file)
+
+  - when attribs "restrictedUserAgents" or "noCompressionUserAgents"
+    are used in "Connector":
+    - solution + log high risk + exit failed
+
+- check script in addition:
+  - copy post-upgrade script "post-tomcat.py" into
+  "<postupgrade dir>/services/tomcat/" with all relevant files to run the
+  postcript correctly and set the file executable
+    - in the same directory, create file "packages" that contains tuples
+      <native-installed-tomcat6-pkg>|<new-tomcat-pkg>
+  - store diff between current server.xml file and default server.xml file
+    into the default_diff.diff file inside current working directory
+    (probably "/root/preupgrade/RHEL6_7/services/tomcat/")
+    NOTE: maybe will be printed to output or stored into different directory
+  - when "tomcat" package is installed (tomcat != tomcat6) - probably from EPEL
+    or 3rd party:
+     - solution + log high risk + copy "remove-tomcat-pre-upgrade.sh" into:
+        "/root/preupgrade/preupgrade-script/"
+       - the script blocks inplace-upgrade during pre-upgrade phase of rhelup
+         when tomcat package is installed
+
+- post upgrade script in addition:
+   - install new rpms according to info in "packages" file
+   - move original tomcat6 configs to the new path
+   - move original webapps to the new path
+     (/usr/share/tomcat/webapps directory is backed up (moved) with suffix
+     "-preupg-backup" prior the move of tomcat6 webapps)
+

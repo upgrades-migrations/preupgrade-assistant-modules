@@ -1,0 +1,39 @@
+passed:
+  - no problem (list below) has been found
+
+informational:
+  - "tcp-listen-queue" in the options statement is set and it is less then 10
+      -> solution + log slight risk
+  - "zone-statistics" in the options statement is set with value "yes" or "no"
+      -> solution + log slight risk
+
+fixed:
+  - (**) "pid-file" is not set with the "/run/named/named.pid" path
+    "session-keyfile" is not set with the "/run/named/session.key" path
+    already
+    -> solution + log info
+    -> the file that contains the option section is stored under the [0] dir
+       and contains both statements with the values mentioned above
+    -> it is applied on the target system automatically
+
+neees_inspection:
+  - a slave zone without "masterfile-format" statement is defined
+      -> solution + log medium risk
+
+needs_action:
+  - empty zones are enabled (the "empty-zones-enable yes" inside the options
+    statement) and there is enabled empty zone, that conflicts with built-in
+    list of empty zones
+      -> solution + log high risk
+
+
+error:
+  - options statement has not been found
+  - configuration is broken
+  - any configuration files cannot be opened for reading
+  - main configuration file is missing
+
+NOTE: priority is sorted from the top to down (error has the highest prio),
+      result with lower prio cannot replace result with higher prio
+
+[0] /root/preupgrade/cleanconf/

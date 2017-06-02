@@ -1,0 +1,69 @@
+==============================================================================
+The module specification:
+==============================================================================
+
+Root cause
+----------
+On RHEL 7 the sshd config file [0] is no longer a shell script as it was
+on RHEL 6 - with the introduction of systemd it has become an environment file
+for sshd systemd service which has a KEY=VALUE syntax [2].
+
+
+short story long:
+-----------------
+  The module is applied when openssh-server is installed. In that case,
+  back up [0] to
+
+    - [1] when result is fixed or pass (IOW when user do not need pay
+          atteantion to the config file.
+    - [3] otherwise as action is needed.
+
+  When export command is used inside [0] and we can ensure it is only presence
+  of shell "code", print solution about changes in RHEL 7 and try to remove
+  export command automatically from [1]. When "sed" utility sucesses, log info
+  and set result fixed. In case that sed fails, require manual action from
+  user (high risk + exit_fail).
+
+  In case we cannot ensure that there is not another code or generally, that
+  produced output between original and new system will be different, always
+  require manual action from user (false positives are expected too here). Here
+  is small set of lines, that are evaluated as suspicious (export command has
+  no effect in this case, still will be removed when it is possible as described
+  above):
+    export VAR=NAME # comment - the comment will be evaluated as string on rh7
+    export VAR="Name $variable something"
+    VAR=$(...)
+    export VAR="This is #1 false positive here"
+    export VAR="This is 2nd false positive here;"
+    export VAR="This is (3rd) false positive here"
+    myfunc() { ... }
+  ... and others. The only goal is to be sure the config file produce same
+  configuration/output on the upgraded system.
+
+long story short:
+-----------------
+
+INST | EXP | CODE || BAK   | FIX | RESULT
+==================||========================
+ no  | -   | -    || -     | -   | not_applicable
+ yes | no  | no   || clean | -   | pass
+ yes | yes | no   || dirty | no  | needs_action (untestable probably)
+ yes | yes | no   || clean | yes | fixed
+ yes | no  | yes  || dirty | -   | needs_action
+ yes | yes | yes  || dirty | no  | needs_action (untestable probably)
+ yes | yes | yes  || dirty | yes | needs_action
+
+legend:
+  INST: openssh-server is installed
+  EXP:  The config file [0] uses export command to set and export environment
+        variables for "relative" utilities
+  BAK:  back up [0] to [1] (clean) or [3] (dirty)
+  FIX:  the "export" command has been removed from [1] (sed returns 0)
+        -- correction: export comman in case a line has the format "export VAR=VAL"
+  CODE: suspicious line has been found (includes possible false positives)
+
+
+[0] /etc/sysconfig/sshd
+[1] /root/preupgrade/cleanconf/etc/sysconfig/sshd
+[2] https://www.freedesktop.org/software/systemd/man/systemd.exec.html#EnvironmentFile=
+[3] /root/preupgrade/dirtyconf/etc/sysconfig/sshd

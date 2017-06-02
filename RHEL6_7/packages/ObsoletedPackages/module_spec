@@ -1,0 +1,81 @@
+terminology: for correct understanding of the text below and content:
+ - obsoleted = partially replaced by pkg(s) = replacement is not compatible
+   - get from static data
+=============================================================================
+Description for testing:
+
+a) when a native package is obsoleted on RHEL 7 system, it is available
+   inside base repository and isn't required by any non-native package
+   - add info into the solution file
+   - add line in PSV format (below) into [1]
+
+b) like a) but it is available inside different repository
+   - add info into the solution file with message about different channel
+   - add line in PSV format into [3]
+   - when the package is in same (equivalent) repository on old and new system
+     -> log_medium_risk about package inside not-base channel
+   - when the package is inside different channel on new system
+     -> log_medium_risk -> like above but different msg, which contains info
+        like "moved to ..."
+
+c) like a) but it is required by at least one non-native package
+   - add info into the solution file with message about non-native packages
+     which require this one (see below)
+   - add line in PSV format into [2]
+   - log_high_risk about that, including message like:
+     "(required by Non Red Hat signed package(s):pkg1 pkg2 ... pkgN)"
+
+d) combination of b) + c), just for clarification
+   - log_high_risk
+   - add line in PSV format into [4]
+
+----------------
+e) when any b) or d) package exists and migrate mode is enabled
+   (unsupported scenario yet, but for completeness)
+   - print info relevant for migration scenario with list of channels (names),
+     that user needs covered by subscriptions to get needed repositories for
+     all packages inside not-base repositories
+   - NOTE: used path to install_rpmlist.sh [3] is different in system installed
+           by kickstart, but it is not supported yet and path is not provided
+           by PA API yet
+
+*) append info about kickstart files which this content could create into [6]
+
+-------------
+Format of files generated for kickstart:
+<pkgname>|<required_by_not_native_pkg[ pkg]*>|<obsoleted_by_pkg[ pkg]*>|<repo-id>
+# + supported comment lines like this one
+
+e.g. (just imagined):
+grub||grub2|
+tomcat6-javadoc||tomcat-javadoc|rhel-7-server-optional-rpms
+pkgA|pkg1 pkg2 pkg3|pkgB1 pkgB2|rhel...
+
+- repo-id is empty when it is available in base channel [1,2]
+
+-------------
+Exit results:
+ - PASS - all installed native packages are not obsoleted by any package
+          on RHEL 7
+ - FAIL - found at least one installed native package which is obsoleted
+          on RHEL 7
+ - ERROR - $VALUE_RPM_RHSIGNED or $COMMON_DIR doesn't exist (+ log_error)
+         - or one of these tmp files wasn't created or is not readable
+           (+ log_error):
+             $ObsoletedPkgs $MoveObsoletedPkgs $NotBasePkgs
+
+-------------
+See [7] - separator ";", 3rd column contains repo-id, 4th "name of channel".
+- important files inside [0] includes *obsoleted* in name
+
+[0] /root/preupgrade/RHEL6_7/common
+[1] /root/preupgrade/kickstart/RHRHEL7rpmlist_obsoleted
+[2] /root/preupgrade/kickstart/RHRHEL7rpmlist_obsoleted-required
+[3] /root/preupgrade/kickstart/RHRHEL7rpmlist_obsoleted-notbase
+[4] /root/preupgrade/kickstart/RHRHEL7rpmlist_obsoleted-required-notbase
+
+[5] /root/preupgrade/*/noauto_postupgrade.d/install_rpmlist.sh
+    (may will be inside kickstart, may not, depends on API,
+     see $NOAUTO_POSTUPGRADE_D)
+[6] /root/preupgrade/kickstart/README
+[7] /root/preupgrade/RHEL6_7/common/default_nreponames

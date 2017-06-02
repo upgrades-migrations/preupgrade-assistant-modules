@@ -1,0 +1,6 @@
+PASS
+ - the /usr is part of the root partition
+
+FAILED
+ - the /usr is located on a separate partition
+     -> solution + log extreme risk
