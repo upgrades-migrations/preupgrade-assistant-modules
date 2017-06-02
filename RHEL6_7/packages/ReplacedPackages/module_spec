@@ -1,0 +1,105 @@
+=============================================================================
+terminology: for correct understanding of the text below and content:
+ - replaced = completely replaced by pkg(s) = replacement is compatible
+=============================================================================
+Description for testing:
+
+a) when a native package is replaced on RHEL 7 system, it is available
+   inside base repository and isn't required by any non-native package
+   - add info into the solution file
+   - add line in PSV format (below) into [1]
+
+b) like a) but it is available inside different repository
+   - add info into the solution file with message about different channel
+   - add line in PSV format into [2]
+   - when the package is in same (equivalent) repository on old and new system
+     -> log_high_risk about package inside not-base channel
+   - when the package is inside different channel on new system
+     -> log_high_risk -> like above but different msg, which contains info
+        like "moved to ..."
+
+c) like a) but it is required by at least one non-native package
+   - add info into the solution file with message about non-native packages
+     which require this one (see below)
+   - add line in PSV format into [1]
+   - log_slight_risk about that, including message like:
+     "(required by Non Red Hat signed package(s):pkg1 pkg2 ... pkgN)"
+
+d) combination of b) + c), just for clarification
+   - log_high_risk
+   - add line in PSV format into [2]
+
+----------------
+e) when any b) or d) package exists, print info about replacements inside not
+   base repositories
+   - and when upgrade mode is enabled, print info that only packages from
+     optional repository is supported (I guess that here should be base and
+     optional)
+     -> and when there is a package from optional repository print info how
+        can be optional repository added to redhat-upgrade-tool
+
+f) when any b) or d) package exists and migrate mode is enabled
+   (unsupported scenario yet, but for completeness)
+   - print info relevant for migration scenario with list of channels (names),
+     that user needs covered by subscriptions to get needed repositories for
+     all packages inside not-base repositories
+   - NOTE: used path to install_rpmlist.sh [3] is different in system
+           installed by kickstart, but it is not supported yet and path is not
+           provided by PA API yet
+
+g) when upgrade mode is enabled, create postupgrade script [8], which ensures
+   that all replacements will be installed and old replaced packages will be
+   removed
+   - important for installed native packages which are part of lists [4,5]
+
+*) append info about kickstart files which this content could create into [6]
+
+-------------
+Format of files generated for kickstart:
+<pkgname>|<required_by_not_native_pkg[ pkg]*>|<replqced_by_pkg[ pkg]*>|<repo-id>
+# + supported comment lines like this one
+
+e.g. (just imagined):
+grub||grub2|
+tomcat6-javadoc||tomcat-javadoc|rhel-7-server-optional-rpms
+pkgA|pkg1 pkg2 pkg3|pkgB1 pkgB2|rhel...
+
+- repo-id is empty when it is available in base channel [1]
+
+-------------
+Exit results:
+ - PASS - all installed native packages are not replaced by any package
+          on RHEL 7
+ - FIXED - all replaced packages are provided ba replacements and all
+           replacements are available in base repository (and at least one
+           exists)
+ - FAIL - found at least one installed native package which is replaced
+          on RHEL 7 and replacement doesn't provide original package or is
+          not available inside base repository
+ - ERROR - one of these file (below) doesn't exist or are not readable
+           (+ log_error):
+             $COMMON_DIR/ProvidesonlyMissing
+             $COMMON_DIR/BothMissing
+             $COMMON_DIR/default_nreponames"
+
+         - or one of these tmp files wasn't created or is not readable
+           (+ log_error):
+             $ReplacedPkgs $MoveReplacedPkgs $NotBasePkgs
+- $COMMON_DIR  [0]
+
+-------------
+See [7] - separator ";", 3rd column contains repo-id, 4th "name of channel".
+- important files inside [0] includes *obsoleted* in name
+
+[0] /root/preupgrade/RHEL6_7/common
+[1] /root/preupgrade/kickstart/RHRHEL7rpmlist_replaced
+[2] /root/preupgrade/kickstart/RHRHEL7rpmlist_replaced-notbase
+
+[3] /root/preupgrade/*/noauto_postupgrade.d/install_rpmlist.sh
+    (may will be inside kickstart directory, may not, depends on API,
+     see $NOAUTO_POSTUPGRADE_D)
+[4] /root/preupgrade/RHEL6_7/common/ProvidesonlyMissing
+[5] /root/preupgrade/RHEL6_7/common/BothMissing
+[6] /root/preupgrade/kickstart/README
+[7] /root/preupgrade/RHEL6_7/common/default_nreponames
+[8] /root/preupgrade/postupgrade.d/replacedpkg/fixreplaced.sh

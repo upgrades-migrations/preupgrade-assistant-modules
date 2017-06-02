@@ -1,0 +1,33 @@
+=======================================
+Specification
+=======================================
+- exit as not applicable unless ppc64 architecture is used
+
+- Log error message and exit with ERROR when:
+  - cannot detect architecture (very improbable, do not need test)
+
+NEEDS_ACTION
+(if... then...)
+- the yaboot RPM is not installed (unsupported solution for ppc64
+  architecture) or it is not signed by Red Hat
+    - inform user that yaboot signed by RH has to be installed and
+      used for booting of the system + log high risk
+- the /etc/default/grub doesn't exists yet:
+    - generate [1] for the grub2 (should be correct at least for basic/default
+      installation and partitioning)
+    - inform user that content of the file has to be checked and then moved
+      into the /etc/default/grub
+    - high risk
+- the /etc/default/grub exists:
+    - back up the file into [1] (+ log info)
+    - inform user that validity of the file should be check
+    - high risk
+
+In addition the pre-upgrade script [0] must exists, which will be processed
+by r-u-t and which exits with 1 when:
+  - yaboot rpm is not installed or it is not signed by Red Hat
+    (note: ignores activation of the devel_mode)
+  - the /etc/default/grub doesn't exist or it is not regular file
+
+[0] /root/preupgrade/preupgrade-scripts/yaboot/yaboot_check
+[1] /root/preupgrade/dirtyconf/etc/default/grub

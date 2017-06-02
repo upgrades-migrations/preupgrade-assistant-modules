@@ -1,0 +1,92 @@
+informational
+  - [0,4] uses (on target system deprecated) directives for access control
+    like "Order allow,deny", "Mutual-failure" (see [up])
+      -> solution text
+      - NOTES:
+            - for backward compatibility mod_access_compat.so is loaded
+              by default already, so it is not handled by the module itself
+            - I found that inside [5], but the directory is loaded only in case
+              is is included on the old machine - is there possible way,
+              that module will not be loaded on the target system?? (test)
+  - print diff between default configuration file [0] and the current one
+  - migration + httpd listen on non-default port (different from 80, 443)
+     -> solution text + slight risk
+     -> selinux is changed on the target system, so ports are usable
+     - NOTE**: should be that: log info + fixed?
+  - migration + service is disabled for all runlevels
+     -> solution + log info + service is disabled on target system
+     - NOTE**
+  - migration + services is enabled at least for one runlevel
+     -> solution + log info + service is enabled on the target system
+     - NOTE**
+
+result FIXED
+  - inside [0] is loaded
+      - any module from [1,2];
+          -> print solution text with list of relevant modules
+          -> relevant lines are removed from the file on the target system
+      - speling_module and CheckSpelling is used inside [0,4]
+          -> solution text
+          -> module is enabled (loaded) on target system
+      - usertrack_module and any Cookie is used inside [0,4]
+          -> solution text
+          -> module is enabled (loaded) on target system
+  - [0] contains "Include conf.modules.d/*.conf"
+      -> solution text
+      -> the directory is still included on the target system
+  - for each module below separately - when module is loaded inside [0,4] but it is not used:
+      perl_module
+      dnssd_module
+      auth_pgsql_module
+      mysql_auth_module
+          -> solution text
+          -> module is not loaded on target system
+  - httpd.event is used inside [0,4]
+      -> solution text
+      -> mpm_even is loaded on the target system
+  - httpd.worker is used inside [0,4]
+      -> solution text
+      -> mpm_worker is loaded on the target system
+  - "SSLMutex default" inside [0,4]
+      -> solution text
+      -> lines are commented out on the target system
+  - "SSLPassPhraseDialog    builtin" inside [0,4]
+      -> solution text
+      -> text is replaced (on the target system) by:
+         "SSLPassPhraseDialog exec:/usr/libexec/httpd-ssl-pass-dialog"
+  - SSLSessionCache    shmcb:/var/cache/mod_ssl/scache
+      -> solution text
+      -> text is replaced (on the target system) by:
+         "shmcb:/run/httpd/sslcache"
+
+
+need_inspection
+    - ldap_module and LDAP or AuthLDAP is used inside [0,4]
+          -> solution text + medium risk
+          -> post-upgrade script tries install package mod_ldap package from
+             Optional channel (whether Optional channel is not available during
+             upgrade/migration, fail is expected)
+  - for each module below separately - when module is loaded inside [0,4] and it is used:
+      perl_module
+      dnssd_module
+      auth_pgsql_module
+      mysql_auth_module
+          -> solution text + medium risk
+          -> module is still loaded on the target system
+  - when any of these directives is used:
+      AuthzLDAPAuthoritative
+      AuthzDBDAuthoritative
+      AuthzDBMAuthoritative
+      AuthzGroupFileOwnerAuthoritative
+      AuthzGroupFileAuthoritative
+      AuthzUserAuthoritative
+      AuthzOwnerAuthoritative
+
+[0] /etc/httpd/conf/httpd.conf
+[1] /usr/share/preupgrade/RHEL6_7/services/httpd/removed_modules
+[2] /usr/share/preupgrade/RHEL6_7/services/httpd/default_modules
+[3] /usr/share/preupgrade/RHEL6_7/services/httpd/conf.d/
+[4] /usr/share/preupgrade/RHEL6_7/services/httpd/conf.d/*.conf
+[5] /etc/httpd/conf.modules.d/00-base.conf
+
+[up] https://httpd.apache.org/docs/2.4/upgrading.html

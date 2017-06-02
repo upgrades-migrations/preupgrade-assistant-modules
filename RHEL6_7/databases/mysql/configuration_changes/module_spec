@@ -1,0 +1,36 @@
+- applicable when mysql or (or and? not sure here about behaviour) mysql-libs
+  are installed - at least when any of them is installed, should be result
+  NOT_APPLICABLE (maybe if missing one of them, ask phracek about it)
+
+Backup and check config file /etc/my.cnf - and recusively all other config
+files which are included through directives "!include" and "!includedir"
+- if contains deprecated, removed or unsupported options/settings:
+
+a) "plugin-load=innodb=" and doesn't contains "ignore-builtin-innodb":
+ - print relevant info (contains relevant options) in solution file
+ - log medium risk - file + message
+
+b) "innodb_file_io_threads":
+ - print relevant info in solution file
+ - log high risk - file + message
+
+c) "language\s*="
+ - print relevant info in solution file
+ - log high risk - file + message
+
+d) "log-bin-trust-routine-creators" or "table_lock_wait_timeout":
+ - print relevant info in solution file
+ - log high risk - file + message
+
+also try comment out these lines in backuped files and create 2 lists of files
+which contains:
+ - backuped files where all mentioned options are commented out
+ - backuped files wehre at least one mentioned option is not commented out
+
+On the end, print these two lists and append some recommendation, what he
+should do with files above (when result FAILED).
+
+Exit result:
+ - INFORMATIONAL - mentioned options weren't found
+ - FAILED - at least one of them was found
+ - NOT_APPLICABLE (above)

@@ -1,0 +1,20 @@
+========================
+Description for testing:
+Find all kept libraries from RH signed packages and print this to [1]. Then
+find libraries, which are available on new system too, but inside different
+package(s) or different repository and print to [1] too. Exit INFORMATIONAL.
+
+When [2] or [3] don't exist, log error and exit error.
+
+Both groups are separated in the file [1] by "comment".
+
+
+Safe libraries are available available on old and new system. These are inside
+static lists. To get list of all relevant files, use:
+# cd /root/preupgrade/RHEL6_7/common
+# ls default*_soversioned-kept default*_so-kept #kept libraries
+# lsdefault*_so*-moved_* default*_so*obsoleted  # moved between repos/pkgs
+
+[1] /root/preupgrade/kickstart/NoSonameBumpLibs
+[2] /root/preupgrade/RHEL6_7/common
+[3] /var/cache/preupgrade/common/rpm_rhsigned.log

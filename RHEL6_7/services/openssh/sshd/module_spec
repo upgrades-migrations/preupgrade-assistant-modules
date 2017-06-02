@@ -1,0 +1,99 @@
+==============================================================================
+The module specification:
+==============================================================================
+
+Root cause
+----------
+SSHD_CONFIG on RHEL 6 is not compatible with RHEL 7. The configuration file
+has to be checked and fixed (when it is possible) otherwise admin will not be
+able to connect using SSH after upgrade.
+
+
+short story long:
+-----------------
+The module is applied when openssh-server is installed. Unless [0] contains any
+of these options:
+    - RequiredAuthentications1
+    - RequiredAuthentications2
+    - AuthorizedKeysCommand
+result is PASS as used configuration is compatible with one that can be used
+on RHEL 7.
+
+In case the RequiredAuthentications1 is detected, inspection is
+recommended (slight risk + exit fail) as the option is used for unsupported
+protocol SSH-1. Result file has to be stored as [2] and with corresponding line
+commented out.
+
+In case that RequiredAuthentications2 is detected, the option should be
+replaced by AuthenticationMethods in the modified config [1 or 2]. In case
+the replacement fails, manual action is required and file is definitely stored
+as [2] (high risk + exit fail).
+
+When the AuthorizedKeysCommand is detected and when AuthorizedKeysCommandRunAs
+    a) is detected, replace the second one by AuthorizedKeysCommandUser
+    b) is missing, add line 'AuthorizedKeysCommandUser %u'
+in [1 or 2]. When anything fails, the (modified) config file is stored as [2].
+
+In case the RequiredAuthentications1 is not detected and no fail is detected
+the file is stored as [1] with result fixed. When fixing of file fails, it is
+always stored as [2] and manual action is requested.
+
+In case the copying of the file fails, error is logged and then scripts exits
+with error result.
+
+In case the script doesn't end with error result, postupgrade script
+  a) do nothing when [1] exists
+  b) back up [0] as [3] and replace it by [2]
+In case of (b), do additionaly one more time scan of the [0] and replace/remove
+relevant options when they occurs. Just to be sure, the final file doesn't
+contain any of these.
+
+
+long story short:
+-----------------
+
+INST | RA1 | RA2 | AKC | AKCRU | BAK_FAIL | FIX_FAIL || BAK | RESULT
+=====================================================||====================
+ no  | -   | -   | -   | -     | -        | -        || -   | not_applicable
+ yes | -   | -   | -   | -     | yes      | -        || -   | error
+ yes | no  | no  | no  | -     | no       | -        || [1] | pass
+ yes | no  | no  | yes | yes   | no       | no       || [1] | fixed
+ yes | no  | no  | yes | no    | no       | no       || [1] | fixed
+ yes | no  | yes | no  | -     | no       | no       || [1] | fixed
+ yes | no  | yes | yes | yes   | no       | no       || [1] | fixed
+ yes | no  | yes | yes | no    | no       | no       || [1] | fixed
+
+ yes | yes | no  | no  | -     | no       | no       || [2] | needs_inspection
+ yes | yes | no  | yes | yes   | no       | no       || [2] | needs_inspection
+ yes | yes | no  | yes | no    | no       | no       || [2] | needs_inspection
+ yes | yes | yes | no  | -     | no       | no       || [2] | needs_inspection
+ yes | yes | yes | yes | yes   | no       | no       || [2] | needs_inspection
+ yes | yes | yes | yes | no    | no       | no       || [2] | needs_inspection
+
+ yes | no  | no  | yes | yes   | no       | yes      || [2] | needs_action
+ yes | no  | no  | yes | no    | no       | yes      || [2] | needs_action
+ yes | no  | yes | no  | -     | no       | yes      || [2] | needs_action
+ yes | no  | yes | yes | yes   | no       | yes      || [2] | needs_action
+ yes | no  | yes | yes | no    | no       | yes      || [2] | needs_action
+ yes | yes | no  | no  | -     | no       | yes      || [2] | needs_action
+ yes | yes | no  | yes | yes   | no       | yes      || [2] | needs_action
+ yes | yes | no  | yes | no    | no       | yes      || [2] | needs_action
+ yes | yes | yes | no  | -     | no       | yes      || [2] | needs_action
+ yes | yes | yes | yes | yes   | no       | yes      || [2] | needs_action
+ yes | yes | yes | yes | no    | no       | yes      || [2] | needs_action
+
+legend:
+  INST:     openssh-server is installed
+  RA1:      RequiredAuthentications1 detected
+  RA2:      RequiredAuthentications2 detected
+  AKC:      AuthorizedKeysCommand detected
+  AKCRU:    AuthorizedKeysCommandRunAs detected
+  BAK_FAIL: back up failed
+  FIX_FAIL: fix failed
+  BAK:      store (modified) [0] into [1] or [2]
+
+
+[0] /etc/ssh/sshd_config
+[1] /root/preupgrade/cleanconf/etc/ssh/sshd_config
+[2] /root/preupgrade/dirtyconf/etc/ssh/sshd_config
+[3] /etc/ssh/sshd_config.preupg_bp

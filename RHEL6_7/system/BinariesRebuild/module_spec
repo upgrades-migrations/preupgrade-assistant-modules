@@ -1,0 +1,19 @@
+Description for testing:
+Find all executable binaries and scripts which are not tracked by any rpm and:
+a) when it is binary, add it to file /root/preupgrade/kickstart/binaries
+  - when depends only on safe libraries (below), add sufix message that can
+    be used on new system without rebuild
+b) when it is not binary, add it to file /root/preupgrade/kickstart/scripts
+
+When some untracked binaries or scripts are found, print relevant
+log_slight_risk and exit with result fail. Otherwise result pass.
+
+Safe libraries are libraries which are available on new system. These are
+inside static lists. To get list of all relevant files, use:
+# cd /root/preupgrade/RHEL6_7/common
+# ls default*_so*-kept default*_so*-moved_* default*_so*obsoleted
+
+When common dir [0] or file [1] don't exist, log_error and exit with error.
+
+[0] /root/preupgrade/RHEL6_7/common
+[1] /var/cache/preupgrade/common/executable.log

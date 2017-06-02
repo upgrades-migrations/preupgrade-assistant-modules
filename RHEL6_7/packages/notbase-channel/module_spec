@@ -1,0 +1,96 @@
+Brief summary of changes:
+- content was renamed to 'notbase-channel'
+- used log_error instead of log_high_risk before exit_error
+- removed dependency on yum - instead of check of enabled repositories,
+  check installed packages from optional repository and filter out packages
+  which will be removed or moved to base repository on new system
+- changed content title and description
+- *debug packages are ignored totally
+- print info about packages which are not part of base channel
+- print info about needed 'provides' from subscriptions - under
+  these provides should be available repositories which contains
+  mentioned packages
+- uses the newest API provided by preupgrade-assistant
+- modified texts - added info about needed subcriptions for relevant packages
+- kickstart files use CVS format now; added info about repo-id
+- all files generated for kickstart starts with "RHRHEL7rpmlist_kept"
+- files for kickstart contain only relevant information for the system
+  - previously were included even packages which were not installed inside
+    'RHRHEL7rmplist_kept' file
+=============================================================================
+Description for testing:
+a) create list of native installed packages available in base repository on RHEL 7 [1]
+   with format described below (second column is always empty, because it is not important
+   information in this case, but can be simply added by two-line change if we want)
+   - these packages should be installed always on new system
+
+b) when a native package is available on RHEL 7 system but not inside base repository
+   - when the package is in same (equivalent) repository on old and new system
+     -> log high risk about package sinside channel (in case of optional channel is used just
+        name "Optional" channel for all variants)
+   - when the package is inside different repository on new system
+     -> similar as above, just different log, which contains info like "moved to ..."
+   - print info in remediation instructions with info about channel:
+     pkg (<channel> channel)
+     pkg (optional channel)
+   - when the package is required by non-native package(s), additionaly insert info message like
+     "(required by Non Red Hat signed package(s):pkg1 pkg2 ... pkgN)"
+     -> used in all cases of b) above
+   - always - store info into [2] with format described below
+
+c) when any b) package exists and upgrade mode is enabled
+   - print info/instructions for using of redhat-upgrade-tool (supported just base and optional)
+   - when any package is in addon (not int base or optional channel), log high risk that other
+     channels are not supported for inplace upgrade
+d) when any b) package exists and migrate mode is enabled
+   (unsupported scenario yet, but for completeness)
+   - print info relevant for migration scenario with list of channels (names), that user needs
+     covered by subscriptions to get needed repositories for all not-base packages
+   - NOTE: used path to install_rpmlist.sh [3] is different in system installed by kickstart,
+           but it is not supported yet and path is not provided by PA API yet
+*) append info about kickstart files which this content could create into [4]
+-------------
+Format of files generated for kickstart:
+<pkgname>|<required_by_not_native_pkg[ pkg]*>|<pkgname_on_RH7>|<repo-id>
+# + supported comment lines like this one
+
+e.g. (just imagined):
+curl||curl|
+git-all||git-all|rhel-7-server-optional-rpms
+subversion-perl|some-pkg some-pkg2|subversion-perl|rhel-7-server-optional-rpms
+
+
+- repo-id is empty when it is available in base channel [1]
+- 1st nad 3rd columns are same because these packages are available on both systems
+
+-------------
+Exit results:
+ - PASS - all installed native packages are available inside base repository on RHEL 7
+ - FAIL - found at least one installed native package which is part of of other repositories on RHEL 7
+ - ERROR - $COMMON_DIR doesn't exist or doesn't contain 'default'* files
+           + log_error
+         - or one of these tmp files wasn't created or is not readable (+ log_error):
+           $AddonPkgs, $OptionalPkgs, $KeptBasePkgs, $DistNativePkgs
+
+-------------
+See [5] - separator ";", 3rd column contains repo-id, 4th "name of channel".
+See functions in check script [6] (it_s easier for description):
+  - print_base_files()
+       -> to get list of files which contain list of kept packages available
+          inside base repository of new system
+  - print_opt_file_list()
+       -> to get list of files which contain list of kept packages available
+          inside optional repository of new system
+  - print_addon_file_list()
+       -> to get list of files which contain list of kept packages available
+          inside not-base repositories of new system, excludes optional repository
+  --- all exclude *debug* repositories
+
+[0] /root/preupgrade/RHEL6_7/common
+[1] /root/preupgrade/kickstart/RHRHEL7rpmlist_kept
+[2] /root/preupgrade/kickstart/RHRHEL7rpmlist_kept-notbase
+[3] /root/preupgrade/*/noauto_postupgrade.d/install_rpmlist.sh
+    (may will be inside kickstart, may not, depends on API, see $NOAUTO_POSTUPGRADE_D)
+[4] /root/preupgrade/kickstart/README
+[5] /root/preupgrade/RHEL6_7/common/default_nreponames
+[6] /usr/share/preupgrade/RHEL6_7/packages/notbase-channel/check.sh

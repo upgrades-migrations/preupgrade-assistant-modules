@@ -1,0 +1,38 @@
+not_applicable:
+
+     if package bind-chroot is not installed on the source system
+
+     actions: 
+              No action. preupgrade-assistant does not run the
+              module
+
+needs_inspection
+
+     if package bind-chroot is installed on the source system,
+     but ROOTDIR directive is not specified in /etc/sysconfig/named
+
+     actions: 
+              General information about the changes in the way
+              BIND9 is running in chroot environment between
+              Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7
+              is printed, along with link to the Knowledgebase article
+              explaining it in detail.
+
+needs_action
+      
+     if package bind-chroot is installed on the source system, 
+     and ROOTDIR directive is specified in /etc/sysconfig/named
+
+     actions :
+              General information about the changes in the way
+              BIND9 is running in chroot environment between
+              Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7
+              is printed, along with link to the Knowledgebase article
+              explaining it in detail.
+
+              Relevant configuration files are backed up.
+
+              The message is printed for informing user about total
+              size of the chrooted zone files, as well as how to 
+              back them up manually. List of existing chrooted zone 
+              files is $zonefile_list file, which is backed up.
