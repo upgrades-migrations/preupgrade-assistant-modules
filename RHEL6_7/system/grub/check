@@ -19,11 +19,13 @@ if [[ -f "/boot/grub/$FILE_NAME" ]]; then
         echo
         echo -n "The /boot/grub/splash.xpm.gz file will be preserved"
         echo -n " to work around the behavior of the existing GRUB. You"
-        echo -n " can delete this file safely after your GRUB 2 setup is"
+        echo -n "can delete this file safely only after your GRUB 2 setup is"
         echo -n " working."
     } >> grub.txt
 
 fi
 
+log_high_risk "Back up the grub RPM manually before the upgrade. See the remediation instructions for more info."
 log_medium_risk "After the upgrade, migrate GRUB to GRUB 2 manually."
 exit_fail
+

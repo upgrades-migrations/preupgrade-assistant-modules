@@ -2,5 +2,4 @@ GRUB is used as a loader of the Linux system. However, Red Hat Enterprise Linux 
 During the upgrade process, GRUB will be preserved in the Master Boot Record, and a temporary GRUB configuration will be deployed, so that you can boot into the upgraded system.
 Because it is not possible to support the temporary configuration, you need to rewrite it, and install GRUB 2 to the Master Boot Record manually after the upgrade.
 For details about GRUB 2, see the "System Administrator's Guide" at [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/ch-Working_with_the_GRUB_2_Boot_Loader.html].
-
-    
+It is strongly recommended to back up the grub-legacy package manually before the upgrade. You can find more information about how to back up the package and how to upgrade from GRUB to GRUB 2 at [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/sec-Upgrading_from_GRUB_Legacy_to_GRUB2.html].
