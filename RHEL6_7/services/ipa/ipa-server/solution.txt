@@ -1,3 +1,3 @@
 This machine has the Identity Management Server (IPA) configured. Unfortunately, IPA does not support the in-place upgrade between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 major versions, and it needs to be migrated.
 
-See the following knowledge base article at [link: https://access.redhat.com/site/articles/894063] for detailed instructions how to migrate the Identity Management Server.
+See the following knowledge base article at [link:https://access.redhat.com/site/articles/894063] for detailed instructions how to migrate the Identity Management Server.

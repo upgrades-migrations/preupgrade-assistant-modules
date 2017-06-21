@@ -1,4 +1,4 @@
-There is a bug in the installer of Red Hat Enterprise Linux 6, which results in one or more
+There is a bug in the installation program of Red Hat Enterprise Linux 6, which results in one or more
 invalid records added to the zipl.conf file if the kernel-kdump package was a part of the 
 initial installation. If these invalid records persist, the system might not
 be able to boot into Red Hat Enterprise Linux 7.

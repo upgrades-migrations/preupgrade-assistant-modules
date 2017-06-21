@@ -10,6 +10,6 @@ Some user data, such as user home directories and temporary files, are not track
 
 It is recommended that you back up all the data before proceeding with the upgrade to Red Hat Enterprise Linux 7. This data might be quite large.
 
-If you are performing an in-place upgrade, this data should remain in their current location after the upgrade. The configuration files and other data should be reviewed to determine if any modifications are needed for the use with Red Hat Enterprise Linux 7. Verify that all the data was maintained successfully.
+If you are performing an in-place upgrade, this data should remain in their current location after the upgrade. Review the configuration files and other data to determine if any modifications are needed for the use with Red Hat Enterprise Linux 7. Verify that all the data was maintained successfully.
 
-If you are performing a migration upgrade, this data must be backed up to another storage medium. Copy the data you wish to have on the new installation back into place after the upgrade is complete. The configuration files and other data should be reviewed to determine if any modifications are needed for the use with Red Hat Enterprise Linux 7.
+If you are performing a migration upgrade, this data must be backed up to another storage medium. Copy the data you want to have on the new installation back into place after the upgrade is complete. Review the configuration files and other data to determine if any modifications are needed for the use with Red Hat Enterprise Linux 7.

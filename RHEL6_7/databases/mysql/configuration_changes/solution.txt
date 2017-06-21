@@ -1,4 +1,4 @@
-During the in-place upgrade, the old MySQL 5.1 RPM package is uninstalled, and
+During the in-place upgrade, the original MySQL 5.1 RPM package is uninstalled, and
 the new MariaDB 5.5 RPM package is installed instead, but RPM does not take these
 operations as an update. Note that the MySQL RPM renames the /etc/my.cnf file to
 the /etc/my.cnf.rpmsave file on uninstallation.

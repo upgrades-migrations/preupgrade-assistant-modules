@@ -3,10 +3,10 @@ and crashes. These need to have the same version as the RPM for which they
 provide the debuginfo information.
 As the debuginfo packages are located in a different repository than
 application packages, provide the additional repository
-to the redhat-upgrade-tool if you want to have the debuginfo packages
-updated. Without updating the packages, they are useless after the upgrade.
+to the redhat-upgrade-tool to have the debuginfo packages
+updated. The packages that are not updated cannot be used after the upgrade.
 To make them updated, add '--addrepo debuginfoupg=<path to the repository with debuginfo>' to the redhat-upgrade-tool syntax.
 After the upgrade, you might need to install additional debuginfo packages
 brought in by new dependencies. If your policy requires to have all
-debuginfos installed, you will need to do this manually after the in-place
+debuginfos installed, do this manually after the in-place
 upgrade.

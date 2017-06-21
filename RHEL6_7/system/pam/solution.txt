@@ -1,8 +1,8 @@
 Pluggable authentication modules (PAM) are the core of the user authentication in any modern Linux distribution.
 
-The pam_passwdqc and pam_ecryptfs modules were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7, thus making some PAM configuration files no longer valid.
+The pam_passwdqc and pam_ecryptfs modules were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7, which made some PAM configuration files no longer valid.
 
 The Preupgrade Assistant comments out these modules in your PAM configuration
-files after the in-place upgrade automatically, but you should review and
-regain the authentication functionality in another way, if these modules were
+files after the in-place upgrade automatically, but review and
+regain the authentication functionality in a different way, if these modules were
 required for your authentication policy.

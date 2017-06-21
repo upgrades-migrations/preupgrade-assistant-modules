@@ -1,6 +1,6 @@
-GRUB is used as a loader of the Linux system. However, Red Hat Enterprise Linux 7 does not ship GRUB anymore. Instead, it ships GRUB 2 only. Because the configuration system has been completely overhauled, it is not possible to migrate the GRUB setup to GRUB 2 automatically.
-During the upgrade process, GRUB will be preserved in the Master Boot Record, and a temporary GRUB configuration will be deployed to allow you to boot into the upgraded system.
+GRUB is used as a loader of the Linux system. However, Red Hat Enterprise Linux 7 does not include GRUB anymore. Instead, it includes GRUB 2 only. Because the configuration system has been completely overhauled, it is not possible to migrate the GRUB setup to GRUB 2 automatically.
+During the upgrade process, GRUB will be preserved in the Master Boot Record, and a temporary GRUB configuration will be deployed, so that you can boot into the upgraded system.
 Because it is not possible to support the temporary configuration, you need to rewrite it, and install GRUB 2 to the Master Boot Record manually after the upgrade.
-For details on GRUB 2, see the "System Administrator's Guide" at [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/ch-Working_with_the_GRUB_2_Boot_Loader.html]
+For details about GRUB 2, see the "System Administrator's Guide" at [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/ch-Working_with_the_GRUB_2_Boot_Loader.html].
 
     

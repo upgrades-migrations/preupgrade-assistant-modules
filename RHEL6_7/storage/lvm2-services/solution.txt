@@ -1,6 +1,6 @@
-Red Hat Enterprise Linux 7 uses systemd for service management. When upgrading from Red Hat Enterprise Linux 6, be sure that certain services (systemd units) are enabled or prepared for the on-demand activation.
+Red Hat Enterprise Linux 7 uses systemd for service management. When upgrading from Red Hat Enterprise Linux 6, ensure that certain services (systemd units) are enabled or prepared for the on-demand activation.
 
-The LVM2 monitoring service inherits the old state, which means that if
+The LVM2 monitoring service inherits the original state, which means that if
 the 'lvm2-monitor' service was enabled in Red Hat Enterprise Linux 6, it will also be enabled
 in Red Hat Enterprise Linux 7 (lvm2-monitor.service) and vice versa.
 
@@ -14,6 +14,6 @@ This is an essential part of the device-mapper monitoring feature, which also
 covers monitoring the LVM devices.
 
 The lvm2-lvmetad.socket is used for the on-demand activation of the lvm2-lvmetad.service,
-which starts lvmetad - the LVM metadata daemon, which is used to cache LVM
-metadata so that the LVM commands would not have to scan devices all the time and they
-could reuse the cached metadata. This functionality is used by default in Red Hat Enterprise Linux 7.
+which starts lvmetad (the LVM metadata daemon), which is used to cache LVM
+metadata so that the LVM commands do not have to scan devices all the time, and so that they
+can reuse the cached metadata. This functionality is used by default in Red Hat Enterprise Linux 7.

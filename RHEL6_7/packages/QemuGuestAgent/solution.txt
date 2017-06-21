@@ -1,4 +1,4 @@
-The service name for qemu-guest-agent was modified in Red Hat Enterprise Linux 7 from qemu-ga to qemu-guest-agent. Modify the scripts that might use the old service name.
+The service name for qemu-guest-agent was modified in Red Hat Enterprise Linux 7 from qemu-ga to qemu-guest-agent. Modify the scripts that might use the original service name.
 
 The main hook script location was modified in Red Hat Enterprise Linux 7 from /usr/libexec/qemu-ga/fsfreeze-hook to /etc/qemu-ga/fsfreeze-hook.
 
@@ -9,6 +9,6 @@ The app-specific hook script directory location was modified in Red Hat Enterpri
 /etc/qemu-ga/fsfreeze-hook.d
 /lib/qemu-ga/fsfreeze-hook.d
 
-The format of the guest agent configuration file /etc/sysconfig/qemu-ga was modified in Red Hat Enterprise Linux 7 from the shell script to the systemd environment file. Only the 'BLACKLIST_RPC' and 'FSFREEZE_HOOK_PATHNAME' options remain valid. The 'FSFREEZE_HOOK_ENABLE' option was merged with the 'FSFREEZE_HOOK_PATHNAME' settings. The port settings for virtio-serial were moved to /usr/lib/systemd/system/qemu-guest-agent.service and /usr/lib/udev/rules.d/99-qemu-guest-agent.rules files. The systemd daemon needs to be reloaded with the 'systemctl daemon-reload' command in order to apply the changes. The option for the PID file was removed because with the systemd daemon there is no longer any need for PID files. The option for log file was removed because the systemd journal is used for logging purposes.
+The format of the guest agent configuration file /etc/sysconfig/qemu-ga was modified in Red Hat Enterprise Linux 7 from the shell script to the systemd environment file. Only the 'BLACKLIST_RPC' and 'FSFREEZE_HOOK_PATHNAME' options remain valid. The 'FSFREEZE_HOOK_ENABLE' option was merged with the 'FSFREEZE_HOOK_PATHNAME' settings. The port settings for virtio-serial were moved to the /usr/lib/systemd/system/qemu-guest-agent.service and /usr/lib/udev/rules.d/99-qemu-guest-agent.rules files. The systemd daemon must be reloaded with the 'systemctl daemon-reload' command in order to apply the changes. The option for the PID file was removed because with the systemd daemon, PID files are no longer needed. The option for log file was removed because the systemd journal is used for logging purposes.
 
-Note the new locations of all the files and configuration options, and update your scripts that use the old locations accordingly.
+Note the new locations of all the files and configuration options, and update your scripts that use their original locations accordingly.
