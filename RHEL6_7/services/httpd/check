@@ -117,8 +117,8 @@ grep -qi "Allow,Deny\|Deny,Allow\|Mutual-failure" $CONFIG_FILE $CONFIG_PATH/conf
 if [ $? -eq 0 ]; then
     echo "\
 * httpd config files contain deprecated Access control directives Order, Allow,
-  Deny, and Satisfy. The old access control idioms should be replaced
-  by new authentication mechanisms, although for the sake of compatibility with the old
+  Deny, and Satisfy. The original access control idioms should be replaced
+  by new authentication mechanisms, although for the sake of compatibility with the original
   configurations, a new module mod_access_compat is provided and loaded by
   default.
 " >> $SOLUTION_FILE

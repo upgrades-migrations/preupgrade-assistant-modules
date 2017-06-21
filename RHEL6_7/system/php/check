@@ -121,7 +121,7 @@ fi
   [ -n "$used_params" ] && {
     result=$RESULT_FAIL
     log_slight_risk "Some used parameters are not available in PHP 5.4 anymore."
-    echo "These parameters are used, but are no more available in PHP 5.4
+    echo "These parameters are used, but they are no more available in PHP 5.4
 (file: parameters):"
     for ffile in $ffiles; do
     ttmp="$(echo "$used_params" | grep "^$ffile" | cut -d ":" -f 2- | awk '{ print $2 }')"

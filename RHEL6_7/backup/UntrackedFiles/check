@@ -35,10 +35,10 @@ grep ^/etc/selinux/ "$KICKSTART_DIR/untrackedsystem" | grep modules/active >>"$K
 diff "$KICKSTART_DIR/untrackedsystem" "$KICKSTART_DIR/untrackedexpected" | grep "<" | cut -d' ' -f2- > "$KICKSTART_DIR/untrackedtmp"
 mv "$KICKSTART_DIR/untrackedtmp" "$KICKSTART_DIR/untrackedsystem"
 
-echo " * untrackedsystem - the file contains all the files and directories untracked by RPM packages that are not used for common system operations and are located in the system directories. Some of them are user data. If you are planning to move the system to a different machine, you need to deal with these files and directories." >>"$KICKSTART_README"
-echo " * untrackedexpected - the file contains the regular files and symlinks that are expected on the system, and that are used for common system runtime operations (for example, runlevels, alternatives, and SELinux active modules). You probably do not need to handle these files." >>"$KICKSTART_README"
-echo " * untrackeduser - the file contains all the files and directories untracked by RPM packages in the users' directories. If you plan to move the system to a different machine, you need to deal with these files and directories." >>"$KICKSTART_README"
-echo " * untrackedtemporary - this file is informational only, and contains the files in the temporary directories. You probably do not need to handle these files." >>"$KICKSTART_README"
+echo " * untrackedsystem: The file contains all the files and directories untracked by RPM packages that are not used for common system operations and are located in the system directories. Some of them are user data. If you are planning to move the system to a different machine, you need to deal with these files and directories." >>"$KICKSTART_README"
+echo " * untrackedexpected: The file contains the regular files and symlinks that are expected on the system, and that are used for common system runtime operations (for example, runlevels, alternatives, and SELinux active modules). You probably do not need to handle these files." >>"$KICKSTART_README"
+echo " * untrackeduser: The file contains all the files and directories untracked by RPM packages in the users' directories. If you plan to move the system to a different machine, you need to deal with these files and directories." >>"$KICKSTART_README"
+echo " * untrackedtemporary: The file is informational only, and it contains the files in the temporary directories. You probably do not need to handle these files." >>"$KICKSTART_README"
 
 rm -f $localuntracked
 

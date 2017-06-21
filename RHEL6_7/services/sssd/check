@@ -27,7 +27,7 @@ CONF_FILE='/etc/sssd/sssd.conf'
 
 
 if [ ! -e "$CONF_FILE" ]; then
-    solution "The $CONF_FILE configuration file is missing on the original system."
+    solution "The $CONF_FILE configuration file is missing on the source system."
     exit_not_applicable
 fi
 

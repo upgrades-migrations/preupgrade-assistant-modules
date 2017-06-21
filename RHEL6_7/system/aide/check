@@ -8,7 +8,7 @@ FOUND=0
 
 # Aide installed but never run
 if [[ ! -f $AIDE_LOG ]]; then
-    log_info "The AIDE tool was installed, but never run."
+    log_info "The AIDE tool was installed but never run."
     exit $RESULT_INFORMATIONAL
 fi
 

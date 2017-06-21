@@ -41,7 +41,7 @@ if [ $UPGRADE -eq 1 ]; then
 your system to the latest Red Hat Enterprise Linux 6 release and then run 'preupg' again."
 else
   local_log_risk="log_high_risk"
-  ERROR_MSG="For the best result of the migration to the new system it is recommended
+  ERROR_MSG="For the best result of the migration to the target system it is recommended
 (but not required) to update your system to the Red Hat Enterprise Linux $rhel_latest release first,
 and then run 'preupg' again."
 fi

@@ -10,7 +10,7 @@ mkdir -p "$POSTUPGRADE_DIR/openssh" \
    exit_error
 }
 
-echo "Private server's ssh keys in the /etc/ssh/ directory have a different group and permissions
+echo "Private server's SSH keys in the /etc/ssh/ directory have a different group and permissions
 in Red Hat Enterprise Linux 7, but it is fixed by the postupgrade script." > solution.txt
 
 line=$( grep  -nm 1 "^\s*Match" /etc/ssh/sshd_config | cut -d ":" -f 1 )

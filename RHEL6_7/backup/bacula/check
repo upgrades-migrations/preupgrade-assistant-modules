@@ -17,7 +17,7 @@ if [ -d "$BACULA_ETC" ]; then
         log_error "User ID is not set correctly for the $BACULA_ETC directory."
         exit_code=1
     else
-        log_info "User ID is set properly."
+        log_info "User ID is set correctly."
     fi
 
     GROUP=`stat --format="%g" $BACULA_ETC`
@@ -25,7 +25,7 @@ if [ -d "$BACULA_ETC" ]; then
         log_error "Group ID is not set correctly for the $BACULA_ETC directory."
         exit_code=1
     else
-        log_info "Group ID is set properly for the $BACULA_ETC directory."
+        log_info "Group ID is set correctly for the $BACULA_ETC directory."
     fi
 
     log_info "Check whether the $BACULA_ETC directory has the correct access rights."
@@ -34,7 +34,7 @@ if [ -d "$BACULA_ETC" ]; then
         log_error "The access rights are not set correctly for the $BACULA_ETC directory."
         exit_code=1
     else
-        log_info "The access rights are set properly for the $BACULA_ETC directory."
+        log_info "The access rights are set correctly for the $BACULA_ETC directory."
     fi
 fi
 
@@ -69,7 +69,7 @@ do
         log_error "The access rights are not set correctly for the $file file."
         exit_code=1
     else
-        log_info "The access rights are set properly for the $file file."
+        log_info "The access rights are set correctly for the $file file."
     fi
 done
 

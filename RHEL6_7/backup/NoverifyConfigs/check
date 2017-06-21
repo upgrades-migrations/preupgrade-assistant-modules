@@ -36,7 +36,7 @@ while read -r line || [ -n "$line" ]; do
     #         signed by RH at last.
     is_pkg_installed "$pkgname" && is_dist_native "$pkgname" ||  {
       echo "$pkgname" | grep -q "is not owned by any package" || continue
-      log_info "Backup file $j which is not tracked by any package, but is a part of the input list."
+      log_info "The $j backup file is not tracked by any package but it is a part of the input list."
     }
     grep -q "^${j}$" "$verified_tmp" && {
       cp --parents -a "$j" "$CLEANCONF_D"

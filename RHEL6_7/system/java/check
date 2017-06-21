@@ -148,7 +148,7 @@ check_java6() {
     echo >> "$SOLUTION_FILE" \
       "* OpenJDK 6 is not supported for the in-place upgrade because the support" \
       "of OpenJDK 6 ended on 31 December 2016." \
-      "We recommend the update of your applications to use OpenJDK 7 or 8." \
+      "Update your applications to use OpenJDK 7 or 8." \
       "If it is possible, remove OpenJDK 6" \
       "before you upgrade to Red Hat Enterprise Linux 7."
     log_high_risk "The $pkg_old_java package is installed, but it is not supported for upgrades."
@@ -158,7 +158,7 @@ check_java6() {
     old_jvmdir=$(get_jvm_dir "$pkg_old_java")
     if bp_jconfs "$old_jvmdir"; then
       msg="The configuration files for OpenJDK 6 have been backed up"
-      msg+="to the ${DIRTY_DIR}${old_jvmdir} directory."
+      msg+=" in the ${DIRTY_DIR}${old_jvmdir} directory."
       log_info "$msg"
     else
       msg="Some configuration files for OpenJDK 6 have"
@@ -189,7 +189,7 @@ check_java78() {
 
     if bp_jconfs "$jvmdir"; then
        msg="OpenJDK $version is installed. Your configuration"
-       msg+=" has been backed up sucessfully, and it will be applied on the new"
+       msg+=" has been backed up sucessfully, and it will be applied on the target"
        msg+=" system automatically."
        log_info "$msg"
        set_result $RESULT_FIXED
@@ -232,7 +232,7 @@ done
 
   if [ $found -gt 1 ]; then
     msg="More versions of OpenJDK were found installed."
-    msg+=" We recommend that you check the settings of Java alternatives on the new system."
+    msg+=" Check the settings of Java alternatives on the target system."
     log_slight_risk "$msg"
     alternatives --display java \
         | grep "link currently" \

@@ -33,7 +33,7 @@ check_options() {
     [ $# -ne 2 ] && log_warning "check_options accepts two arguments" && return 1
     [ $2 -gt 5 ] && log_warning "check_options recursion level exceeded" && return 2
     CONFIG_FILE=$1
-    log_debug  "checking config file $CONFIG_FILE"
+    log_debug  "checking the $CONFIG_FILE config file"
     backup_config "$CONFIG_FILE"
     BACKUPED_CONFIG_FILE="${VALUE_TMP_PREUPGRADE}/$CONFIG_FILE"
 
@@ -48,7 +48,7 @@ check_options() {
     builtin_innodb_ignored=$?
     if [ $innodb_plugin_loaded -eq 0 ] && [ $builtin_innodb_ignored -eq 1 ]; then
         echo "innodb_plugin_loaded" >> "$tmp_file"
-        log_medium_risk "${CONFIG_FILE}: option 'plugin-load=innodb=' is not supported"
+        log_medium_risk "${CONFIG_FILE}: the 'plugin-load=innodb=' option is not supported."
         sed -i -e 's/plugin-load=innodb=/#plugin-load=innodb=/g' $BACKUPED_CONFIG_FILE
         [ $? -eq 0 ] \
             && echo "$BACKUPED_CONFIG_FILE" >> "$OPTION_FIXED_FILE" \
@@ -59,7 +59,7 @@ check_options() {
     echo "$filtered_conf" | grep -e 'innodb_file_io_threads' >/dev/null
     if [ $? -eq 0 ]; then
         echo "innodb_file_io_threads" >> "$tmp_file"
-        log_high_risk "${CONFIG_FILE}: option 'innodb_file_io_threads' is not supported"
+        log_high_risk "${CONFIG_FILE}: the 'innodb_file_io_threads' option is not supported."
         sed -i -e 's/innodb_file_io_threads/#innodb_file_io_threads/g' $BACKUPED_CONFIG_FILE
         [ $? -eq 0 ] \
             && echo "$BACKUPED_CONFIG_FILE" >> "$OPTION_FIXED_FILE" \
@@ -70,7 +70,7 @@ check_options() {
     echo "$filtered_conf" | grep -e 'language\s*=' >/dev/null
     if [ $? -eq 0 ]; then
         echo "language" >> "$tmp_file"
-        log_high_risk "${CONFIG_FILE}: option 'language' is deprecated"
+        log_high_risk "${CONFIG_FILE}: the 'language' option is deprecated."
         sed -i -e 's/language\s*=/#language=/g' $BACKUPED_CONFIG_FILE
         [ $? -eq 0 ] \
             && echo "$BACKUPED_CONFIG_FILE" >> "$OPTION_FIXED_FILE" \
@@ -81,7 +81,7 @@ check_options() {
         echo "$filtered_conf" | grep $i >/dev/null
         if [ $? -eq 0 ]; then
             echo "obsolete_options_used" >> "$tmp_file"
-            log_high_risk "${CONFIG_FILE}: option '$i' was removed in MariaDB 5.5"
+            log_high_risk "${CONFIG_FILE}: the '$i' option was removed in MariaDB 5.5."
             sed -i -e "s/${i}\s*/#${i}/g" $BACKUPED_CONFIG_FILE
             [ $? -eq 0 ] \
                 && echo "$BACKUPED_CONFIG_FILE" >> "$OPTION_FIXED_FILE" \
@@ -123,7 +123,7 @@ grep -q "^innodb_plugin_loaded" "$tmp_file" && {
         cat >> $SOLUTION_FILE <<EOF
 
 * The InnoDB plug-in is now a default storage engine in MariaDB 5.5.
-This configuration is using the old 'plugin-load=innodb=' configuration option.
+This configuration is using the original 'plugin-load=innodb=' configuration option.
 Either remove this directive from the configuration files, or use
 'ignore-builtin-innodb' because the current directives will not work.
 EOF
@@ -134,7 +134,7 @@ grep -q "^innodb_file_io_threads" "$tmp_file" && {
 
 * The 'innodb_file_io_threads' configuration option was removed in MariaDB 5.5
 and replaced with 'innodb_read_io_threads' and 'innodb_write_io_threads'.
-To ensure the proper functionality, change your configuration to use the
+To ensure the correct functionality, change your configuration to use the
 new configuration directives.
 EOF
 }
@@ -152,7 +152,7 @@ EOF
 grep -q "^obsolete_options_used" "$tmp_file" && {
  cat >> $SOLUTION_FILE <<EOF
 
-* The options 'log-bin-trust-routine-creators' and 'table_lock_wait_timeout' specified in your MySQL configuration files are not supported in MariaDB 5.5. Remove them.
+* The 'log-bin-trust-routine-creators' and 'table_lock_wait_timeout' options specified in your MySQL configuration files are not supported in MariaDB 5.5. Remove them.
 EOF
 }
 

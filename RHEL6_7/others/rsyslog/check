@@ -26,10 +26,10 @@ fi
 
 print_info() {
   echo "
-See [0] and [1] for more information about a new logging system in Red Hat Enterprise Linux 7, and for solutions of possible compatibility problems.
+See the following pages for more information about a new logging system in Red Hat Enterprise Linux 7, and for solutions of possible compatibility problems.
 
-[0] https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-interaction_of_rsyslog_and_journal.html
-[1] http://www.rsyslog.com/doc/v7-stable/compatibility/index.html" >> solution.txt
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-interaction_of_rsyslog_and_journal.html
+http://www.rsyslog.com/doc/v7-stable/compatibility/index.html" >> solution.txt
 }
 
 check_spool_files(){
@@ -60,7 +60,7 @@ updated automatically:
 
 ${tmp[@]}
 
-The original versions of the configuration files have been backed up to the $VALUE_TMP_PREUPGRADE/dirtyconf directory.
+The original versions of the configuration files have been backed up to the $VALUE_TMP_PREUPGRADE/dirtyconf/ directory.
 " >> solution.txt
 
 printf '%s\n' ${tmp[@]} | while IFS=' ' read -r config

@@ -69,7 +69,7 @@ done < "$MovedReplacedLibs"
 rm -rf "$KeptLibs" "$MovedReplacedLibs"
 
 echo -n "
- * NoSonameBumpLibs: This informational file tells you all sonames of libraries, where the soname is the same in Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. If your binaries not signed by Red Hat depend on these libraries only, they might work without being rebuilt after the upgrade.
+ * NoSonameBumpLibs: This informational file displays all sonames of libraries, where the soname is the same in Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. If your binaries not signed by Red Hat depend on these libraries only, they might work without being rebuilt after the upgrade.
 " >>"$KICKSTART_README" && exit $RESULT_INFORMATIONAL
 
 exit $RESULT_PASS

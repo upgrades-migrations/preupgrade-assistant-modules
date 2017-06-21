@@ -33,7 +33,7 @@ cat >>$SOLUTION_FILE <<EOF
 Before migrating from MySQL 5.1 to MariaDB 5.5, back up all your data,
 including any MySQL databases. You can upgrade the data in two possible ways:
 
-The first one is to dump all your data into an SQL file, so you can restore it after
+The first one is to store all your data in an SQL file, so you can restore it after
 migrating to MariaDB 5.5. For backing up the data in this way, use the following commands:
   # service mysqld start
   $ mysqldump --all-databases --routines --triggers --events>/your/backup.sql

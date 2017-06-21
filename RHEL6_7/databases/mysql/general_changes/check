@@ -83,7 +83,7 @@ if [ $nonrh_mysql_deps_issues -gt 0 ] ; then
 MariaDB RPM packages do not provide mysql names except `mariadb`,
 `mariadb-libs`, and `mariadb-devel`. Packages requiring other packages
 (mysql-server, mysql-embedded, mysql-embedded-devel, mysql-test, or mysql-bench)
-need to be rebuilt, so that they would start reqiuring mariadb-* packages
+need to be rebuilt, so that they start reqiuring mariadb-* packages
 instead. The following dependency issues have been found within the installed
 packages:
 $(cat $nonrh_mysql_deps_file | uniq)
@@ -151,7 +151,7 @@ touch "$nonrh_plugins_file"
 for plugin in `cd $PLUGINDIR ; ls *.so`; do
     package=`rpm -qf --qf '%{NAME}\n' "$PLUGINDIR/$plugin"`
     if [ $? -ne 0 ] || ! is_dist_native $package; then
-        echo " - plugin $plugin will need to be rebuilt" >>"$nonrh_plugins_file"
+        echo " - The $plugin plug-in needs to be rebuilt." >>"$nonrh_plugins_file"
         ((nonrh_plugins++))
     fi
 done

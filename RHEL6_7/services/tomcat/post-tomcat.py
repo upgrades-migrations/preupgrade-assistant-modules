@@ -126,7 +126,7 @@ def check_session_manager(fname, verbose=True):
             if not changedAlg and verbose:
                 _print_solution("algorithm_entropy")
                 log_slight_risk("%s: The 'algorithm' and 'entropy' attributes are not"
-                                " supported and have been removed automatically." % fname)
+                                " supported and they have been removed automatically." % fname)
             #_set_exit_func(exit_fail)
             changedAlg = True
 
@@ -145,8 +145,8 @@ def check_session_cookie_connector(fname, verbose=True):
         if not changed and verbose:
             _print_solution("emptySessionPath")
             log_medium_risk("%s: The 'emptySessionPath' attribute is not supported in the tomcat package"
-                            " and will be removed automatically. See the Remediation"
-                            " description." % fname)
+                            " and it will be removed automatically. See the remediation"
+                            " instructions." % fname)
         #_set_exit_func(exit_fail)
         changed = True
     return changed
@@ -162,7 +162,7 @@ def check_url_rewriting(fname, verbose=True):
             if not changed and verbose:
                 _print_solution("disableURLRewriting")
                 log_medium_risk("%s: The 'disableURLRewriting' attribute is not supported"
-                                " and will be removed automatically." % fname)
+                                " and it will be removed automatically." % fname)
                 #_set_exit_func(exit_fail)
             changed = True
     return changed
@@ -245,7 +245,7 @@ def mv_configs():
     # ok, this generate "//" in logs but doesn't matter
     if os.system("/bin/mv -vf %s/* %s" % (CONFIG_DIR, "/etc/tomcat")):
         log_error(
-            "The tomcat6 config files have not been moved to the new tomcat"
+            "The tomcat6 configuration files have not been moved to the new tomcat"
             "directory. Move the files manually.")
         return False
 
@@ -341,9 +341,9 @@ for pkg in new_packages.split():
     if os.system("rpm -q %s >/dev/null" % pkg):
         log_warning(
             "The %s package has not been installed."
-            " It might not be available now. You need to install"
-            " it after the upgrade manually, and you might need to copy the original configuration"
-            " files manually too." % pkg
+            " It might not be available now. Install"
+            " it after the upgrade manually. You might need to copy the original configuration"
+            " files manually, too." % pkg
             )
         status = False
 

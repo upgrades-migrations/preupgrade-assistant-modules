@@ -65,8 +65,8 @@ def main():
 
     if major < 3:
         log_high_risk("The configuration of FreeRadius %d is not compatible with"
-                      " version 3 in Red Hat Enterprise Linux 7. See the remediation"
-                      " description."  % (major))
+                      " the version 3 in Red Hat Enterprise Linux 7. See the remediation"
+                      " instructions."  % (major))
         exit_fail()
 
 if __name__ == "__main__":

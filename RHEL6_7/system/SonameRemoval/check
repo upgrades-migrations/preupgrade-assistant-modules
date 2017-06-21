@@ -62,7 +62,7 @@ rm -f "$removed_tmp" "$RemovedLibs"
 
 echo -n "
  * RemovedLibs-required: This file contains all Red Hat Enterprise Linux 6 libraries that were removed in Red Hat Enterprise Linux 7. As some of your packages depend on these libraries, check for alternative solutions.
- * RemovedLibs-optional: Similar to the RemovedLibs-required file, but in this case no package not signed by Red Hat requires these libraries. It is more of an informational thing for you, so that you can deal with the unavailability of these libraries.
+ * RemovedLibs-optional: This file is similar to the RemovedLibs-required file, but in this case no package not signed by Red Hat requires these libraries. It is more of an informational thing for you, so that you can deal with the unavailability of these libraries.
  " >>"$KICKSTART_README"
 
 echo \
@@ -74,7 +74,7 @@ If some of your applications use libraries from the list above, get the .so libr
 " >>solution.txt
 
 [ $found -eq 1 ] && log_medium_risk \
- "Some .so libraries installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of some of your third party applications." \
+ "Some .so libraries installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of some of your third-party applications." \
  && exit $RESULT_FAIL
 
 rm -f solution.txt && touch solution.txt

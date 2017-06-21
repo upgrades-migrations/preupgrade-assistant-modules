@@ -34,7 +34,7 @@ fix_zipl_conf() {
         # have the desired effect.  We list the remaining records
         # for easier debugging.
         #
-        info "Failed: the records were not removed:"
+        info "Failed. These records were not removed:"
         bad_record_files | sed 's/^/    ' >&2
         return 1
     fi
@@ -44,7 +44,7 @@ fix_zipl_conf() {
 update_bootloader() {
     local zipl_out=$(mktemp)
     local es=0
-    info "Updating bootloader..."
+    info "Updating the boot loader..."
     zipl >"$zipl_out" 2>&1;
     if [ $? -ne 0 ]
     then
@@ -66,7 +66,7 @@ main() {
     local es=0
     if fix_zipl_conf && update_bootloader;
     then
-        info "zipl.conf and bootloader fixed"
+        info "The zipl.conf file and the boot loader fixed"
     else
         es=3
         info "Restoring the zipl.conf file from the local backup"

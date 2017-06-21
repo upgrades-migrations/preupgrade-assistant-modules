@@ -83,8 +83,8 @@ grep -v required "$sonamed_tmp" | grep -v "^$" >> "$KICKSTART_DIR/SonameBumpedLi
 rm -f "$sonamed_tmp" "$BumpedLibs"
 
 echo -n "
- * SonameBumpedLibs-required: This file contains all Red Hat Enterprise Linux 6 libraries from your system where the soname version changed. As some of your packages depend on these libraries, you will need to rebuild these packages against their corresponding library.
- * SonameBumpedLibs-optional: Similar to the SonameBumpedLibs-required file, but in this case no package not signed by Red Hat requires these libraries. It is more of an informational thing for you, so that you can deal with a potential required rebuild.
+ * SonameBumpedLibs-required: This file contains all Red Hat Enterprise Linux 6 libraries from your system where the soname version changed. As some of your packages depend on these libraries, rebuild these packages against their corresponding library.
+ * SonameBumpedLibs-optional: This file is similar to the SonameBumpedLibs-required file, but in this case no package not signed by Red Hat requires these libraries. It is more of an informational thing for you, so that you can deal with a potential required rebuild.
  " >>"$KICKSTART_README"
 
 echo \
@@ -92,15 +92,14 @@ echo \
 The requirements in packages not signed by Red Hat were checked, but for the non
 rpm-packaged binaries check the compatibility list yourself
 by using, for example, the 'ldd <binary>' command.
-If some of your applications use the library on the list above, you will
-need to rebuild such a package or application against the new library.
+If some of your applications use the library on the list above, rebuild such a package or application against the new library.
 Applications available in Red Hat Enterprise Linux 7 will handle
 these bumps automatically by the update or migration to a new Red Hat Enterprise
 Linux because they were built against these libraries already.
 " >>solution.txt
 
 [ $found -eq 1 ] && log_medium_risk "\
- Some soname bumps in the libraries installed on the system were detected, which might break the functionality of some of your third party applications. They might need to be rebuilt, so check their requirements." && \
+ Some soname bumps in the libraries installed on the system were detected, which might break the functionality of some of your third-party applications. They might need to be rebuilt, so check their requirements." && \
  exit $RESULT_FAIL
 
 rm -f solution.txt && touch solution.txt

@@ -38,7 +38,7 @@ def find_removable():
 		except:
 			output.seek(0)
 			log_error(output.read())
-			log_error("Could not invoke external command " + str(cmd))
+			log_error("Could not invoke the external command " + str(cmd))
 			exit_error()
 		output.seek(0)
 		return (return_code, output.read())

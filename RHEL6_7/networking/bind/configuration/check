@@ -412,7 +412,7 @@ def check_zone_statistics(file_path, buff):
     ment). The default is terse, providing minimal statistics on zones (including name and current
     serial number, but not query type counters).
 
-    For backward compatibility with earlier versions of BIND9, the 'zone-statistics' option can also
+    For the compatibility with earlier versions of BIND9, the 'zone-statistics' option can also
     accept "yes" or "no", which have the same effect as "full" and "terse", respectively.
     """
     pattern = re.compile("zone-statistics\s*(yes|no)\s*;")
@@ -772,7 +772,7 @@ def write_fixed_configs_to_disk(result):
 
         with open(curr_path, "w") as f:
             f.write(buff)
-        msg = "Written Fixed config file to '" + curr_path + "'"
+        msg = "Written the fixed config file to '" + curr_path + "'"
         log_info(msg)
         sol_text.add_solution(msg)
 

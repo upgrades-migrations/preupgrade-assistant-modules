@@ -21,7 +21,7 @@ get_dist_non_native_list() {
 echo " * nonrhpkgs - this file contains all Red Hat Enterprise Linux 6 packages not signed by Red Hat keys. You have to handle them yourself." >>"$KICKSTART_README"
 get_dist_non_native_list > "$KICKSTART_DIR/nonrhpkgs"
 [ -s "$KICKSTART_DIR/nonrhpkgs" ] || {
-  log_info "All packages are signed by Red Hat, no third party keys were detected."
+  log_info "All packages are signed by Red Hat, no third-party keys were detected."
   exit $RESULT_PASS;
 }
 

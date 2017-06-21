@@ -39,7 +39,7 @@ done
 rm -f solution.txt
 if test -n "$RM_LIST"; then
 	echo -e \
-	"Your last X11 session loaded graphic drivers modules that were removed in Red Hat Enterprise Linux 7. Use different graphic drivers or upgrade your hardware configuration in order to address this issue. The list of the removed modules follows: $RM_LIST" >> solution.txt
+	"Your last X11 session loaded graphic drivers modules that were removed in Red Hat Enterprise Linux 7. Use different graphic drivers or upgrade your hardware configuration to address this issue. The list of the removed modules follows: $RM_LIST" >> solution.txt
 fi
 
 if test -n "$DEP_LIST"; then

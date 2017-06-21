@@ -145,7 +145,7 @@ The browsing configuration using the CUPS Browsing protocol has been migrated to
 
 else
     solution_file "$BACKGROUND
-Your configuration cannot be migrated automatically. You should either migrate to DNS-SD or, to continue to use the CUPS Browsing protocol, adjust your configuration for cups-browsed.conf.
+Your configuration cannot be migrated automatically. Either migrate to DNS-SD, or, to continue using the CUPS Browsing protocol, adjust your configuration for the cups-browsed.conf file.
 
 By default, CUPS uses DNS-SD to advertise print queues on the network. Discovery is performed by the applications. GTK+ applications do this as part of the print dialog implementation. To use DNS-SD, enable the 'avahi' service and make sure to allow mDNS (UDP port 5353) through the firewall.
 

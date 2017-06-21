@@ -51,13 +51,13 @@ log_info "done."
 
 cat > $SOLUTION_FILE <<EOF
 === Data ===
-If you are using the bdb or hdb openldap backends, it is necessary to update
+If you are using the bdb or hdb openldap back ends, it is necessary to update
 the database.
 
-Make a backup of the data:
+Back up the data:
 `# slapcat -l backup.ldif`
 
-For more information about slapcat, see man slapcat(8C).
+For more information about slapcat, see the slapcat(8) man pages.
 
 After the upgrade, use libdb-utils to upgrade the current database:
 `# db_recover -v -h /var/lib/ldap/`
@@ -74,7 +74,7 @@ Do not use this approach unless upgrading the database fails.
 
 === Configuration ===
 The Red Hat Enterprise Linux 6 openldap sysconfig configuration can mostly be used in Red Hat Enterprise Linux 7 without
-any changes. However, some options are different or no longer have any effect.
+any changes. However, some options are different, or they no longer have any effect.
 Also, the full path to the sysconfig file differs.
 
 In Red Hat Enterprise Linux 6, the openldap sysconfig configuration is located at $ldap_sysconfig.
@@ -133,14 +133,14 @@ fi
 if [ "$change_maybe_needed" = "no" ]; then
   cat >> $SOLUTION_FILE <<EOF
 Your openldap sysconfig file does not configure any options. The openldap server
-will not work without a proper configuration. There is probably something wrong with
+will not work without the correct configuration. There is probably something wrong with
 your installation.
 Make sure that $ldap_sysconfig ($ldap_sysconfig_new in Red Hat Enterprise Linux 7) is present, and at
 least the SLAPD_URLS variable is set to a valid URL.
-See the slapd(8C) man pages, the '-h URLlist' option.
+See the slapd(8) man pages, the '-h URLlist' option.
 EOF
 
   exit_error
 fi
-log_high_risk "There are crucial changes between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 openldap configuration. Take the steps recommended in the solution text to ensure the proper functionality."
+log_high_risk "There are crucial changes between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 openldap configuration. Take the steps recommended in the solution text to ensure the correct functionality."
 exit_fail

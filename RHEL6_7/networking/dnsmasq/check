@@ -35,8 +35,7 @@ class SolutionText(object):
     def __init__(self):
         self.header = """Some issues have been found in your dnsmasq configuration.
 Use the following solutions to fix them:"""
-        self.tail = """For more information, see the dnsmasq manual page
-`man(8) dnsmasq`."""
+        self.tail = """For more information, see `man 8 dnsmasq`."""
         self.solutions = []
 
     def add_solution(self, solution=""):
@@ -116,7 +115,7 @@ def check_interface_labels(file_path, buff):
 """The 'interface' option with a defined interface name:
 Previously, dnsmasq configured with, for example, the '--interface=eth0' option would bind
 and listen on all addresses of the 'eth0' interface, including addresses
-configured as aliases (which appear in ifconfig output as, for example, 'eth0:0').
+configured as aliases (which are displayed in the ifconfig output as, for example, 'eth0:0').
 Now only the addresses with the label 'eth0' are used. In other words, the
 addresses configured as aliases for the interface are not used.
 If you want dnsmasq to continue to listen on the addresses configured as
@@ -154,14 +153,14 @@ def check_dhcp_tags(file_path, buff):
         sol_text.add_solution(
 """Using a DHCP tag system:
 In the new dnsmasq version, the way of configuring tags used in DHCP options
-has changed. The old way still works, but it is advised to use
+has changed. The original way still works, but it is advised to use
 the new syntax for new configurations, and if possible, also for the already existing
 ones. The new syntax in configuration options supporting tags is as follows:
 - To set a tag, use 'set:<tag>' as the argument of the option.
 - To match a tag, use 'tag:<tag>' as the argument of the option instead of the 'net:<tag>'.
 - As the NOT operator, use an exclamation point (!) instead of the number sign (#).
 
-The 'dhcp-host' option can now set more than one tag.""")
+The 'dhcp-host' option can set more than one tag now.""")
 
     return status
 

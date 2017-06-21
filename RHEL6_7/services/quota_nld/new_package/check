@@ -9,7 +9,7 @@ function solution() {
 solution 'The quota netlink daemon has been moved from the quota package into the quota-nld package.'
 
 if service_is_enabled 'quota_nld'; then
-    solution 'The quota_nld service is enabled on the original system.'
+    solution 'The quota_nld service is enabled on the source system.'
 
     mkdir -p $VALUE_TMP_PREUPGRADE/postupgrade.d/quota_nld/ || exit_error
     cat <<'EOM' >$VALUE_TMP_PREUPGRADE/postupgrade.d/quota_nld/install_package.sh || exit_error
@@ -59,11 +59,11 @@ EOM
     solution 'The quota-nld package will be installed by a postupgrade scriptlet.'
     solution 'You can re-enable the quota_nld service with the `systemctl enable
 quota_nld.service` command and then reboot, or start it with the `systemctl
-start quota_nld.service` command immediately on the new system.'
+start quota_nld.service` command immediately on the target system.'
     exit_fixed
 else
-    solution 'The quota_nld service is not enabled on the original system.'
-    solution 'The quota-nld package will not be installed on the new system.'
+    solution 'The quota_nld service is not enabled on the source system.'
+    solution 'The quota-nld package will not be installed on the target system.'
     exit_pass
 fi
 

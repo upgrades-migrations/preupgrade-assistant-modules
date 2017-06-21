@@ -46,7 +46,7 @@ ADDON_PKGS=$(comm -2 -3 <(echo "$THIS_VARIANT_PKGS") <(echo "$BASIC_VAR_PKGS"))
   result=$RESULT_FAIL
   log_high_risk "You have installed some packages signed by Red Hat for a different variant of the Red Hat Enterprise Linux system."
   echo "Some packages signed by Red Hat are appointed for different variants of Red Hat Enterprise Linux systems.
-In this case we do not support the in-place upgrade to the new Red Hat Enterprise Linux 7 system.
+In this case, the in-place upgrade to the new Red Hat Enterprise Linux 7 system is not supported.
 These packages will be probably removed:
 $OTHER_VARIANT_PKGS" >> solution.txt
 }

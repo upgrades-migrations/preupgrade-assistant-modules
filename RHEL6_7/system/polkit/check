@@ -9,7 +9,7 @@ POLKIT_BACKUP_DIR="$VALUE_TMP_PREUPGRADE/polkit_conf"
 
 echo \
 "PolicyKit (alias polkit) does not use the *.conf and *.pkla files anymore. Everything is inside the
-*.rules files instead, which contain rules written in JavaScript. See more in
+*.rules files instead, which contain rules written in JavaScript. See more in the
 \"Red Hat Enterprise Linux 7 Desktop Migration and Administration Guide\", Chapter 4, at
 [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Desktop_Migration_and_Administration_Guide/policykit.html]
 " > solution.txt
@@ -40,7 +40,7 @@ done
 "All modified or your own *.conf and *.pkla files are backed up in the following directory with their original tree structure:
 $POLKIT_BACKUP_DIR
 
-If you want to apply these rules, rewrite them manually to JavaScript code,
+To apply these rules, rewrite them manually to JavaScript code,
 or modify the existing JavaScript rules. A list of modified or your own files:
 " >> solution.txt
 

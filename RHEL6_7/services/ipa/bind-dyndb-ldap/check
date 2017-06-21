@@ -30,11 +30,11 @@ option '$MATCH'."
 DEPRECATED_OPT_FOUND=0
 CONF_FILE='/etc/named.conf'
 
-solution 'Note that future versions of bind-dyndb-ldap will require
+solution 'Note that future versions of bind-dyndb-ldap require
 RFC 4533 compliant LDAP server.'
 
 if [ ! -e "$CONF_FILE" ]; then
-    solution "The $CONF_FILE configuration file is missing on the original system."
+    solution "The $CONF_FILE configuration file is missing on the source system."
     exit_not_applicable
 fi
 

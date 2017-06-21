@@ -41,6 +41,6 @@ yum install postgresql-upgrade -y || {
 }
 
 [ $? -eq 0 ] || {
-  echo "The postfresql-upgrade package could not be installed automatically. Install it manually."
+  echo "The postgresql-upgrade package could not be installed automatically. Install it manually."
   exit 1
 }

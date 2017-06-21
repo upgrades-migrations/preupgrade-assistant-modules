@@ -18,7 +18,7 @@ cp $SSHD_CONFIG_FILE $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE
 if grep -q "^[[:space:]]*RequiredAuthentications2" $SSHD_CONFIG_FILE; then
     solution_file "
 RequiredAuthentications2 is replaced by AuthenticationMethods in $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE.
-If you want to fix the config file yourself, run the following command:
+If you want to fix the config file yourself, type:
 
 # sed -i -e 's/^[[:space:]]*RequiredAuthentications2/AuthenticationMethods/i' $SSHD_CONFIG_FILE
 
@@ -45,7 +45,7 @@ if grep -q -i "^[[:space:]]*AuthorizedKeysCommand[[:space:]]" $VALUE_TMP_PREUPGR
         solution_file "
 The AuthorizedKeysCommandRunAs option will not be supported in Red Hat Enterprise Linux 7 anymore and it will be replaced by
 AuthorizedKeysCommandUser. This option is replaced in [link:cleanconf/$SSHD_CONFIG_FILE].
-If you want to fix the config file yourself, run the following command:
+If you want to fix the config file yourself, type:
 
 # sed -i -e 's/^[[:space:]]*AuthorizedKeysCommandRunAs\([[:space:]]\)/AuthorizedKeysCommandUser\1/i' $SSHD_CONFIG_FILE
 
@@ -59,7 +59,7 @@ For more information about AuthorizedKeysCommand, see the SSHD_CONFIG(5) man pag
 The AuthorizedKeysCommand option requires the AuthorizedKeysCommandUser option, see the SSHD_CONFIG(5) man page.
 
 'AuthorizedKeysCommandUser %u' is added into [link:cleanconf/$SSHD_CONFIG_FILE].
-If you want to fix the config file yourself, run the following command:
+If you want to fix the config file yourself, type:
 
 # echo 'AuthorizedKeysCommandUser %u' >> $SSHD_CONFIG_FILE
 

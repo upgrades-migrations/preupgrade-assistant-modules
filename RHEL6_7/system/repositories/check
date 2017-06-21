@@ -49,12 +49,12 @@ class HandlingRepoFiles(object):
                 options = cfp.options(section)
                 try:
                     if not cfp.has_option(section, 'enabled') or int(cfp.get(section, 'enabled')):
-                        log_slight_risk("Repo %s is enabled." % section)
+                        log_slight_risk("The %s repo is enabled." % section)
                         self.update_dict(cfp, section, 'mirrorlist')
                         self.update_dict(cfp, section, 'metalink')
                         self.update_dict(cfp, section, 'baseurl')
                     else:
-                        log_slight_risk("Repo %s is not enabled." % section)
+                        log_slight_risk("The %s repo is not enabled." % section)
                 except ConfigParser.NoOptionError:
                     continue
                 except TypeError:
@@ -67,7 +67,7 @@ class HandlingRepoFiles(object):
                    '\n'.join([key+'='+value for key, value in self.repo_dict.iteritems()]))
         lines = read_file(os.path.join(dir_name, file_name))
         write_file(os.path.join(dir_name, file_name), lines)
-        log_slight_risk('Enabled repo files for the Kickstart generation are stored in %s.' % os.path.join(dir_name, file_name))
+        log_slight_risk('Enabled repo files for the Kickstart generation are stored in the %s file.' % os.path.join(dir_name, file_name))
 
 
 def main():

@@ -52,14 +52,14 @@ solutionTexts = {
     "manager_role" : (
         "* The roles that are required to use the Manager application changed from a single manager"
         " role to the manager-gui, manager-script, manager-jmx, and manager-status roles. You will"
-        " need to assign the roles required for the functionality you wish to access."
+        " need to assign the roles required for the functionality you want to access."
         " The manager role will be updated to manager-gui by the postupgrade script automatically,"
         " but a further update might be required if you use the other roles."
         ),
     "admin_role" : (
         "* The roles that are required to use the Host Manager application changed from a single"
         " admin role to the admin-gui and admin-script roles. You will need to assign the roles"
-        " required for the functionality you wish to access."
+        " required for the functionality you want to access."
         " The admin role will be updated to admin-gui by the postupgrade script automatically,"
         " but a further update might be required if you use the admin-script role."
         ),
@@ -69,23 +69,23 @@ solutionTexts = {
         " by setting the 'copyXML' attribute of the Host element to 'True'."
         ),
     "attr_allow_deny" : (
-        "* The 'allow' or 'deny' attributes are in use and utilize the tomcat6 regex list instead"
+        "* The 'allow' or 'deny' attributes are in use, and they use the tomcat6 regex list instead"
         " of a single expression. Previous versions of Tomcat allowed a list, but this version"
         " takes a single expression only. This needs to be addressed before an update can occur."
         ),
     "attr_proxies" : (
-        "* The 'internalProxies' or 'trustedProxies' attributes are in use and utilize the tomcat6"
+        "* The 'internalProxies' or 'trustedProxies' attributes are in use, and they use the tomcat6"
         " regex list instead of a single expression. Previous versions of Tomcat allowed a list,"
         " but this version takes a single expression only. This needs to be addressed before an update"
         " can occur."
         ),
     "attr_filter" : (
-        "* The 'filter' attribute is in use and utilizes the tomcat6 regex list instead of a single"
+        "* The 'filter' attribute is in use, and it uses the tomcat6 regex list instead of a single"
         " expression. Previous versions of Tomcat allowed a list, but this version takes a single"
         " expression only. This needs to be addressed before an update can occur."
         ),
     "attr_user_agents" : (
-        "* The 'retrictedUserAgents' or 'noCompressionUserAgents' attributes are in use and utilize"
+        "* The 'retrictedUserAgents' or 'noCompressionUserAgents' attributes are in use, and they use"
         " the tomcat6 regex list instead of a single expression. Previous versions of Tomcat"
         " allowed a list, but this version takes a single expression only. This needs to be addressed"
         " before an update can occur."
@@ -205,7 +205,7 @@ def print_info_diff():
     if len(diff_lines) > 0:
         _print_solution("defaultDiff")
         log_info("The difference between this system's tomcat6 configuration file"
-                 " and the default configuration file is stored in %s."
+                 " and the default configuration file is stored in the %s file."
                  % (DEFAULT_DIFF_FILE.replace(get_dest_dir()+"/", ""))
                 )
     else:
@@ -353,8 +353,8 @@ def check_session_cookie_connector(fname, verbose=True):
         if not changed and verbose:
             _print_solution("emptySessionPath")
             log_medium_risk("%s: The 'emptySessionPath' attribute is not supported in the new tomcat package"
-                            " and will be removed automatically. See the Remediation"
-                            " description." % fname)
+                            " and will be removed automatically. See the remediation"
+                            " instructions." % fname)
         _set_exit_func(exit_fail)
         changed = True
     return changed
@@ -411,9 +411,9 @@ def check_regex_attr(fname):
                 yield paramname, paramval
 
     def my_log_attr(fname, attr):
-        log_high_risk("%s: The %s attribute is in use and utilizes"
+        log_high_risk("%s: The %s attribute is in use and it uses"
                       " the tomcat6 regex list instead of a single expression."
-                      " See the Remediation description." % (fname,attr))
+                      " See the remediation instructions." % (fname,attr))
 
     # return True when separator [;,] is included in string x
     has_sep = lambda x: ',' in x or ';' in x

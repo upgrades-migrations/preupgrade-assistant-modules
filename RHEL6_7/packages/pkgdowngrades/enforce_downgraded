@@ -105,12 +105,12 @@ def get_downgraded_packages(yb_repo, pkgs, arch):
             if not repo_pkgs:
                 # No alternative package in repo so we give up - this is task
                 # for other contents
-                logging.log(DEBUG3, "package " + pkg.name + " not found")
+                logging.log(DEBUG3, "The package " + pkg.name + "was not found.")
 
             elif pkg.arch == "noarch":
                 actual_arch = repo_pkgs[0].arch
                 logging.warning(
-                    "package '{0}' is not noarch anymore, {1} will be installed"
+                    "The package '{0}' is not noarch anymore, {1} will be installed."
                         .format(pkg.name, actual_arch))
                 repo_package = repo_pkgs[0]
 
@@ -125,19 +125,19 @@ def get_downgraded_packages(yb_repo, pkgs, arch):
             elif repo_pkgs[0].arch == "noarch":
                 repo_package = repo_pkgs[0]
                 logging.warning(
-                    "package {0} switched to 'noarch' in next RHEL release"
+                    "The package {0} switched to 'noarch' in the next RHEL release."
                             .format(pkg_key(pkg)))
 
             elif pkg.arch != arch:
                 logging.warning(
-                    "multilib package '{0}.{1}' is not in repo anymore"
+                    "The multilib package '{0}.{1}' is not in the repo anymore."
                         .format(pkg.name, pkg.arch))
 
             else:
                 repo_package = repo_pkgs[0]
 
         if not repo_package:
-            logging.log(DEBUG2, "package '{0}.{1}' is skipped"
+            logging.log(DEBUG2, "The package '{0}.{1}' is skipped."
                                 .format(pkg.name, pkg.arch))
         else:
             if yum.packages.comparePoEVR(pkg, repo_package) > 0:
@@ -185,7 +185,7 @@ def main():
     if not options.installroot or \
        not options.destdir or \
        not options.rhelupdir:
-        logging.fatal("bad parameters, try --help")
+        logging.fatal("Wrong parameters, try --help.")
         return 1
 
     logging.info("start with arguments: " + ' '.join(sys.argv))
@@ -198,7 +198,7 @@ def main():
         logging.debug("nogpgcheck set to " + nogpgcheck.__str__())
         logging.debug("noverifyssl set to " + noverifyssl.__str__())
     except ValueError:
-        logging.fatal("Error while reading redhat-upgrade-tool configuration, aborting.")
+        logging.fatal("Error while reading the redhat-upgrade-tool configuration, aborting.")
         return 1
 
     prepare_destdir(options)

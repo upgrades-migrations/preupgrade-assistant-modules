@@ -41,7 +41,7 @@ rm -f solution.txt "$KICKSTART_DIR/${FILENAME_BASIS}"*
 echo \
 "Some packages became obsolete between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7.
 Red Hat provides alternatives for them, but these
-alternatives may not be 100% compatible. For this reason,
+alternatives might not be fully compatible. For this reason,
 the packages are not replaced automatically.
 
 For some of the obsolete packages you will get the
@@ -55,9 +55,9 @@ functionality.
 
 Note: All packages from the debug repositories
 are skipped, and Red Hat recommends that you remove
-them before upgrade.
+them before the upgrade.
 
-The following packages are obsolete, and replaced by
+The following packages are obsolete, and they are replaced by
 new ones:" >solution.txt
 
 #Check for package obsolete type replacements in packages
@@ -129,7 +129,7 @@ rm -f "$ObsoletedPkgs" "$MoveObsoletedPkgs" "$NotBasePkgs"
 
   echo "
 One or more replacement packages are available only in other repositories.
-If you want to install them later, you will need to attach subscriptions that provide:
+If you want to install them later, attach the subscriptions that provide:
 $repos_texts
 
 Then, enable any equivalent repositories (if they are disabled), and install any needed packages.
@@ -137,7 +137,7 @@ For this purpose, run a prepared script:
 $_DST_NOAUTO_POSTSCRIPT <path/to/pkglist-file>
 
 which will install the available packages listed in the file.
-See ${KICKSTART_README} for the details on 'pkglist' files.
+See the ${KICKSTART_README} file for the details on pkglist files.
 " >>solution.txt
 }
 
@@ -151,20 +151,20 @@ done
 
 
   echo -n "
- * ${FILENAME_BASIS} - This file contains all Red Hat Enterprise Linux 6 packages that were replaced in Red Hat Enterprise Linux 7 by a not 100% compatible alternative, and that are a part of the Base channel. Direct dependency from the packages not signed by Red Hat was not discovered.
- * ${FILENAME_BASIS}-required - Similar to ${FILENAME_BASIS}, but in addition these packages are required by the packages not signed by Red Hat. As some of your packages depend on it, check the changes in detail.
- * ${FILENAME_BASIS}-notbase - Similar to ${FILENAME_BASIS}, but these packages are not a part of the Base channel in Red Hat Enterprise Linux 7. Register the new machine, and attach subscriptions with the correct repositories if you want to install them.
- * ${FILENAME_BASIS}-required-notbase - Similar to ${FILENAME_BASIS}-required and ${FILENAME_BASIS}-notbase. The packages are required by the packages not signed by Red Hat, and they are not a part of the Base channel.
+ * ${FILENAME_BASIS} - This file contains all Red Hat Enterprise Linux 6 packages that were replaced in Red Hat Enterprise Linux 7 by a not fully compatible alternative, and that are a part of the Base channel. Direct dependency from the packages not signed by Red Hat was not discovered.
+ * ${FILENAME_BASIS}-required - This file is similar to the ${FILENAME_BASIS} file, but in addition these packages are required by the packages not signed by Red Hat. As some of your packages depend on it, check the changes in detail.
+ * ${FILENAME_BASIS}-notbase - This file is similar to the ${FILENAME_BASIS} file, but these packages are not a part of the Base channel in Red Hat Enterprise Linux 7. Register the new machine, and attach subscriptions with the correct repositories if you want to install them.
+ * ${FILENAME_BASIS}-required-notbase - This file is similar to the ${FILENAME_BASIS}-required and ${FILENAME_BASIS}-notbase files. The packages are required by the packages not signed by Red Hat, and they are not a part of the Base channel.
 " >> "$KICKSTART_README"
 
 echo \
 "
 If a package not signed by Red Hat requires these packages, you may need to check if an alternative solution provided by Red Hat works for you. You might need to get the missing package from a source other than the Red Hat Enterprise Linux repositories.
 
-You will need to install these new packages yourself after the assessment, as Red Hat cannot assess the suitability of the replacements for your workload." >>solution.txt
+Install these new packages manually after the assessment, as Red Hat cannot assess the suitability of the replacements for your workload." >>solution.txt
 
 [ $found -eq 1 ] && log_medium_risk "\
-Some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of the packages depending on them." && exit $RESULT_FAIL
+Some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of the packages depending on these removed packages." && exit $RESULT_FAIL
 
 rm -f solution.txt && touch solution.txt
 

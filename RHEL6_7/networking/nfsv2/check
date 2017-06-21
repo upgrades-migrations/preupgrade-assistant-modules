@@ -21,8 +21,8 @@ echo "NFS protocol version 2 is not supported in Red Hat Enterprise Linux 7.
 $_nice_separator" > solution.txt
 
 if [[ "$FSTAB" != "" ]]; then
-  log_slight_risk "The /etc/fstab file mounts certain filesystems with an unsupported protocol NFSv2."
-  echo "The /etc/fstab file mounts these filesystems with NFSv2:" >> solution.txt
+  log_slight_risk "The /etc/fstab file mounts certain file systems with an unsupported protocol NFSv2."
+  echo "The /etc/fstab file mounts these file systems with NFSv2:" >> solution.txt
   echo -e "$FSTAB" | awk '{print "    "$1}' >> solution.txt
   #Change protocol version or remove 'nfsvers' option.
   echo "FIXED: The 'nfsvers' option in the /etc/fstab file will be removed by the postupgrade script:

@@ -150,13 +150,13 @@ check_data_dir() {
 
     pgdata_dir=`run_as_postgres 'echo $PGDATA'`
     if test "$pgdata_dir" != "$DATA_DIR"; then
-        log_high_risk "PGDATA directory is $pgdata_dir instead of $DATA_DIR."
+        log_high_risk "The PGDATA directory is $pgdata_dir instead of $DATA_DIR."
         SKIP_TESTING=yes
         return $RESULT_FAIL
     fi
 
     if test ! -d "$pgdata_dir"; then
-        log_error "PGDATA directory $pgdata_dir does not exist."
+        log_error "The PGDATA directory $pgdata_dir does not exist."
         SKIP_TESTING=yes
         return $RESULT_FAIL
     fi
@@ -171,10 +171,10 @@ check_is_initialized() {
 
     if test ! -f "$PG_VERSION_FILE"; then
         append_to_solution <<EOF
-* Be careful. It seems that you have installed PostgreSQL server but you
+* Important: It seems that you have installed PostgreSQL server, but you
   have not initialized the data directory. It means that either you have never
   used PostgreSQL server or you are using PostgreSQL server from the
-  postgresql-server package in a different way (which would need a manual
+  postgresql-server package in a different way (which needs a manual
   interaction).
 EOF
         log_error \
@@ -225,15 +225,15 @@ EOF
     append_to_solution <<EOF
 * Even if the postgresql-server is probably configured correctly, we are unable
   to say for 100% that the server is not used in some specific way on your
-  machine, so we recommend to look at your system and check that the
-  $INITFILE is the only trigger the server is started by.
+  machine, so check that the
+  $INITFILE initfile is the only trigger the server is started by.
   In any way, we suggest that you use the in-place PostgreSQL database upgrade for
   the conversion of the data stack to a newer PostgreSQL server.
-  Still, the full data directory backup ($DATA_DIR) *is* the  administrator's responsibility. Up to that, backing up the database dump by
-  running the "pg_dumpall" tool is *strictly* encouraged because if something
+  Still, the full data directory backup ($DATA_DIR) is the  administrator's responsibility. Up to that, backing up the database dump by
+  running the "pg_dumpall" tool is strictly encouraged, because if something
   with the in-place upgrade goes wrong on the updated system, you will not be able
-  to go back to the older Red hat Enterprise Linux 6 PostgreSQL $PG_OLD_VERSION easily.
-  See the upstream HOWTO for pg_dumpall:
+  to go back to the earlier Red hat Enterprise Linux 6 PostgreSQL $PG_OLD_VERSION easily.
+  See the upstream how-to article for pg_dumpall:
   [link:$UPSTREAM_DOC_PGDUMP]
 EOF
     log_slight_risk "We cannot tell for 100% that the system will be in-place upgradeable."
@@ -247,14 +247,14 @@ start_server() {
 
     $SERVICE_BIN postgresql status &>/dev/null
     if test $? -eq 0; then
-        log_info "PostgreSQL is already running."
+        log_info "The PostgreSQL server is already running."
         return $RESULT_PASS
     fi
     # try to start..
     $SERVICE_BIN postgresql start &>/dev/null
     res=$?
     if test "$res" -eq 0; then
-        log_info "Successfully started PostgreSQL."
+        log_info "Successfully started the PostgreSQL server."
         PLAN_STOP_SERVER=yes
         return $RESULT_PASS
     fi
@@ -285,8 +285,8 @@ check_enabled() {
 
     log_error "PostgreSQL is not enabled after the system startup."
     append_to_solution <<EOF
-* Note that PostgreSQL is not enabled at the system startup. This is not "really"
-  risky but at is at least worth observing. If that is on a server machine, PostgreSQL seems to be unused (if that is true, the sysadmin may uninstall the postgresql-server package).
+* Note that PostgreSQL is not enabled at the system startup. This is not really
+  risky, but it is at least worth observing. If that is on a server machine, PostgreSQL seems to be unused (if that is true, the sysadmin may uninstall the postgresql-server package).
 EOF
     return $RESULT_FAIL
 }
@@ -327,10 +327,10 @@ EOF
     fi
 
     append_to_solution <<EOF
-* Be careful. For a smooth in-place upgrade, the 'postgres' database user must have the superuser role. We are unable to check that because you have
+* Important: For a smooth in-place upgrade, the 'postgres' database user must have the superuser role. We are unable to check that because you have
   probably misconfigured the "$PG_HBA_CONF_FILE" file.
-  If you want to make sure that everything is OK, fix the "$PG_HBA_CONF_FILE" file
-  so that it does not block the 'postgres' user to log in without a password. This may be achieved by putting the "local all postgres ident" line to be the
+  To make sure that everything is as expected, fix the "$PG_HBA_CONF_FILE" file
+  so that it does not block the 'postgres' user to log in without a password. To achieve that, put the "local all postgres ident" line to be the
   first line of the file.
   The upgrade process is fully independent on this file though; so if you are
   sure that 'postgres' is of superuser role (default configuration), ignore this warning.
@@ -366,7 +366,7 @@ check_options() {
         append_to_solution <<EOF
 * The 'unix_socket_directory' option is not supported in Red Hat Enterprise Linux 7. Instead, we
   use the 'unix_socket_directories' option (which is able to specify multiple
-  directories separated by commas. See the documentation of that option here:
+  directories separated by commas. See the documentation of that option at
   [link:http://www.postgresql.org/docs/9.3/static/runtime-config-connection.html]
   Do not remove this option from the configuration file, just be prepared that you will
   need to fix the option in Red Hat Enterprise Linux 7.
@@ -384,10 +384,10 @@ EOF
   'unix_socket_directories' option, we can expect a failure during the in-place
   PostgreSQL upgrade later on. That happens when you use a non-standard
   directory. For that reason, later, when you run 'postgresql-setup upgrade',
-  you'd better run this command instead:
+  type the following command instead:
         PGSETUP_PGUPGRADE_OPTIONS="-o '-k /var/run/postgresql'" \
             postgresql-setup upgrade
-  This forces the old PostgreSQL server to create a socket file in a compatible
+  This forces the original PostgreSQL server to create a socket file in a compatible
   directory during the data upgrade despite the non-compatible configuration.
 EOF
         log_error "A suspicious 'unix_socket_director*' option was detected."
@@ -409,8 +409,8 @@ EOF
     obsolete_options_used=`echo $obsolete_options_used | sed 's|^ ||' | sed 's| |, |'`
 
     test x"$OPTIONS_OK" = xno && append_to_solution <<EOF
-* options $obsolete_options_used specified in your postgresql.conf are not
-  supported in PostgreSQL 9.2 in Red Hat Enterprise Linux 7 anymore. Remove their usage
+* The $obsolete_options_used options that are specified in your postgresql.conf file are not
+  supported in PostgreSQL 9.2 in Red Hat Enterprise Linux 7 anymore. Remove them
   later.
 EOF
 
@@ -444,7 +444,7 @@ check_plugins() {
             append_to_solution <<EOF
 * Possible usage of the uuid-pgsql package is detected. This package is broken
   by default also in Red Hat Enterprise Linux 6, and it is most probably unused
-  by the PostgreSQL server. We suggest to decide whether this plug-in is
+  by the PostgreSQL server. Decide whether this plug-in is
   necessary, and uninstall it possibly. Generally: This package is about the
   ossp-uuid.so plug-in which is considered deprecated by the uuid-ossp.so plug-in
   (also provided in Red Hat Enterprise Linux 6) from the postgresql-contrib package.
@@ -460,19 +460,19 @@ EOF
             test $unowned_reported = no && unowned_reported=yes && \
             append_to_solution <<EOF
 * An unowned file was detected in the $PLUGINDIR directory. It could
-  mean that you have installed a third party PostgreSQL plug-in. To make the
-  database upgrade smoothly, be prepared to provide this plug-in in
+  mean that you have installed a third-party PostgreSQL plug-in. To make the
+  database upgrade smoothly, provide this plug-in in
   Red Hat Enterprise Linux 7 before you start the upgrade process.
 EOF
             PLUGINS_OK=no
             ;;
 
         *)
-            log_error "unknown package '$i'"
+            log_error "An unknown package '$i'"
             test $unknown_pkg_reported = no && unknown_pkg_reported=yes && \
             append_to_solution <<EOF
-* A third party PostgreSQL plug-in package was detected installed on your
-  system. Be prepared to provide this package also in Red Hat
+* A third-party PostgreSQL plug-in package was detected installed on your
+  system. Provide this package also in Red Hat
   Enterprise Linux 7 to make the database upgrade smoothly.
 EOF
             PLUGINS_OK=no
@@ -504,7 +504,7 @@ do
 done
 
 if test "$PLAN_STOP_SERVER" = yes; then
-    log_info "Stopping server.."
+    log_info "Stopping the server.."
     $SERVICE_BIN postgresql stop &>/dev/null
     if test $? -ne 0; then
         # this shouldn't really happen

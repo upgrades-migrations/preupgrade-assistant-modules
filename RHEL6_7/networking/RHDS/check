@@ -52,7 +52,7 @@ echo "Use the following commands to back up your database directories. Notice th
       If you are using the Preupgrade Assistant for the in-place upgrade of your system, back up the database directories in an
       external location.
 
-      Use the following command to upgrade the backend DB to a new DN format after the upgrade, but before running the setup script:
+      Use the following command to upgrade the back-end DB to a new DN format after the upgrade, but before running the setup script:
       upgradednformat -n <backend_instance> -a </path/to_backend/instance/dir>
       # example : upgradednformat -n userRoot -a /var/lib/dirsrv/slapd-ldapserver/db/userRoot/ 
                                                                                               " >> $SOLUTION_FILE
@@ -86,7 +86,7 @@ rhds_base_info
 }
 
 389_info () {
-echo 'Note: Only the directory server package is checked. This version does not assist with the admin server and the console suits upgrade.' >> $SOLUTION_FILE
+echo 'Note: Only the directory server package is checked. This version does not assist with the admin server or the console upgrade.' >> $SOLUTION_FILE
 
 389_base_info
 

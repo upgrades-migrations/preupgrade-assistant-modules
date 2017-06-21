@@ -14,11 +14,11 @@ get_repo_id() {
 }
 
 [ ! -f "$VALUE_RPM_RHSIGNED" ] && \
-  log_error "Signed RPM list not found. Contact the support." && \
+  log_error "Signed RPM list was not found. Contact the support." && \
   exit $RESULT_ERROR
 
 [ ! -r "$COMMON_DIR" ] || [ ! -r "$_NOAUTO_POSTSCRIPT" ] && \
-  log_error "Directory for common files not found. Contact the support." && \
+  log_error "Directory for common files was not found. Contact the support." && \
   exit $RESULT_ERROR
 
 ReplacedPkgs=$(mktemp .replacedpkgsXXX --tmpdir=/tmp)
@@ -64,8 +64,7 @@ renamed. The new packages are compatible with their previous versions.
 In some cases, the Preupgrade Assistant will migrate the packages after the
 upgrade is completed.
 
-Note: This tool will not check debug repositories. Red Hat
-recommends that all debuginfo packages are removed before the upgrade, and
+Note: This tool will not check debug repositories. It is recommended that all debuginfo packages are removed before the upgrade, and
 manually reinstalled as required on the upgraded system.
 
 The following packages were replaced:" >solution.txt
@@ -139,7 +138,7 @@ do
   removeme="$removeme $orig_pkg"
 
   # logs / prints
-  [ -n "$msg_req" ] && log_slight_risk "The package ${orig_pkg}$msg_req replaced between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7"
+  [ -n "$msg_req" ] && log_slight_risk "The ${orig_pkg} package $msg_req was replaced between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7"
   [ $is_moved -eq 1 ] && $func_log_risk "The $orig_pkg package replacement moved to the $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. Enable this channel for the upgrade."
   [ $is_not_base -eq 1 ] && $func_log_risk "The $orig_pkg package replacement is a part of the $channel channel in Red Hat Enterprise Linux 7. Enable this channel for the upgrade."
   echo "${orig_pkg}$msg_req was replaced by ${repl_pkgs}$msg_channel" >>solution.txt
@@ -150,7 +149,7 @@ echo \
 "
 If a package not signed by Red Hat requires any of these packages, monitor them closely. Although the replacement should be compatible,
 it might have some minor differences, even in the case of common
-application lifecycles." >>solution.txt
+application life cycles." >>solution.txt
 
 [ -n "$other_repositories" ] && {
   echo -n "
@@ -164,9 +163,9 @@ Packages from other repositories should be removed first." >> solution.txt
 For this purpose, if you want to upgrade, use the following additional option
 to redhat-upgrade-tool:
 
-    --addrepo rhel-7-optional=<path to the optional repository>
+    --addrepo rhel-7-optional=<path to the Optional repository>
 
-Alternatively,before you start the system upgrade, you could remove all the packages, where the replacement is a 
+Alternatively,before you start the system upgrade, you could remove all the packages where the replacement is a 
 part of the Red Hat Enterprise Linux 7 Optional repository." >> solution.txt
 # another channels could be added when we support addons
 
@@ -211,7 +210,7 @@ rm -f "$ReplacedPkgs" "$MoveReplacedPkgs" "$NotBasePkgs"
     [ -z "$m" ] && continue
     replacement=$(echo $m | cut -d'|' -f2)
     notprovided=1
-    log_debug "The $i package is not in the RPM 'provides' directives of the replacement; $replacement. The in-place upgrade might not work properly and will be finished by the postupgrade script."
+    log_debug "The $i package is not in the RPM 'provides' directives of the replacement; $replacement. The in-place upgrade might not work properly, and it will be finished by the postupgrade script."
     l="$l $m"
   done
 
@@ -263,11 +262,11 @@ do
   for j in $(rpm -V $old | rev | cut -d' ' -f1 | rev | grep -v "(replaced)")
   do
     cp $j $j.preupsave
-    echo "Storing modified file $j from $old as $j.preupsave"
+    echo "Storing a modified $j file from the $old package as $j.preupsave"
   done
   #deinstall the old package
   rpm -e $old --nodeps
-  echo "Package $old uninstalled"
+  echo "The $old package was uninstalled."
   }
   #do we already have all new installed? Skip it...
   rpm -q $new >/dev/null && continue
@@ -275,9 +274,9 @@ do
     prep_source_right && \
       yum install -y $new
   }
-  rpm -q $new 2>/dev/null >/dev/null && echo "Package(s) $new installed" && continue
+  rpm -q $new 2>/dev/null >/dev/null && echo "The $new package or packages installed" && continue
   #when we are here, installation got wrong and we should warn the user.
-  echo  "The automatic installation of package(s) $new failed, install it manually."
+  echo  "The automatic installation of the $new package or packages failed, install the package or packages manually."
 done
 for old in $(echo "SEDME2HERE")
 do
@@ -313,14 +312,14 @@ for file in $(ls $KICKSTART_DIR/${FILENAME_BASIS}*); do
 done
 
 echo -n "
- * ${FILENAME_BASIS} - This file contains a list of packages that replace the original Red Hat Enterprise Linux 6 packages on the Red Hat Enterprise Linux 7 system, and are available in the 'base' channel. These packages will always be installed.
- * ${FILENAME_BASIS}-notbase - Similar to the ${FILENAME_BASIS} file but the packages are a part of other channels, and must be installed manually.
+ * ${FILENAME_BASIS} - This file contains a list of packages that replace the original Red Hat Enterprise Linux 6 packages on the Red Hat Enterprise Linux 7 system, and that are available in the 'Base' channel. These packages will always be installed.
+ * ${FILENAME_BASIS}-notbase - This file is similar to the ${FILENAME_BASIS} file, but the packages are a part of other channels, and they must be installed manually.
 " >> "$KICKSTART_README"
 
 [ $notprovided -eq 1 ] && [ -z "$other_repositories" ] && statuscode=$RESULT_FIXED
 
 [ $found -eq 1 ] && log_slight_risk "\
-Some packages installed on the system changed their name between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. Although they should be compatible, monitor them after the update." && exit $statuscode
+Some packages installed on the system changed their names between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. Although they should be compatible, monitor them after the update." && exit $statuscode
 
 rm -f solution.txt && touch solution.txt
 
