@@ -79,7 +79,7 @@ print_needed_free_capacity() {
 
   # I keep check of boot - probably pointless too, however
   # wrong
-  dir_sizes+=( [/usr]=0 [/var]=0 [/boot]=20480 )
+  dir_sizes+=( [/usr]=0 [/var]=0 [/boot]=$(( 110 * kB )) )
   ssizes=( $(get_sizes) )
   # 400 is hard magic contant for basic installation and dependencies
   # there is different too due to 4kB rounding on default ext4 fs
@@ -185,6 +185,8 @@ usr_ncap=$(print_needed_free_capacity "/usr")
 usr_acap=$(get_free_size "/usr")
 var_ncap=$(print_needed_free_capacity "/var")
 var_acap=$(get_free_size "/var")
+boot_ncap=$(print_needed_free_capacity "/boot" )
+boot_acap=$(get_free_size "/boot")
 
 usr_reserve=$[ $usr_ncap+($usr_ncap/100*15) ]
 var_reserve=$[ $var_ncap+($var_ncap/100*15) ]
@@ -229,6 +231,14 @@ it instead of network." >> solution.txt
   result=$RESULT_FAIL
 fi
 
+if [ $boot_acap -le $boot_ncap ]; then
+  log_high_risk "Not enough free space on the /boot. Release more space for upgrade."
+  echo -e "\nFree space in the /boot/ directory is smaller then the estimated free space required
+for the secure upgrade. You need to release more space on the partition." >> solution.txt
+  result=$RESULT_FAIL
+fi
+
+
 echo "
 /usr:
 (only for migration process)
@@ -241,6 +251,10 @@ Available free space: $usr_acap kB
 Estimated needed free space: $var_ncap kB
 Estimated safe free space: $var_reserve kB
 Available free space: $var_acap kB
+
+/boot
+Estimated required free space: $boot_ncap kB
+Available free space: $boot_acap kB
 " >> solution.txt
 
 exit $result
