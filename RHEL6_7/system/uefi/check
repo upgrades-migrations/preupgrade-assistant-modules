@@ -5,16 +5,9 @@
 #END GENERATED SECTION
 
 if efibootmgr >/dev/null 2>&1; then
-	DIR=uefi
-	FILE=postupgrade.sh
-	mkdir -p $POSTUPGRADE_DIR/$DIR
-	cp  $FILE $POSTUPGRADE_DIR/$DIR/$FILE
-	chmod a+x $POSTUPGRADE_DIR/$DIR/$FILE
-	if [ ! -f "/etc/default/grub" ]; then
-	    log_high_risk "The EFI boot loader is detected. Migration to GRUB 2 is necessary. Create the /etc/defaults/grub file manually."
-	    exit_fail
-	fi
-	exit_informational
+    log_extreme_risk "The EFI boot loader was detected. An in-place upgrade is not possible."
+    echo "Systems using the EFI boot loader cannot be in-place upgraded now." >solution.txt
+    exit_fail
 fi
 
 echo "This system does not use the EFI boot loader. The Preupgrade Assistant will not replace your current boot loader automatically as it is too dangerous. If you want to use GRUB 2, do it manually after the upgrade by using 'grub2-install' and 'grub2-mkconfig'." > solution.txt
