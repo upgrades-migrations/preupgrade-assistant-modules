@@ -43,7 +43,8 @@ is_pkg_installed "yaboot" && is_dist_native "yaboot" || {
     exit_fail
 }
 
-
+# create the directory structure
+mkdir -p "$(dirname "$GENERATED_FILE")"
 
 msg=""
 log_msg=""
