@@ -22,22 +22,22 @@ For more information about MariaDB project, see MariaDB Upstream
 Web at [link: http://mariadb.org/en/about/].
 
 MariaDB upstream uses the same file names as original MySQL.
-That means that the MariaDB shell is called `mysql`, MariaDB daemon is called
-`mysqld_safe` and the client library is called `libmysqlclient.so`.
+That means that the MariaDB shell is called 'mysql', MariaDB daemon is called
+'mysqld_safe' and the client library is called 'libmysqlclient.so'.
 
 To keep MariaDB packages properly distinguished from the original
 MySQL packages, Red Hat Enterprise Linux 7 uses MariaDB names where not necessary to follow
 upstream. It means the following layout is used in Red Hat Enterprise Linux 7:
- - The MariaDB packages names are called `mariadb`, `mariadb-libs`, `mariadb-server`,
+ - The MariaDB packages names are called 'mariadb', 'mariadb-libs', 'mariadb-server',
    and so on.
- - Only the mariadb and mariadb-libs packages provide also RPM symbols `mysql`
-   and `mysql-libs`; the rest of the packages do not provide alternative mysql names.
- - The systemd unit file is called `mariadb.service`.
- - The log file is called `mariadb.log` and it is located in the /var/log/mariadb/
+ - Only the mariadb and mariadb-libs packages provide also RPM symbols 'mysql'
+   and 'mysql-libs'; the rest of the packages do not provide alternative mysql names.
+ - The systemd unit file is called 'mariadb.service'.
+ - The log file is called 'mariadb.log' and it is located in the /var/log/mariadb/
    directory by default. You can change the name and the location in the
    /etc/my.cnf file after the installation, but do not forget to adjust SELinux
    accordingly.
- - The logrotate script is called `mariadb`.
+ - The logrotate script is called 'mariadb'.
 EOF
 
 
@@ -80,8 +80,8 @@ done
 if [ $nonrh_mysql_deps_issues -gt 0 ] ; then
     cat >>$SOLUTION_FILE <<EOF
 
-MariaDB RPM packages do not provide mysql names except `mariadb`,
-`mariadb-libs`, and `mariadb-devel`. Packages requiring other packages
+MariaDB RPM packages do not provide mysql names except 'mariadb',
+'mariadb-libs', and 'mariadb-devel'. Packages requiring other packages
 (mysql-server, mysql-embedded, mysql-embedded-devel, mysql-test, or mysql-bench)
 need to be rebuilt, so that they start reqiuring mariadb-* packages
 instead. The following dependency issues have been found within the installed
@@ -100,10 +100,10 @@ fi
 # 2) See if the service is reported as an issue
 cat >>$SOLUTION_FILE <<EOF
 
-The mysql-server package provides a SysV init script called `mysqld`.
-The mariadb-server package provides a systemd unit file called `mariadb`.
+The mysql-server package provides a SysV init script called 'mysqld'.
+The mariadb-server package provides a systemd unit file called 'mariadb'.
 All packages that need to start after the mariadb daemon need to use the
-correct name, which is `mariadb.service`.
+correct name, which is 'mariadb.service'.
 EOF
 
 nonrh_service_deps=0
@@ -178,7 +178,7 @@ EOF
 # overal test result evaluation
 if [ $nonrh_mysql_deps_issues -gt 0 ] || [ $nonrh_service_deps -gt 0 ] || [ $nonrh_plugins -gt 0 ] ; then
     [ $nonrh_mysql_deps_issues -gt 0 ] && log_high_risk "MariaDB RPM packages do not provide mysql names."
-    [ $nonrh_service_deps -gt 0 ] && log_high_risk "The mariadb-server package provides a systemd unit file called `mariadb`."
+    [ $nonrh_service_deps -gt 0 ] && log_high_risk "The mariadb-server package provides a systemd unit file called 'mariadb'."
     [ $nonrh_plugins -gt 0 ] && log_high_risk "All plug-ins not delivered by Red Hat Enterprise Linux 6 and compiled for MySQL 5.1 need to be rebuilt for MariaDB 5.5 after the migration to Red Hat Enterprise Linux 7."
     result=$RESULT_FAIL
 else
