@@ -1,4 +1,4 @@
-The content stores enabled repositories for kickstart issues in file [link:./kickstart/available-repos]
+The module stores enabled repositories for Kickstart issues in the [link:./kickstart/available-repos] file.
 
-During kickstart generation these repositories are added to kickstart script.
+During the generation of Kickstart these repositories are added to the Kickstart script.
 

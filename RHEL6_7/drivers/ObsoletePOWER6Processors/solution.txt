@@ -1,2 +1,1 @@
-POWER6 processors are unsupported on ppc architecture in Red Hat Enterprise Linux 7.
-Upgrade will not be possible from Red Hat Enterprise Linux 6.
+The upgrade will not be possible because POWER6 processors are unsupported on ppc architecture in Red Hat Enterprise Linux 7.

@@ -1,31 +1,31 @@
-In RHEL7, multipath no longer uses the getuid_callout to determine the wwid of
-a multipath device. Instead is gets the value from the udev environment, using
-the attribute defined by the uid_attribute configuration parameter.  Multipath
-will issue warnings if /etc/multipath.conf defines getuid_callout in RHEL7, and
+In Red Hat Enterprise Linux 7, Multipath no longer uses the getuid_callout to determine the WWID of
+the Multipath device. Instead, it gets the value from the udev environment, using
+the attribute defined by the uid_attribute configuration parameter. Multipath
+will issue warnings if /etc/multipath.conf defines getuid_callout in Red Hat Enterprise Linux 7, and
 will use the built-in value for uid_attribute instead.
 
-The way multipath determines if a user defined device configuration should
-modify a builtin device configuration or create a new device configuration has
-changed in RHEL7. By default in RHEL6, the user config only modified a builtin
+The way Multipath determines if a user defined device configuration should
+modify a built-in device configuration or create a new device configuration has
+changed in Red Hat Enterprise Linux 7. By default in Red Hat Enterprise Linux 6, the user config only modified a built-in
 one if the vendor, product, and revision strings of the user configuration
 exactly matched the vendor, product and revision strings in the built-in
 configuration. However, the vendor, product, and revision strings are
 interpreted as regular expressions in order to determine which configuration to
-use with a particular device.  In RHEL7 this same regular expression matching
+use with a particular device.  In Red Hat Enterprise Linux 7 this same regular expression matching
 is used to determine whether or not a user defined device config should modify
-a builtin device config.  If the user config's vendor, product, and revision
+a built-in device config.  If the user config's vendor, product, and revision
 strings regex-match a builtin device config's vendor, product and revision
 regular expressions, then it modifies the existing config.  This means that in
-RHEL6, user device configs sometimes needed to user regular expressions as
-their vendor, product, and revision strings.  In RHEL7, these should be plain
+Red Hat Enterprise Linux 6, user device configs sometimes needed to user regular expressions as
+their vendor, product, and revision strings.  In Red Hat Enterprise Linux 7, these should be plain
 strings.  On upgrade, "hw_str_match yes" will be added to the defaults section
 of /etc/multipath.conf to force multipath to use the RHEL6 behavior, if
 necessary.
 
-The default multipath.conf file used on fresh RHEL7 installs enables
-find_multipaths by default. This will not be set on upgrades from RHEL6.
+The default multipath.conf file used on fresh Red Hat Enterprise Linux 7 installs enables
+find_multipaths by default. This will not be set on upgrades from Red Hat Enterprise Linux 6.
 
-A number of builtin configuration settings have changed in RHEL7.  These
+A number of builtin configuration settings have changed in Red Hat Enterprise Linux 7.  These
 changes were designed to improve performance in the general case.  However,
 they may not be optimal for every configuration.  Users who were using the
 builtin configurations for their devices should verify that the new defaults

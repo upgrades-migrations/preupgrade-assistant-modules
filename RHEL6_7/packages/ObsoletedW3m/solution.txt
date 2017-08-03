@@ -1,3 +1,3 @@
-The w3m package is not available for Red Hat Enterprise Linux 7. Red Hat provides the Lynx and ELinks text-based web browsers. They provide similar features to the w3m browser, however their syntax is different. As a consequence, a change of workflow might be required after the upgrade.
+The w3m package is not available for Red Hat Enterprise Linux 7. Red Hat provides the Lynx and ELinks text-based web browsers. They provide similar features to the w3m browser, although their syntax is different. As a consequence, a change of workflow might be required after the upgrade.
 
 

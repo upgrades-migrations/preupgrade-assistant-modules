@@ -1,1 +1,1 @@
-Performing an in-place upgrade is not possible if the /usr/ directory is located on a separate partition. In Red Hat Enterprise Linux 6, this was allowed, but in Red Hat Enterprise Linux 7, the /usr/ directory cannot be on a separate partition because of the requirements of the systemd service.
+Performing the in-place upgrade is not possible if the /usr/ directory is located on a separate partition. It was allowed in Red Hat Enterprise Linux 6 but in Red Hat Enterprise Linux 7, the /usr/ directory cannot be on a separate partition because of the systemd service requirements.

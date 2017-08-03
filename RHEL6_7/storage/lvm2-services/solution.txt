@@ -1,21 +1,21 @@
-RHEL7 uses systemd for service management. When upgrading from RHEL6,
+Red Hat Enterprise Linux 7 uses systemd for service management. When upgrading from Red Hat Enterprise Linux 6,
 we need to be sure that certain services (systemd units) are enabled
-or prepared for on-demand activation.
+or prepared for the on-demand activation.
 
 The LVM2 monitoring service inherits the old state, which means that if
-the 'lvm2-monitor' service was enabled in RHEL6, it will also be enabled
-in RHEL7 (lvm2-monitor.service) and vice versa.
+the 'lvm2-monitor' service was enabled in Red Hat Enterprise Linux 6, it will also be enabled
+in Red Hat Enterprise Linux 7 (lvm2-monitor.service) and vice versa.
 
-In addition to that these systemd units are enabled to allow for on-demand
+In addition, these systemd units are enabled to allow for the on-demand
 service activation:
   dm-event.socket
   lvm2-lvmetad.socket
 
-The dm-event.socket is used for on-demand activation of dm-event.service.
-This is an essential part of device-mapper monitoring feature (which also
-covers monitoring of LVM devices).
+The dm-event.socket is used for the on-demand activation of the dm-event.service.
+This is an essential part of the device-mapper monitoring feature (which also
+covers monitoring of the LVM devices).
 
-The lvm2-lvmetad.socket is used for on-demand activation of lvm2-lvmetad.service
-which starts the lvmetad - LVM metadata daemon that is used to cache LVM
-metadata so LVM commands don't need to scan devices all the time and they
-can reuse cached metadata. This functionality is used by default in RHEL7.
+The lvm2-lvmetad.socket is used for the on-demand activation of the lvm2-lvmetad.service
+which starts lvmetad - the LVM metadata daemon that is used to cache LVM
+metadata so that the LVM commands would not have to scan devices all the time and they
+could reuse the cached metadata. This functionality is used by default in Red Hat Enterprise Linux 7.

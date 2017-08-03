@@ -1,4 +1,4 @@
-The Concurrent Versions System (CVS) server and client have not been changed significantly and should be fully compatible. However, some tools and documentation have been moved to other packages which could concern some users. 
+The Concurrent Versions System (CVS) server and client have not been changed significantly and are expected to be fully compatible. However, some tools and documentation have been moved to other packages which could be of concern to some users. 
 
 The rcs2log and contrib utilities have been moved into the new cvs-contrib packages in order to remove the cvs packages dependency on perl and reduce the size of the cvs packages. If you require the rcs2log and contrib tools, you can install the packages manually by running the "yum install cvs-contrib" command as root.
 

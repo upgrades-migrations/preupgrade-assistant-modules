@@ -1,8 +1,8 @@
-There's a bug in the installer of RHEL-6 which results in one or more
-invalid records added to zipl.conf if kernel-kdump package was part of
-initial installation.  If these invalid records persist, system may not
-be able to boot into upgraded RHEL-7.
+There is a bug in the installer of Red Hat Enterprise Linux 6 which results in one or more
+invalid records added to zipl.conf if kernel-kdump package was part of the 
+initial installation.  If these invalid records persist, the system may not
+be able to boot into upgraded Red Hat Enterprise Linux 7.
 
-It is recommended to review the zipl.conf file and remove the invalid
+Review the zipl.conf file and remove the invalid
 records manually. Otherwise, redhat-upgrade-tool will attempt to remove
 them.

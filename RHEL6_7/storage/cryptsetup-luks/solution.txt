@@ -1,23 +1,23 @@
-The libgcrypt library in RHEL6 has a flaw in Whirlpool algorithm implementation.
-The bug is fixed in later version of the library included with RHEL7. LUKS containers
-created using the libgcrypt present in RHEL6 can't be unlocked using the one
-present in RHEL7 unless GCRYPT_WHIRLPOOL_BUG environmental variable is set.
+The libgcrypt library in Red Hat Enterprise Linux 6 has a flaw in the Whirlpool algorithm implementation.
+The bug is fixed in the later version of the library included in Red Hat Enterprise Linux 7. LUKS containers
+created using the libgcrypt present in Red Hat Enterprise Linux 6 cannot be unlocked using the one
+present in Red Hat Enterprise Linux 7 unless the GCRYPT_WHIRLPOOL_BUG environmental variable is set.
 
-For optional LUKS containers (not involved in system boot) it's not a critical
-obstacle and admins can unlock such containers using the enviromnetale variable above.
-The situation is different when we deal with mandatory volumes: 
-In case the preupgrade script has detected the Whirlpool hash in one of volumes
-involved in the system boot (any volume listed in configuration file /etc/crypttab),
-it's considered to be a blocking event for in-place upgrade to continue. We strongly
+For optional LUKS containers (not involved in the system boot) it is not a critical
+obstacle and admins can unlock such containers using the environmental variable above.
+The situation is different when you deal with mandatory volumes: 
+In case the preupgrade script has detected the Whirlpool hash in one of the volumes
+involved in the system boot (any volume listed in the /etc/crypttab configuration file),
+it is considered to be a blocking event for the in-place upgrade to continue. We strongly
 recommend to rehash the LUKS header using the cryptsetup-reencrypt package added to
-RHEL6.6 and later.
+Red Hat Enterprise Linux 6.6 and later.
 
-Example command for rehashing the LUKS header without changing the master key:
+A command for rehashing the LUKS header without changing the master key:
 # cryptsetup-reencrypt -h sha1 --keep-key <path_to_luks_device>
 
-Supply a device identified to be using the Whirlpool hash instead of
+Supply a device identified to be using the Whirlpool hash instead of the
 pattern: <path_to_luks_device>.
 
-sha1 is recommended hash function for LUKS headers in RHEL6 and also in RHEL7.
+sha1 is a recommended hash function for LUKS headers in Red Hat Enterprise Linux 6 and also in Red Hat Enterprise Linux 7.
 
-We recommend to rehash also all optional volumes.
+We also recommend to rehash all optional volumes.

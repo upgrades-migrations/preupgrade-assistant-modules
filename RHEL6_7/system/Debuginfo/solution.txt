@@ -1,9 +1,9 @@
 Debuginfo packages are required for easier debugging of the application run
-and crashes. These need to have the same version as the rpm for which they
+and crashes. These need to have the same version as the RPM for which they
 provide the debuginfo information.
 
 As the debuginfo packages are located in the different repository than
-application packages you need to provide the additional repository
+application packages, provide the additional repository
 to the redhat-upgrade-tool if you want to have the debuginfo packages
 updated. Without updating them these are useless after the upgrade.
 

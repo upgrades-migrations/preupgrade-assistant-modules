@@ -1,1 +1,1 @@
-This content works around crashing grubby. It modifies /boot/grub/grub.conf by adding initrd.
+The module works around crashing grubby. It modifies the /boot/grub/grub.conf file by adding initrd.

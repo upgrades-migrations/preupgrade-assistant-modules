@@ -1,7 +1,7 @@
-Some options were removed or deprecated from util-linux-ng (on Red Hat Enterprise Linux 7 it
+Some options were removed or deprecated from util-linux-ng (in Red Hat Enterprise Linux 7 it
 is renamed back to util-linux) package binaries between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7.
 This may break the functionality of some of your scripts. All option removals
-with the solutions are listed bellow.
+with the solutions are listed below.
 
 blkid:
     -w - option is deprecated (undocumented on Red Hat Enterprise Linux 7)

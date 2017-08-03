@@ -1,7 +1,7 @@
-For upgrade from RHEL 6 to RHEL 7 perform following steps:
+Perform the following steps to upgrade from Red Hat Enterprise Linux 6 to Red Hat Enterprise Linux 7:
 
 1) Uninstall all Red Hat Developer Toolset packages
-2) Upgrade system
-3) Update Red Hat Developer Toolset repo
+2) Upgrade the system
+3) Check if the Red Hat Developer Toolset repo exists and if not, install it via channels
 4) Install your Developer Toolset packages again
 

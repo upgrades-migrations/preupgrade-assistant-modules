@@ -1,11 +1,11 @@
-Some options in DNSMASQ configuration were added between RHEL 6 and RHEL 7.
+Some options in DNSMASQ configuration were added between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7.
 Some of these changes may be helpful in your DNSAMSQ configuration.
 
 
 
 IPv6 support for DHCP has been added:
 -------------------------------------
-DNSMASQ version distributed in RHEL 7 now supports DHCPv6 protocol.
+DNSMASQ version distributed in Red Hat Enterprise Linux 7 now supports DHCPv6 protocol.
 The DHCPv6 server provides the same set of functionality as the DHCPv4
 server. In addition it supports:
  - router advertisements
@@ -18,7 +18,7 @@ server. In addition it supports:
 New "--bind-dynamic" dnsmasq network mode has been added:
 ---------------------------------------------------------
 New network mode "bind-dynamic" has been added into DNSMASQ version
-distributed in RHEL 7.
+distributed in Red Hat Enterprise Linux 7.
 The new network mode which is a hybrid between --bind-interfaces and the default.
 Dnsmasq will bind to addresses of individual interfaces, allowing multiple dnsmasq
 instances. If new interfaces or addresses appear on the system, it will automatically

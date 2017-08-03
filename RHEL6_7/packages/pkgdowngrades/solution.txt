@@ -1,12 +1,9 @@
-Some packages installed on your system have broken upgrade path from Red Hat
-Enterprise Linux version 6 to version 7 (the version of package is lower in
-newer Enterprise Linux).
+Some packages installed on your system have a broken upgrade path from Red Hat
+Enterprise Linux version 6 to version 7 (that is, the version of the package is lower in Red Hat Enterprise Linux 7).
 
-This does not cause fail of redhat-upgrade-tool run and it could
-potentially left system in inconsistent state (mixed RHEL 6 and RHEL 7
-packages installed).  Pre-upgrade scripts makes best effort to force
-redhat-upgrade-tool in-place upgrade process install packages with broken
+This causes a fail of redhat-upgrade-tool run and it might leave the system in an inconsistent state (with mixed Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7
+packages installed).  Preupgrade scripts make the best effort to force the
+redhat-upgrade-tool in-place upgrade process to install packages with broken
 upgrade path but you should be aware of that and know what is happening.
 
-Optionally, if possible, you may remove packages in question from RHEL 6
-system.
+Optionally, if possible, remove the packages in question from your Red Hat Enterprise Linux 6 system.

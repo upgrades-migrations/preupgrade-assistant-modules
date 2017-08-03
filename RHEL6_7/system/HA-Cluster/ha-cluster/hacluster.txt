@@ -1,1 +1,1 @@
-Changes to the entire HA solution, ranging from on-wire network protocols to resource management, core engines, makes it impossible to migrate from RHEL 6 to RHEL 7.
+Changes to the entire High Availability solution, ranging from on-wire network protocols to resource management and core engines make it impossible to migrate from Red Hat Enterprise Linux 6 to Red Hat Enterprise Linux 7.

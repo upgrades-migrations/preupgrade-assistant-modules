@@ -1,3 +1,3 @@
-qdiskd has been removed from Red HAt Enterprise Linux 6.
+The Cluster Quorum Disk Daemon (qdiskd) is not used in Red Hat Enterprise Linux 7.
 The new quorum implementation is provided by votequorum, which is included in the corosync package, and which has been extended to replace qdiskd for most use cases.
-The extensions (wait_for_all, auto_tie_breaker and last_man_standing) are fully documented in the votequorum.5 man page
+The extensions (wait_for_all, auto_tie_breaker and last_man_standing) are fully documented in the votequorum (5) man page.
