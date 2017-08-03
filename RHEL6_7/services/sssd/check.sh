@@ -14,7 +14,7 @@ function solution() {
 function check_problematic_option() {
     MATCH=$(grep -o -i -z "${2}" "${1}")
     if [ "$MATCH" != "" ]; then
-        solution "Configuration file \"${1}\" contains problematic \
+        solution "The configuration file \"${1}\" contains a problematic \
 option \"$MATCH\"."
         return 0
     else
@@ -27,7 +27,7 @@ CONF_FILE='/etc/sssd/sssd.conf'
 
 
 if [ ! -e "$CONF_FILE" ]; then
-    solution "Configuration file \"$CONF_FILE\" is missing on the old system."
+    solution "The configuration file \"$CONF_FILE\" is missing on the old system."
     exit_not_applicable
 fi
 

@@ -52,37 +52,37 @@ ret=$RESULT_PASS
 
 if rpm -qV sendmail | grep ".*5.*\s$CONFIG_FILE\$"; then
   solution "You made custom changes to $CONFIG_FILE. This configuration file \
-will be not automatically upgraded. New default configuration file will be \
-installed as $CONFIG_FILE.rpmnew. If you are satisfied with it, just rename \
+will not be automatically upgraded. A new default configuration file will be \
+installed as $CONFIG_FILE.rpmnew. If you are satisfied with it, rename \
 it to $CONFIG_FILE."
   ret=$RESULT_INFORMATIONAL
 
   grep -q "DAEMON=" "$CONFIG_FILE" &&
-    solution "DAEMON variable is no longer supported in $CONFIG_FILE. Sendmail \
+    solution "The DAEMON variable is no longer supported in $CONFIG_FILE. Sendmail \
 will always run as a daemon."
 
   grep "DAEMON=" "$CONFIG_FILE" | cut -d"=" -f2 | grep -qi "no" && {
     ret=$RESULT_FAIL
-    log_slight_risk "DAEMON=no option is not supported anymore!"
+    log_slight_risk "The DAEMON=no option is not supported anymore."
   }
 
   grep -q "QUEUE=" "$CONFIG_FILE" &&
-    solution "QUEUE variable is no longer supported in $CONFIG_FILE. The queue \
+    solution "The QUEUE variable is no longer supported in $CONFIG_FILE. The queue \
 processing interval is now specified by SENDMAIL_OPTS in $CONFIG_FILE. \
-To setup queue processing interval to e.g. 1 hour, use SENDMAIL_OPTS=\"-q1h\"."
+To setup queue processing interval to for example one hour, use SENDMAIL_OPTS=\"-q1h\"."
 
   if ! grep -q "SENDMAIL_OPTS=.*-q[0-9smhdw]\+.*" "$CONFIG_FILE"; then
-    solution "Your $CONFIG_FILE doesn't contain SENDMAIL_OPTS=-qTIME. If you do \
-not specify queue processing interval, the mail queue will be processed only once \
-during sendmail startup and further e-mails will be not processed / \
-delivered. Please update your $CONFIG_FILE to have SENDMAIL_OPTS=\"-q1h\"."
+    solution "Your $CONFIG_FILE does not contain SENDMAIL_OPTS=-qTIME. If you do \
+not specify the queue processing interval, the mail queue will be processed only once \
+during the sendmail startup and further e-mails will not be processed / \
+delivered. Update your $CONFIG_FILE to have SENDMAIL_OPTS=\"-q1h\"."
     ret=$RESULT_FAIL
   fi
 fi
 
 solution "If you need to run sendmail with special parameters, you can add \
-them to SENDMAIL_OPTS variable in $CONFIG_FILE. Please do not remove queue \
-processing interval (e.g. -q1h) from the SENDMAIL_OPTS, otherwise your \
-further e-mails will be not processed / delivered."
+them to the SENDMAIL_OPTS variable in $CONFIG_FILE. Do not remove the queue \
+processing interval (for example -q1h) from the SENDMAIL_OPTS, otherwise your \
+further e-mails will not be processed / delivered."
 
 exit $ret

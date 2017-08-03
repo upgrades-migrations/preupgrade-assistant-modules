@@ -11,7 +11,7 @@
 }
 
 [ ! -r "$1" ] && {
-  echo "Error: $1: File is not readable."
+  echo "Error: $1: The file is not readable."
   exit 2
 }
 
@@ -20,7 +20,7 @@ fail=0
 while read line; do
   pkgs="$(echo $line | cut -d " " -f1 | tr "," " ")"
   yum install -y $pkgs || {
-    echo "Error: Packages [$pkgs] weren't installed." >&2
+    echo "Error: The packages [$pkgs] were not installed." >&2
     fail=1
   }
 done < "$1"

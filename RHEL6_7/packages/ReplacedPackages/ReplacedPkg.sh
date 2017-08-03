@@ -14,11 +14,11 @@ get_repo_id() {
 }
 
 [ ! -f "$VALUE_RPM_RHSIGNED" ] && \
-  log_error "Signed RPM list not found, please contact support." && \
+  log_error "Signed RPM list not found. Contact the support." && \
   exit $RESULT_ERROR
 
 [ ! -r "$COMMON_DIR" ] || [ ! -r "$_NOAUTO_POSTSCRIPT" ] && \
-  log_error "Directory for common files not found, please contact support." && \
+  log_error "Directory for common files not found. Contact the support." && \
   exit $RESULT_ERROR
 
 ReplacedPkgs=$(mktemp .replacedpkgsXXX --tmpdir=/tmp)
@@ -38,7 +38,7 @@ grep -Hr "..*" $COMMON_DIR/default-*_replaced | sed -r "s|^$COMMON_DIR/([^:]+):(
        || [ ! -r "$ReplacedPkgs" ] \
        || [ ! -r "$MoveReplacedPkgs" ] \
        || [ ! -r "$NotBasePkgs" ] && {
-  log_error "Package change lists not found, please contact support."
+  log_error "Package change lists not found. Contact the support."
   rm -f "$ReplacedPkgs" "$MoveReplacedPkgs" "$NotBasePkgs"
   exit $RESULT_ERROR
 }
@@ -59,13 +59,13 @@ touch "$KICKSTART_DIR/${FILENAME_BASIS}-notbase"
 cp "$_NOAUTO_POSTSCRIPT" "$_DST_NOAUTO_POSTSCRIPT"
 
 echo \
-"Between RHEL 6 and RHEL 7, some packages have either been replaced or
-renamed.  Replacement packages are compatible with previous versions.
-In some cases, preupgrade assistant will migrate the package after the
+"Between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7, some packages have either been replaced or
+renamed.  The new packages are compatible with the previous versions.
+In some cases, the Preupgrade Assistant will migrate the package after the
 upgrade has completed.
 
-Please Note: This tool will not check debug repositories.  Red Hat
-recommends that all debuginfo packages are removed before upgrade and
+Note: This tool will not check debug repositories.  Red Hat
+recommends that all debuginfo packages are removed before the upgrade and
 manually reinstalled as required on the upgraded system.
 
 The following packages were replaced:" >solution.txt
@@ -106,7 +106,7 @@ do
   done
   [ -n "$req_pkgs" ] && {
     req_pkgs="${req_pkgs% }"
-    msg_req=" (required by Non Red Hat signed package(s):$req_pkg)"
+    msg_req=" (required by package(s) not signed by Red Hat:$req_pkg)"
   }
   channel="$(grep "^$orig_pkg[[:space:]]" "$MoveReplacedPkgs" | rev | cut -d "_" -f 1 | rev)"
 
@@ -130,7 +130,7 @@ do
       [ $UPGRADE -eq 1] && func_log_risk=log_high_risk
     }
     other_repositories="${other_repositories}$channel "
-    msg_channel=" ($channel channel in RHEL 7)"
+    msg_channel=" ($channel channel in Red Hat Enterprise Linux 7)"
     statuscode=$RESULT_FAILED
     filename_suffix="-notbase"
   fi
@@ -139,24 +139,23 @@ do
   removeme="$removeme $orig_pkg"
 
   # logs / prints
-  [ -n "$msg_req" ] && log_slight_risk "Package ${orig_pkg}$msg_req replaced between RHEL 6 and RHEL 7"
-  [ $is_moved -eq 1 ] && $func_log_risk "Package $orig_pkg replacement moved to $channel channel between RHEL 6 and RHEL 7. You need to enable this channel for upgrade."
-  [ $is_not_base -eq 1 ] && $func_log_risk "Package $orig_pkg replacement is part of $channel channel on RHEL 7. You need to enable this channel for upgrade."
+  [ -n "$msg_req" ] && log_slight_risk "The ${orig_pkg}$msg_req package replaced between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7"
+  [ $is_moved -eq 1 ] && $func_log_risk "The $orig_pkg package replacement moved to the $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. Enable this channel for the upgrade."
+  [ $is_not_base -eq 1 ] && $func_log_risk "The $orig_pkg package replacement is a part of the $channel channel in Red Hat Enterprise Linux 7. Enable this channel for the upgrade."
   echo "${orig_pkg}$msg_req was replaced by ${repl_pkgs}$msg_channel" >>solution.txt
   found=1
 done < <(get_dist_native_list | sort | uniq)
 
 echo \
 "
-If a Non Red Hat signed package requires these packages, you may want
-to monitor them closely. Although the replacement should be compatible,
+If a package not signed by Red Hat requires any of these packages, monitor them closely. Although the replacement should be compatible,
 it may have some minor differences, even in the case of common
 application lifecycles." >>solution.txt
 
 [ -n "$other_repositories" ] && {
   echo -n "
 One or more replacement packages are available only in other repositories.
-You need to provide these repositories to make the upgrade or migration successful." >>solution.txt
+Provide these repositories to make the upgrade or migration successful." >>solution.txt
 [ $UPGRADE -eq 1 ] && echo -n "
 Be aware, that for in-place upgrades, only the optional repository is supported.
 Packages from other repositories should be removed first." >> solution.txt
@@ -167,8 +166,8 @@ to redhat-upgrade-tool:
 
     --addrepo rhel-7-optional=<path to the optional repository>
 
-Alternatively, you could remove all packages where the replacement is
-part of the RHEL 7 Optional repository before you start the system upgrade." >> solution.txt
+Alternatively, you could remove all packages where the replacement is a 
+part of the Red Hat Enterprise Linux 7 Optional repository before you start the system upgrade." >> solution.txt
 # another channels could be added when we support addons
 
   [ $MIGRATE -eq 1 ] && {
@@ -179,11 +178,11 @@ part of the RHEL 7 Optional repository before you start the system upgrade." >> 
     repos_texts="$(echo "$migrate_repos" | cut -d ";" -f4 )"
 
     echo "
-If you want to migrate, you will need register your machine with subscription-manager
+If you want to migrate, register your machine with subscription-manager
 after the first boot of your new system and attach subscriptions that provide:
 $repos_texts
 
-Then you must enable any equivalent repositories (if they are disabled) and
+Then enable any equivalent repositories (if they are disabled) and
 install any needed packages.
 For this purpose (installation), you can run a prepared script:
 $_DST_NOAUTO_POSTSCRIPT $KICKSTART_DIR/${FILENAME_BASIS}-notbase
@@ -212,7 +211,7 @@ rm -f "$ReplacedPkgs" "$MoveReplacedPkgs" "$NotBasePkgs"
     [ -z "$m" ] && continue
     replacement=$(echo $m | cut -d'|' -f2)
     notprovided=1
-    log_debug "Package $i is not in the RPM 'provides' directives of the replacement; $replacement. In-place upgrade might not work properly and will be finished by postupgrade script!"
+    log_debug "Package $i is not in the RPM 'provides' directives of the replacement; $replacement. The in-place upgrade might not work properly and will be finished by the postupgrade script."
     l="$l $m"
   done
 
@@ -278,7 +277,7 @@ do
   }
   rpm -q $new 2>/dev/null >/dev/null && echo "Package(s) $new installed" && continue
   #when we are here, installation got wrong and we should warn the user.
-  echo  "Installation of package(s) $new failed, you must install it manually!"
+  echo  "The automatic installation of package(s) $new failed, install it manually."
 done
 for old in $(echo "SEDME2HERE")
 do
@@ -314,14 +313,14 @@ for file in $(ls $KICKSTART_DIR/${FILENAME_BASIS}*); do
 done
 
 echo -n "
- * ${FILENAME_BASIS} - This file contains list of packages which replace original RHEL 6 packages on RHEL 7 system and are available in 'base' channel. These packages will be installed always.
- * ${FILENAME_BASIS}-notbase - Similar to file ${FILENAME_BASIS} but packages are part of other channels and must be installed manually.
+ * ${FILENAME_BASIS} - This file contains a list of packages which replace original Red Hat Enterprise Linux 6 packages on the Red Hat Enterprise Linux 7 system and are available in the 'base' channel. These packages will always be installed.
+ * ${FILENAME_BASIS}-notbase - Similar to the ${FILENAME_BASIS} file but the packages are a part of other channels and must be installed manually.
 " >> "$KICKSTART_README"
 
 [ $notprovided -eq 1 ] && [ -z "$other_repositories" ] && statuscode=$RESULT_FIXED
 
 [ $found -eq 1 ] && log_slight_risk "\
-Some packages installed on the system changed their name between RHEL 6 and RHEL 7. Although they should be compatible, monitoring after the update is recommended." && exit $statuscode
+Some packages installed on the system changed their name between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. Although they should be compatible, monitor them after the update." && exit $statuscode
 
 rm -f solution.txt && touch solution.txt
 

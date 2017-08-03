@@ -5,7 +5,7 @@
 #END GENERATED SECTION
 
 if [ ! -f "$VALUE_RPM_RHSIGNED" ]; then
-    log_error "File $VALUE_RPM_RHSIGNED is required."
+    log_error "The $VALUE_RPM_RHSIGNED file is required."
     exit_error
 fi
 
@@ -20,19 +20,19 @@ for pkg in $PACKAGE_LIST;
 do
     grep -q "^$pkg[[:space:]]" $VALUE_RPM_QA && is_dist_native $pkg
     if [ $? -eq 0 ]; then
-        log_info "Package $pkg is installed."
+        log_info "The $pkg package is installed."
         packages="$packages $pkg"
         found=1
     fi
 done
 if [ $found -eq 1 ]; then
-    log_extreme_risk "High Availability AddOn packages are installed. Upgrade is not possible."
-    echo "If you don't use following cluster&HA related packages:$packages , uninstall them and re-run preupgrade-assistant." >>hacluster.txt
+    log_extreme_risk "High Availability Add-On packages are installed. The upgrade is not possible."
+    echo "If you do not use the following cluster&HA related packages:$packages , uninstall them and run the Preupgrade Assistant again." >>hacluster.txt
     exit_fail
 fi
 
 if [ -f "$CLUSTER_CONFIG" ] || [ -f "$COROSYNC_CONFIG" ]; then
-    log_extreme_risk "High Availability AddOn config files $CLUSTER_CONFIG or $COROSYNC_CONFIG exist. Upgrade is not possible."
+    log_extreme_risk "High Availability Add-On config files $CLUSTER_CONFIG or $COROSYNC_CONFIG exist. The upgrade is not possible."
     exit_fail
 fi
 

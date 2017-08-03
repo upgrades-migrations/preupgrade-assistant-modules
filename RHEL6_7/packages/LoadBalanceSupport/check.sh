@@ -16,8 +16,7 @@ declare -a new_lb_check=$(get_dist_native_list | egrep '^(keepalived|haproxy|pir
 
 if [[ "${new_lb_check[@]}" =~ "ipvsadm" ]];then
   if [[ "${new_lb_check[@]}" =~ "piranha" ]];then
-     echo "You have installed a piranha package on your system. This is a no longer supported load balancer
-solution. Install keepalived and haproxy packages for Red Hat Enterprise Linux 7 compatible load balancer support." >> $SOLUTION_FILE
+     echo "You have installed a piranha package on your system. This is a no longer supported load balancer solution. Install keepalived and haproxy packages for Red Hat Enterprise Linux 7 compatible load balancer support." >> $SOLUTION_FILE
      log_high_risk "Run 'yum install keepalived haproxy' for Red Hat Enterprise Linux 7 compatible load balancer support."
      exit_fail
   else

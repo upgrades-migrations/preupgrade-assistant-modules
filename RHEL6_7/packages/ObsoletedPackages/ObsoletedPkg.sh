@@ -13,7 +13,7 @@ get_repo_id() {
 }
 
 [ ! -f "$VALUE_RPM_RHSIGNED" ] || [ ! -r "$COMMON_DIR" ] && {
-  log_error "Signed RPM list or common file directory missing.  Please contact support."
+  log_error "Signed RPM list or common file directory missing. Contact the support."
   exit $RESULT_ERROR
 }
 
@@ -29,7 +29,7 @@ grep -Hr "..*" $COMMON_DIR/default-*_obsoleted | sed -r "s|^$COMMON_DIR/([^:]+):
 [ ! -r "$ObsoletedPkgs" ] \
       || [ ! -r "$MoveObsoletedPkgs" ] \
       || [ ! -r "$NotBasePkgs" ] && {
-  log_error "Package content lists missing.  Please contact support."
+  log_error "Package content lists missing.  Contact the support."
   rm -f "$ObsoletedPkgs" "$MoveObsoletedPkgs" "$NotBasePkgs"
   exit $RESULT_ERROR
 }
@@ -39,25 +39,25 @@ other_repositories=""
 rm -f solution.txt "$KICKSTART_DIR/${FILENAME_BASIS}"*
 
 echo \
-"Some packages were obsoleted between RHEL 6 and RHEL 7.
+"Some packages became obsolete between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7.
 Red Hat provides alternatives for them, but these
-alternatives may not be 100% compatible. Because of this,
-we don't replace them automatically.
+alternatives may not be 100% compatible. For this reason,
+the packages are not replaced automatically.
 
-For some of the obsoleted packages you will get the
+For some of the obsolete packages you will get the
 incompatibilities list from separate preupgrade
-contents and you can adjust your migration or upgrade
+modules and you can adjust your migration or upgrade
 as required.
 
 Sometimes, the functionality of a package requires
-more than one new package to acheive the same
+more than one new package to achieve the same
 functionality.
 
-Please Note: All packages from the debug repositories
+Note: All packages from the debug repositories
 are skipped and Red Hat recommends that you remove
 them before upgrade.
 
-The following packages are obsoleted and replaced by
+The following packages are obsolete and replaced by
 new ones:" >solution.txt
 
 #Check for package obsolete type replacements in packages
@@ -107,10 +107,10 @@ do
   fi
 
   # logs / prints
-  [ -n "$msg_req" ] && $func_log_risk "The package ${orig_pkg}$msg_req was removed (obsoleted) between RHEL 6 and RHEL 7"
-  [ $is_moved -eq 1 ] && $func_log_risk "The partial-replacement for $orig_pkg moved to $channel between RHEL6 and RHEL 7."
-  [ $is_not_base -eq 1 ] && $func_log_risk "The partial-replacement for $orig_pkg is available in the $channel channel on RHEL 7."
-  echo "${orig_pkg}$msg_req was obsoleted by ${new_pkgs}$msg_channel" >>solution.txt
+  [ -n "$msg_req" ] && $func_log_risk "The package ${orig_pkg}$msg_req was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7"
+  [ $is_moved -eq 1 ] && $func_log_risk "The partial replacement for $orig_pkg moved to the $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
+  [ $is_not_base -eq 1 ] && $func_log_risk "The partial replacement for $orig_pkg is available in the $channel channel on Red Hat Enterprise Linux 7."
+  echo "${orig_pkg}$msg_req was replaced by ${new_pkgs}$msg_channel" >>solution.txt
   {
     # store data to kickstart files
     [ -n "$msg_req" ] && filename_suffix="${filename_suffix}-required"
@@ -132,8 +132,8 @@ One or more replacement packages are available only in other repositories.
 If you want to install them later, you will need to attach subscriptions that provide:
 $repos_texts
 
-Then you must enable any equivalent repositories (if they are disabled) and install any needed packages.
-For this purpose, you can run a prepared script:
+Then enable any equivalent repositories (if they are disabled) and install any needed packages.
+For this purpose, run a prepared script:
 $_DST_NOAUTO_POSTSCRIPT <path/to/pkglist-file>
 
 which will install the available packages listed in the file.
@@ -151,20 +151,20 @@ done
 
 
   echo -n "
- * ${FILENAME_BASIS} - This file contains all RHEL 6 packages, which were replaced in RHEL 7 by an alternative which is not 100% compatible and are part of the base channel. Direct dependency from non Red Hat signed packageis was not discovered.
- * ${FILENAME_BASIS}-required - Similar to ${FILENAME_BASIS}, but in addition are required by non Red Hat signed packages. As some of your packages depend on it, you should check the changes in detail.
- * ${FILENAME_BASIS}-notbase - Similar to ${FILENAME_BASIS}, but these packages are not part of the base channel on RHEL 7. You need register the new machine and attach subscriptions with the correct repositories if you want to install them.
- * ${FILENAME_BASIS}-required-notbase - Similar to ${FILENAME_BASIS}-required and ${FILENAME_BASIS}-notbase - packages are required by non Red Hat signed packages and are not part of base channel.
+ * ${FILENAME_BASIS} - This file contains all Red Hat Enterprise Linux 6 packages which were replaced in Red Hat Enterprise Linux 7 by a not 100% compatible alternative and are a part of the base channel. Direct dependency from the packages not signed by Red Hat was not discovered.
+ * ${FILENAME_BASIS}-required - Similar to ${FILENAME_BASIS}, but in addition are required by the packages not signed by Red Hat. As some of your packages depend on it, check the changes in detail.
+ * ${FILENAME_BASIS}-notbase - Similar to ${FILENAME_BASIS}, but these packages are not a part of the base channel on Red Hat Enterprise Linux 7. Register the new machine and attach subscriptions with the correct repositories if you want to install them.
+ * ${FILENAME_BASIS}-required-notbase - Similar to ${FILENAME_BASIS}-required and ${FILENAME_BASIS}-notbase - packages are required by the packages not signed by Red Hat and are not a part of the base channel.
 " >> "$KICKSTART_README"
 
 echo \
 "
-If a Non Red Hat signed package requires these packages, you may need to check if the alternative solution provided by Red Hat works for you. You may need to get the missing package from a source other than the RHEL repositories.
+If a package not signed by Red Hat requires these packages, you may need to check if the alternative solution provided by Red Hat works for you. You may need to get the missing package from a source other than the Red Hat Enterprise Linux repositories.
 
 You will need to install these new packages yourself after the assessment, as Red Hat cannot assess the suitablility of the replacements for your workload." >>solution.txt
 
 [ $found -eq 1 ] && log_medium_risk "\
-Some packages installed on the system were removed (obsoleted) between RHEL 6 and RHEL 7. This may break the functionality of packages depending on them." && exit $RESULT_FAIL
+Some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This may break the functionality of the packages depending on them." && exit $RESULT_FAIL
 
 rm -f solution.txt && touch solution.txt
 

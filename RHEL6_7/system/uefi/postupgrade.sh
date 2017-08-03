@@ -35,7 +35,7 @@ if efibootmgr >/dev/null 2>&1; then
         yum install grub2-efi shim --assumeyes
     }
     [ $? -ne 0 ] && {
-      echo "Can't install grub2-efi, shim packages."
+      echo "Cannot install grub2-efi and shim packages."
       # exit 1 # ??
     }
 	BOOT_DEVICE=`findmnt -n /boot/efi -o SOURCE | sed -r 's|(/dev/.*)([0-9]+)|-d \1 -p \2|'`

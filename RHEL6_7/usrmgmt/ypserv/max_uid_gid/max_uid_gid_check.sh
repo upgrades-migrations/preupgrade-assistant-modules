@@ -31,17 +31,17 @@ if [ $UID_RESULT -eq 2 ] ; then
 fi
 
 read -r -d '' SOLUTION <<'EOF'
-There are some UIDs between 500 and 1000 in passwd.byuid NIS map,
-which can make troubles after upgrading, because MINUID/MINGID
-are by default 1000 in RHEL 7. Checking for proper MINUID/MINGID
+There are some UIDs between 500 and 1000 in passwd.byuid NIS map.
+This might cause troubles after the upgrade, because MINUID/MINGID
+is 1000 by default in Red Hat Enterprise Linux 7. Checking for the proper MINUID/MINGID
 settings or changing UID/GID for such users is advised.
 
-Check UIDs/GIDs in source file for passwd.byuid NIS map to correspond
-with /etc/login.defs after upgrade.
+Check UIDs/GIDs in the source file for passwd.byuid NIS map to correspond
+with /etc/login.defs after the upgrade.
 EOF
 
 if [ $UID_RESULT -eq 0 ] ; then
-    log_high_risk "There are some UIDs between 500 and 1000 in passwd.byuid NIS map"
+    log_high_risk "There are some UIDs between 500 and 1000 in passwd.byuid NIS map."
     solution_file "$SOLUTION"
     exit_fail
 fi

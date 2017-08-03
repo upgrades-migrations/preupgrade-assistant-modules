@@ -17,7 +17,7 @@ def samba_dirs():
 	"""Parse smb.conf and report shared directories."""
 
 	def wrong_section(name):
-		"""Check whether a name is one of special section names which we want to ignore"""
+		"""Check if the name is one of special section names which we want to ignore"""
 		wrong = ("global", "homes", "printers")
 		for i in wrong:
 			if i == name:
@@ -99,7 +99,7 @@ def samba_dirs():
 if __name__ == "__main__":
 	if os.geteuid() != 0:
 		sys.stdout.write("Need to be root.\n")
-		log_slight_risk("The script needs to be run under root account")
+		log_slight_risk("The script needs to be run under the root account")
 		exit_error()
 	if samba_dirs():
 		exit_informational()

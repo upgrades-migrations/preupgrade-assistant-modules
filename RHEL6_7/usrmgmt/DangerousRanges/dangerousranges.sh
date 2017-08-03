@@ -61,8 +61,8 @@ while read -r i ; do
   if [ `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` -lt 200 ]
   then
     grep " $myname " systemids >/dev/null 2>/dev/null && continue
-    echo " System group \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation - this ID is prohibited from use and may cause migration issues!" >>solution.txt
-    log_slight_risk "System group \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation - this ID is prohibited from use and may cause migration issues!"
+    echo " System group \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation - this ID is prohibited from use and may cause migration issues." >>solution.txt
+    log_slight_risk "System group \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation - this ID is prohibited from use and may cause migration issues."
     founderror=1
   fi
 done < "$VALUE_GROUP"
@@ -70,7 +70,7 @@ done < "$VALUE_GROUP"
 [ $logindefs -eq 1 ] &&
 echo \
 "
-Your system contains user or group ids in the range between 500 and 1000. Therefore we will keep the Red Hat Enterprise Linux 6 defaults (system accounts limit on id 499) to prevent mix up of system and user accounts. If you can easily migrate your user accounts above 1000, please do so and adjust /etc/login.defs file to the values used in Red Hat Enterprise Linux 7. It might be non-trivial task for some system setups, though.
+Your system contains UIDs or GIDs in the range between 500 and 1000. Therefore the Red Hat Enterprise Linux 6 defaults (system accounts limit on id 499) will be kept to prevent mixing up the system and user accounts. If you can migrate your user accounts above 1000 easily, do so and adjust the /etc/login.defs file to the values used in Red Hat Enterprise Linux 7, although it might be a non-trivial task for some system setups.
 " >>solution.txt
 
 result=0

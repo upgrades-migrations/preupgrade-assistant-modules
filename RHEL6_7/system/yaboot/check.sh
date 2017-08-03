@@ -20,12 +20,12 @@ grep -q "^yaboot[[:space:]]" $VALUE_RPM_QA
 
 if [ $? -ne 0 ];
 then
-    log_error "Yaboot rpm not found. You probably do not use yaboot. This is unsupported. Preupgrade Assistant can not know for sure which boot mechanism is in use."
+    log_error "Yaboot RPM not found. You probably do not use yaboot. This is unsupported. The Preupgrade Assistant cannot know for sure which boot mechanism is in use."
     exit_error
 fi
 
 is_dist_native yaboot || {
-  log_extreme_risk "Yaboot rpm is not signed by Red Hat. This is unsupported."
+  log_extreme_risk "Yaboot RPM is not signed by Red Hat. This is unsupported."
   exit_fail
 }
 
@@ -40,12 +40,12 @@ cp -f $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
 DEFAULT_FILE=/etc/default/grub
 ./cmdline-to-default-grub > default-grub
 if [ -e "$DEFAULT_FILE" ] && ! cmp "$DEFAULT_FILE" default-grub; then
-    log_error "Wanted to create $DEFAULT_FILE however the file already exists. File has to be removed prior to execution of preupg. Custom modifications can be made subsequently."
+    log_error "Wanted to create the $DEFAULT_FILE file but it exists already. Remove it before the execution of preupg. Custom modifications can be made subsequently."
     exit_error
 fi
 
 mkdir -p /etc/default/
 /bin/cp default-grub $DEFAULT_FILE
 
-log_medium_risk "/etc/default/grub generated for this system. We recommend you to review its content, especially value of GRUB_CMDLINE_LINUX. Improper values might result in unbootable system."
+log_medium_risk "The /etc/default/grub file generated for this system. Review its content, especially the value of GRUB_CMDLINE_LINUX. Improper values might result in an unbootable system. See the manual page for the GRUB 2 configuration."
 exit_fail

@@ -30,7 +30,7 @@ high_depre_lang=0
 # recursion level is in $2
 check_options() {
     # recursion level limit so we do not cycle for ever
-    [ $# -ne 2 ] && log_warning "check_options accepts 2 arguments" && return 1
+    [ $# -ne 2 ] && log_warning "check_options accepts two arguments" && return 1
     [ $2 -gt 5 ] && log_warning "check_options recursion level exceeded" && return 2
     CONFIG_FILE=$1
     log_debug  "checking config file $CONFIG_FILE"
@@ -122,7 +122,7 @@ grep -q "^innodb_plugin_loaded" "$tmp_file" && {
 
         cat >> $SOLUTION_FILE <<EOF
 
-* The InnoDB plugin is now a default storage engine in MariaDB 5.5.
+* The InnoDB plug-in is now a default storage engine in MariaDB 5.5.
 This configuration is using the old plugin-load=innodb= configuration option.
 You must either remove this directive from the configuration files or use
 ignore-builtin-innodb as the current directives will not work.
@@ -134,7 +134,7 @@ grep -q "^innodb_file_io_threads" "$tmp_file" && {
 
 * The configuration option innodb_file_io_threads was removed in MariaDB 5.5
 and replaced with innodb_read_io_threads and innodb_write_io_threads.
-To ensure proper functionality, please change your configuration to use the
+To ensure the proper functionality, change your configuration to use the
 new configuration directives.
 EOF
 }
@@ -145,7 +145,7 @@ grep -q "^language$" "$tmp_file" && {
 * MySQL 5.1 used the language variable for specifying the directory which
 included the error message file. This option is now deprecated and has been
 replaced by the lc_messages_dir and lc_messages options.
-This also applies to options in the configuration files.
+This also applies to the options in the configuration files.
 EOF
 }
 
@@ -162,7 +162,7 @@ if [ -f "$OPTION_FIXED_FILE" ] ; then
     # have really "same" behaviour as in old system
     #echo "Some configuration files were fixed" >> solution.txt
     echo -e "\n
-To provide at least basic funcionality, some options were commented out
+To provide at least basic functionality, some options were commented out
 in the files listed below.
 You should replace them with options suitable for your environment that
 provide the same functionality as you have now:" >> "$SOLUTION_FILE"
@@ -181,7 +181,7 @@ if [ ! -f "$OPTION_NOT_OK_FILE" ]; then
       && log_info "No option problems found in MySQL configuration."
 else
     echo "\n
-Some options were not commented out in files listed below and therefore MariaDB 5.5 may unexpectedly crash.
+Some options were not commented out in the files listed below and therefore MariaDB 5.5 might crash unexpectedly.
 The listed options should be replaced or commented out manually:" >> "$SOLUTION_FILE"
     cat "$OPTION_NOT_OK_FILE" | sort | uniq >> "$SOLUTION_FILE"
     result=$RESULT_FAILED
@@ -190,8 +190,8 @@ fi
 [ "$result" == "$RESULT_FAILED" ] && echo "
 The files mentioned above are backups of your original configuration files.
 After the upgrade you must manually replace the contents of the default
-MariaDB 5.5 configuration (as is appropriate to your environment), with the
-information provided about replaced or deprecated options listed in the
+MariaDB 5.5 configuration (as is appropriate to your environment) with the
+information provided about the replaced or deprecated options listed in the
 backups.  You must restart MariaDB for these changes to take effect.
 "
 

@@ -67,7 +67,7 @@ class HandlingRepoFiles(object):
                    '\n'.join([key+'='+value for key, value in self.repo_dict.iteritems()]))
         lines = read_file(os.path.join(dir_name, file_name))
         write_file(os.path.join(dir_name, file_name), lines)
-        log_slight_risk('Enabled repo files for kickstart generation are stored %s.' % os.path.join(dir_name, file_name))
+        log_slight_risk('Enabled repo files for kickstart generation are stored in %s.' % os.path.join(dir_name, file_name))
 
 
 def main():

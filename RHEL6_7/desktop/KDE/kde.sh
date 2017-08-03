@@ -7,7 +7,7 @@
 
 RESULT="$RESULT_PASS"
 if test -f /usr/share/xsessions/kde.desktop; then
-    log_extreme_risk "You have KDE Desktop Environment session as an option in your X11 session manager. KDE Desktop Environment as a part of the yum group 'KDE Desktop' underwent a redesign in its user interface as well as underlying technologies in Red Hat Enterprise Linux 7."
+    log_extreme_risk "You have the KDE Desktop Environment session as an option in your X11 session manager. KDE Desktop Environment as a part of the yum group 'KDE Desktop' underwent a redesign in its user interface as well as in underlying technologies in Red Hat Enterprise Linux 7."
     RESULT="$RESULT_FAIL"
 fi
 
@@ -16,7 +16,7 @@ DPKGS=""
 
 for pkg in $PKGS; do
     grep -q "^$pkg[[:space:]]" $VALUE_RPM_QA && is_dist_native $pkg || continue
-    test "$RESULT" = "$RESULT_FAIL" || log_high_risk "You have some of the KDE Desktop yum group packages installed in your system. KDE Desktop Environment that was provided by this group of packages underwent a redesign in its user interface as well as underlying technologies in Red Hat Enterprise Linux 7."
+    test "$RESULT" = "$RESULT_FAIL" || log_high_risk "You have some of the KDE Desktop yum group packages installed in your system. KDE Desktop Environment that was provided by this group of packages underwent a redesign in its user interface as well as in underlying technologies in Red Hat Enterprise Linux 7."
     DPKGS="$DPKGS $pkg"
     RESULT="$RESULT_FAIL"
 done
@@ -24,7 +24,7 @@ done
 rm -f solution.txt
 # Generate solution.txt
 if test "$RESULT" = "$RESULT_FAIL"; then
-    echo "KDE Desktop Environment as a part of the yum group 'KDE Desktop' underwent a redesign in its user interface as well as underlying technologies in Red Hat Enterprise Linux 7. The users of the desktop environment need to be educated about these changes before the upgrade." >> solution.txt
+    echo "KDE Desktop Environment as a part of the yum group 'KDE Desktop' underwent a redesign in its user interface as well as in underlying technologies in Red Hat Enterprise Linux 7. The users of the desktop environment need to be educated about these changes before the upgrade." >> solution.txt
 fi
 
 if test -n "$DPKGS"; then

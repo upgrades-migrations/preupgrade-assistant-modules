@@ -14,28 +14,28 @@ function config_file_changed() {
 
 CONF_FILE='/etc/sysconfig/quota_nld'
 
-solution 'quota_nld service configuration is fully compatible.'
+solution 'The quota_nld service configuration is fully compatible.'
 
 if [ ! -e "$CONF_FILE" ]; then
-    solution 'Service configuration is missing on the old system.'
-    solution 'Default configuration will be used on the new system.'
+    solution 'The service configuration is missing on the old system.'
+    solution 'The default configuration will be used on the new system.'
     exit_pass
 fi
 
 # backup_config_file() does not save into cleanconf
 if config_file_changed  "${CONF_FILE}"; then
-    solution 'Service configuration has been modified since the installation.'
+    solution 'The service configuration has been modified since the installation.'
 
     mkdir -p "${VALUE_TMP_PREUPGRADE}/cleanconf/$(dirname ${CONF_FILE})" || \
         exit_error
     cp -p "$CONF_FILE" "${VALUE_TMP_PREUPGRADE}/cleanconf" || exit_error
 
-    solution "Configuration file \"${CONF_FILE}\" has been backed up.
+    solution "The configuration file \"${CONF_FILE}\" has been backed up.
 It can be used on the new system safely."
     exit_fixed
 fi
 
-solution 'Service is in factory settings.'
-solution 'Default configuration will be used on the new system.'
+solution 'The service is in factory settings.'
+solution 'The default configuration will be used on the new system.'
 exit_pass
 

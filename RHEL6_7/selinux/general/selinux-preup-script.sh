@@ -5,7 +5,7 @@
 flcont="/etc/selinux/targeted/contexts/files/file_contexts.local"
 
 [ -e "$flcont" ] || touch "$flcont" || {
-  echo "File '$flcont' couldn't be created. Please create the file manually before the upgrade" >&2
+  echo "The '$flcont' file could not be created. Create the file manually before the upgrade" >&2
   exit 1
 }
 

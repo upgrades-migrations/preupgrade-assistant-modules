@@ -6,7 +6,7 @@ check_rpm_to "" "grep,sed,cut,cp"
 #END GENERATED SECTION
 
 [ ! -f "$VALUE_EXECUTABLES" ] || [ ! -r "$COMMON_DIR"  ] && {
-  log_error "Generic common part of content is missing!"
+  log_error "Generic common part of content is missing."
   exit_error
 }
 
@@ -18,7 +18,7 @@ cat "$COMMON_DIR"/default*_so*-kept \
 
 [ ! -r "$safelibs" ] && {
   rm -f "$safelibs"
-  log_error "Generic part of content is missing"
+  log_error "Generic part of content is missing."
   exit_error
 }
 
@@ -50,7 +50,7 @@ do
         grep -m1 "^$(basename "$i")$" "$safelibs" >/dev/null || unsafe=1
       done
       SAFETY=""
-      [ $unsafe -eq 0 ] && SAFETY="(Can be used on RHEL 7 without rebuild)"
+      [ $unsafe -eq 0 ] && SAFETY="(Can be used on Red Hat Enterprise Linux 7 without rebuild)"
       echo "$line $SAFETY" >> $BINARIES
     fi
   else
@@ -68,11 +68,11 @@ rm -f "$safelibs"
 
 if [ $FOUND_BIN -eq 1 -o $FOUND_SCR -eq 1 ]; then
     if [ $FOUND_BIN -eq 1 ]; then
-        log_slight_risk "Some binaries untracked by RPM were discovered on the system and may need rebuild after upgrade."
+        log_slight_risk "Some binaries untracked by RPM were discovered on the system and may need to be rebuilt after the upgrade."
         mv $BINARIES "$VALUE_TMP_PREUPGRADE/kickstart/$BINARIES"
     fi
     if [ $FOUND_SCR -eq 1 ]; then
-        log_slight_risk "Some scripts untracked by RPM were discovered on the system and may not work properly after upgrade."
+        log_slight_risk "Some scripts untracked by RPM were discovered on the system and may not work properly after the upgrade."
         mv $SCRIPTS "$VALUE_TMP_PREUPGRADE/kickstart/$SCRIPTS"
     fi
     exit_fail

@@ -45,7 +45,7 @@ def cgroup_daemon():
 				data = f.read()
 			if cgroup_re.search(data):
 				found = True
-				log_slight_risk("File '" + filename + "' mentions CGROUP_DAEMON.")
+				log_slight_risk("The '" + filename + "' file mentions CGROUP_DAEMON.")
 
 	return found
 

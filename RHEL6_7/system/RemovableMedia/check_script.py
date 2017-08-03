@@ -74,13 +74,13 @@ def find_removable():
 		for fstab_line in fstab:
 			#lsblk in rhel6 does not give full path, search for a substring corresponding to partial path
 			if fstab_line and fstab_line[0].find(device) != -1  and not nofail_flag(fstab_line[3]):
-				log_extreme_risk("It seems that you have a removable device " + device + " in /etc/fstab entry " + fstab_line[0] + " without nofail flag")
+				log_extreme_risk("It seems that you have a removable device " + device + " in the /etc/fstab entry " + fstab_line[0] + " without nofail flag")
 				ret = True
 	return ret
 
 if __name__ == "__main__":
 	if os.geteuid() != 0:
-		log_error("The script needs to be run under root account")
+		log_error("The script needs to be run under the root account")
 		exit_error()
 	if find_removable():
 		exit_fail()

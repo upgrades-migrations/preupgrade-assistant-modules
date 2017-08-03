@@ -21,7 +21,7 @@ m='Make sure that ldapi://<socket> or ldapi:/// @VERB@ specified in SLAPD_URLS.'
 options[SLAPD_LDAPI]=$m
 
 m='You are using SLAPD_URLS variable, which will work as expected.
-Make sure that its values are the same before and after upgrade.'
+Make sure that its values are the same before and after the upgrade.'
 options[SLAPD_URLS]=$m
 
 m='You are using SLAPD_SHUTDOWN_TIMEOUT variable, which will not have any effect.
@@ -73,12 +73,12 @@ DO NOT USE this approach unless upgrading the database fails.
 # slapadd -l backup.ldif
 
 === Configuration ===
-The RHEL6 openldap sysconfig configuration can mostly be used on RHEL7 without
+The Red Hat Enterprise Linux 6 openldap sysconfig configuration can mostly be used on Red Hat Enterprise Linux 7 without
 any changes. However, some options are different or no longer have any effect.
 Also, the full path to the sysconfig file differs.
 
-On RHEL6, the openldap sysconfig configuration is located at $ldap_sysconfig.
-On RHEL7, the openldap sysconfig configuration is located at $ldap_sysconfig_new.
+On Red Hat Enterprise Linux 6, the openldap sysconfig configuration is located at $ldap_sysconfig.
+On Red Hat Enterprise Linux 7, the openldap sysconfig configuration is located at $ldap_sysconfig_new.
 
 Furthermore, the preferred way to configure the openldap service is via systemd.
 The service file is, by default, located at /usr/lib/systemd/system/slapd.service.
@@ -135,7 +135,7 @@ if [ "$change_maybe_needed" = "no" ]; then
 Your openldap sysconfig file does not configure any options. The openldap server
 will NOT work without proper configuration. There is probably something wrong with
 your installation.
-Make sure that $ldap_sysconfig ($ldap_sysconfig_new on RHEL7) is present and at
+Make sure that $ldap_sysconfig ($ldap_sysconfig_new on Red Hat Enterprise Linux 7) is present and at
 least SLAPD_URLS variable is set to a valid URL.
 See man slapd(8C), option "-h URLlist".
 EOF

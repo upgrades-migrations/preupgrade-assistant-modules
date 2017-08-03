@@ -28,7 +28,7 @@ do
   #         signed by RH at last.
   is_pkg_installed "$pkgname" && is_dist_native "$pkgname" ||  {
     echo "$pkgname" | grep -q "is not owned by any package" || continue
-    log_info "Backup file $j which is not tracked by any package, but is part of input list."
+    log_info "Backup file $j which is not tracked by any package, but is a part of the input list."
   }
   grep -q "^$j " verified_blacklist && {
     cp --parents -a "$j" "$CLEANCONF_D"
@@ -41,12 +41,12 @@ done < noverifycfg
 
 #We detected some files untracked by rpm
 [ $found -eq 1 ] && \
- echo " * noverifycfg - file that contains a list of the files marked "no verify" in rpms and were not checked by the upgrade scripts. You may want to check them if you plan to clone the system on different machine" >>"$KICKSTART_README" && \
- log_slight_risk "We detected some files where modifications are not tracked in the rpms. You may need to check their functionality after successful upgrade."
+ echo " * noverifycfg - a file that contains a list of the files marked "no verify" in the RPM packages and were not checked by the upgrade scripts. Check them if you plan to clone the system on a different machine" >>"$KICKSTART_README" && \
+ log_slight_risk "We detected some files where modifications are not tracked in the RPM packages. Check their functionality after the successful upgrade."
 
 # These two files (below) can't be backuped automatically by preupgrade-assistant
 # and must be backuped by admin manually due to security!
 
-log_high_risk "Files /etc/shadow and /etc/gshadow must be backuped manually by admin!"
+log_high_risk "The files /etc/shadow and /etc/gshadow must be backed up manually by the admin."
 
 exit $RESULT_FAIL

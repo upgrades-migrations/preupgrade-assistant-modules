@@ -8,7 +8,7 @@
 
 RESULT="$RESULT_PASS"
 if test -f /usr/share/xsessions/gnome.desktop; then
-    log_extreme_risk "You have GNOME Desktop Environment session as an option in your X11 session manager. GNOME Desktop Environment as a part of the yum group 'Desktop' underwent serious redesign in its user interface as well as underlying technologies in Red Hat Enterprise Linux 7."
+    log_extreme_risk "You have the GNOME Desktop Environment session as an option in your X11 session manager. GNOME Desktop Environment as a part of the yum group 'Desktop' underwent a serious redesign in its user interface as well as in underlying technologies in Red Hat Enterprise Linux 7."
     RESULT="$RESULT_FAIL"
 fi
 
@@ -17,7 +17,7 @@ DPKGS=""
 
 for pkg in $PKGS; do
     grep -q "^$pkg[[:space:]]" $VALUE_RPM_QA && is_dist_native $pkg || continue
-    test "$RESULT" = "$RESULT_FAIL" || log_high_risk "You have some of the Desktop group packages installed in your system. GNOME Desktop Environment that was provided by this group of packages underwent serious redesign in its user interface as well as underlying technologies in Red Hat Enterprise Linux 7."
+    test "$RESULT" = "$RESULT_FAIL" || log_high_risk "You have some of the Desktop group packages installed in your system. GNOME Desktop Environment that was provided by this group of packages underwent a serious redesign in its user interface as well as in underlying technologies in Red Hat Enterprise Linux 7."
     DPKGS="$DPKGS $pkg"
     RESULT="$RESULT_FAIL"
 done
@@ -25,7 +25,7 @@ done
 rm -f solution.txt
 # Generate solution.txt
 if test "$RESULT" = "$RESULT_FAIL"; then
-    echo "GNOME Desktop Environment as a part of the yum group 'Desktop' underwent serious redesign in its user interface as well as underlying technologies in Red Hat Enterprise Linux 7. The users of the desktop environment need to be educated about these changes before upgrade. GNOME classic user interface is provided in Red Hat Enterprise Linux 7 to lower the impact of this change but the interface still contains several discrepancies from the older version and the users need to be warned about them." >> solution.txt
+    echo "GNOME Desktop Environment as a part of the yum group 'Desktop' underwent a serious redesign in its user interface as well as in underlying technologies in Red Hat Enterprise Linux 7. The users of the desktop environment need to be educated about these changes before the upgrade. GNOME classic user interface is provided in Red Hat Enterprise Linux 7 to minimize the impact of this change but the interface still contains several differences from the older version and the users need to be aware of them. More on the topic at [link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Desktop_Migration_and_Administration_Guide/index.html]" >> solution.txt
 fi
 
 if test -n "$DPKGS"; then

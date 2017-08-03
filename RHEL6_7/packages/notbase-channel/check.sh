@@ -90,7 +90,7 @@ rm -f solution.txt
 
 echo \
 "
-Some installed packages are either from outside of the base channel for Red Hat Enterprise Linux 6, or replaced by a package in a RHEL 7 non base channel. Repositories such as 'Optional' will cause this message.
+Some installed packages are either from outside of the base channel for Red Hat Enterprise Linux 6, or replaced by a package in a Red Hat Enterprise Linux 7 non base channel. Repositories such as 'Optional' will cause this message.
 
 This will probably cause a failure in the upgrade of your system.
 
@@ -108,7 +108,7 @@ while read line; do
 
   echo $line | grep -q " kept "; # is moved or kept?
   if [ $? -ne 0 ]; then
-    log_high_risk "Package $pkgname$msg_req moved to the Optional channel between RHEL 6 and RHEL 7."
+    log_high_risk "Package $pkgname$msg_req moved to the Optional channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   else
     log_high_risk "Package $pkgname$msg_req is available in the Optional channel."
   fi
@@ -130,7 +130,7 @@ while read line; do
   echo $line | grep -q " kept "; # is moved or kept?
   if [ $? -ne 0 ]; then
     channel=$(echo "$line" | rev | cut -d "_" -f1 | rev)
-    log_high_risk "Package $pkgname$msg_req moved to $channel channel between RHEL 6 and RHEL 7."
+    log_high_risk "Package $pkgname$msg_req moved to $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   else
     channel=$(echo "$line" | sed -r "s/^.*default-(.*)_kept-uncommon$/\1/")
     log_high_risk "Package $pkgname$msg_req is available in $channel channel."
@@ -168,18 +168,18 @@ rm -f "$OptionalPkgs" "$AddonPkgs" "$KeptBasePkgs" "$DistNativePkgs"
   [ $UPGRADE -eq 1 ] && {
     echo \
 "
-To enable the updating of packages that are now located in the RHEL 7 Optional repository, please provide the location of the Optional channel repository to redhat-upgrade-tool.
+To enable the updating of packages that are now located in the Red Hat Enterprise Linux 7 Optional repository, please provide the location of the Optional channel repository to redhat-upgrade-tool.
 The syntax for the additional parameter is:
 
     --addrepo rhel-7-optional=<path to the optional repository>
 
-Alternatively, you could remove all packages which reside in the RHEL 7 Optional repository before starting the system upgrade.
+Alternatively, you could remove all packages which reside in the Red Hat Enterprise Linux 7 Optional repository before starting the system upgrade.
 " >> solution.txt
     echo "${other_repositories}" | grep -qe "optional $" -e "^$" || {
       log_high_risk "Red Hat packages from other channels than Base or Optional, are not supported for inplace upgrade"
       echo \
 "
-You have some packages which are available in specific channels other than Base or Optional on RHEL 7.
+You have some packages which are available in specific channels other than Base or Optional on Red Hat Enterprise Linux 7.
 
 This is not a supported scenario for inplace upgrade.
 
@@ -209,7 +209,7 @@ See ${KICKSTART_README} for details on 'pkglist' files.
 }
 
 echo -n "
-  * ${FILENAME_BASIS} - This file contains a list of packages which you have installed on your system and are available on RHEL 7 system in the 'base' channel. These packages will be installed automatically.
+  * ${FILENAME_BASIS} - This file contains a list of packages which you have installed on your system and are available on Red Hat Enterprise Linux 7 system in the 'base' channel. These packages will be installed automatically.
   * ${FILENAME_BASIS}-notbase - Similar to ${FILENAME_BASIS} but the package are available from other channels. Probably you will need install them manually.
 " >> "$KICKSTART_README"
 

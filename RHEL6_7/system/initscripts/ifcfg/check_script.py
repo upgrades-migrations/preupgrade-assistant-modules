@@ -116,9 +116,9 @@ I case 3, to be completely correct you could check that user is not using rhel7 
 		if not name:
 			warning = True
 			if not addr:
-				log_slight_risk(full_path + " does not have DEVICE nor HWADDR set, what kind of device it is?")
+				log_slight_risk(full_path + " does not have DEVICE nor HWADDR set, what kind of device is it?")
 			else:
-				log_slight_risk(full_path + " does not have DEVICE set, its name can change after upgrade.")
+				log_slight_risk(full_path + " does not have DEVICE set, its name can change after the upgrade.")
 		else:
 			if is_kernel(name):
 				if addr:

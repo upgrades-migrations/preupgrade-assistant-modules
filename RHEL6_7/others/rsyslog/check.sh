@@ -9,7 +9,7 @@ touch solution.txt
 
 print_info() {
   echo "
-See [0] and [1] for more information about new logging system on RHEL-7 and solutions
+See [0] and [1] for more information about a new logging system in Red Hat Enterprise Linux 7 and solutions
 of possible compatibility problems.
 
 [0] https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/s1-interaction_of_rsyslog_and_journal.html
@@ -26,9 +26,9 @@ check_spool_files(){
 
   # some spool files in work directory
   log_high_risk "Some spool files were found in $ttmp"
-  echo -e "Some spool files were found inside $ttmp directory. Upgrade could
-fail due this data. Please remove these files if data inside are not important
-for you or process them before migration.\n" >> solution.txt
+  echo -e "Some spool files were found inside the $ttmp directory. The upgrade might
+fail because of them. Remove these files if the data inside is not important
+for you or process them before the upgrade.\n" >> solution.txt
 
   return 1
 }
@@ -36,10 +36,10 @@ for you or process them before migration.\n" >> solution.txt
 tmp="$(grep rsyslog "$VALUE_CONFIGCHANGED")"
 
 [ $? -eq 0 ] && {
-  log_medium_risk "Some config files of rsyslog are changed and manual action will be needed."
-  echo -e "Old config files are not compatible with new format and options.
-Files printed below are changed and update of these files can't be
-accomplished automatically:
+  log_medium_risk "Some config files of rsyslog are changed and some manual action will be needed."
+  echo -e "Old config files are not compatible with the new format and options.
+The files printed below are changed and cannot be
+updated automatically:
 
 $tmp
 " > solution.txt

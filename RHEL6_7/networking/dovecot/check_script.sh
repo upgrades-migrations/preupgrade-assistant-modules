@@ -55,12 +55,12 @@ then
     $fixed && exit $RESULT_FIXED || exit $RESULT_PASS
   fi
 else
-  log_error "Can't use doveconf to parse configuration files"
+  log_error "Cannot use doveconf to parse the configuration files."
   rm -f $TMPF1 $TMPF2
   exit $RESULT_FAILED
 fi
 
-log_info "Config files from $CONFIG_FILE will be fixed by postupgrade script"
+log_info "The config files from $CONFIG_FILE will be fixed by postupgrade script"
 log_slight_risk "In some corner cases your configuration might not be migrated automatically but this is not usually expected."
 echo "\
 The doveconf tool should be able to migrate your configuration but there is a slight risk

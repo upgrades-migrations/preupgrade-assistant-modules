@@ -24,8 +24,8 @@ info_msg() {
     #
     # Compose the "fixed" message"
     #
-    echo -n "One or more invalid kernel-kdump records found in zipl.conf"
-    echo -n " and will be removed during upgrade."
+    echo -n "One or more invalid kernel-kdump records found in zipl.conf."
+    echo -n "They will be removed during the upgrade."
 }
 
 test "$(arch)" = s390x || exit_not_applicable

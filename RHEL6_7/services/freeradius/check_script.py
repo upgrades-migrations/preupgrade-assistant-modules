@@ -22,8 +22,8 @@ def get_int(string):
             value = int(match.group(0))
             return value
         else:
-            raise ValueError("cannot find integer in '%s'" % string)
-
+            raise ValueError("Cannot find an integer in '%s'" % string)
+        
 def get_radiusd_version():
     args = [RADIUSD, '-v']
     p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -41,8 +41,8 @@ def get_radiusd_version():
         micro = match.group(3)
         extra = match.group(4)
     else:
-        raise ValueError("unable to parse FreeRADIUS version")
-
+        raise ValueError("Unable to parse FreeRADIUS version")
+    
     return major, minor, micro, extra
 
 def main():
@@ -52,7 +52,7 @@ def main():
         log_error("Unable to query FreeRADIUS version: %s" % e)
         exit_error()
 
-    log_info("found FreeRADIUS version %s.%s.%s%s" % (
+    log_info("Found FreeRADIUS version %s.%s.%s%s" % (
         major, minor, micro, extra))
 
     try:
@@ -66,7 +66,7 @@ def main():
 
     if major < 3:
         log_high_risk("The configuration of FreeRadius %d is not compatible with"
-                      " version 3 in Red Hat Enterprise Linux 7. See remediation"
+                      " version 3 in Red Hat Enterprise Linux 7. See the remediation"
                       " description."  % (major))
         exit_fail()
 

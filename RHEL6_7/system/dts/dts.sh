@@ -6,13 +6,13 @@ COMPONENT="distribution"
 
 FOUND=0
 if [ ! -f "$VALUE_RPM_QA" ]; then
-    log_error "File $VALUE_RPM_QA with all rpm packages is required."
+    log_error "The $VALUE_RPM_QA fiel with all RPM packages is required."
     exit_error
 fi
 
 PKGS=`grep "devtoolset-" $VALUE_RPM_QA | awk '{print $1}'`
 if [ x"$PKGS" != "x" ]; then
-    log_high_risk "List of installed Red Hat Developer Toolset packages:"
+    log_high_risk "The list of installed Red Hat Developer Toolset packages:"
     for pkg in $PKGS
     do
         log_info "$pkg"

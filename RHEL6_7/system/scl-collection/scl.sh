@@ -16,5 +16,5 @@ do
     log_info "$collection"
 done
 
-log_high_risk "Check found a installed collections."
+log_high_risk "Found installed collections."
 exit_fail

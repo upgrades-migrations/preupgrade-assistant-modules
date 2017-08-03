@@ -19,7 +19,7 @@ function config_file_changed() {
 function check_deprecated_option() {
     MATCH=$(grep -o -i -z "${2}" "${1}")
     if [ "$MATCH" != "" ]; then
-        solution "Configuration file \"${1}\" contains deprecated \
+        solution "Configuration file \"${1}\" contains a deprecated \
 option \"$MATCH\"."
         return 0
     else
@@ -30,7 +30,7 @@ option \"$MATCH\"."
 DEPRECATED_OPT_FOUND=0
 CONF_FILE='/etc/named.conf'
 
-solution 'Please note that future versions of bind-dyndb-ldap will require
+solution 'Note that future versions of bind-dyndb-ldap will require
 RFC 4533 compliant LDAP server.'
 
 if [ ! -e "$CONF_FILE" ]; then
@@ -45,7 +45,7 @@ check_deprecated_option "${CONF_FILE}" "\bzone_refresh\b" && DEPRECATED_OPT_FOUN
 
 if [ "$DEPRECATED_OPT_FOUND" == "1" ]; then
     solution 'You are using some deprecated options for bind-dyndb-ldap. These options
-will be removed soon. Please stop using deprecated options as soon as possible.'
+will be removed soon. Stop using them as soon as possible.'
     exit_informational
 fi
 

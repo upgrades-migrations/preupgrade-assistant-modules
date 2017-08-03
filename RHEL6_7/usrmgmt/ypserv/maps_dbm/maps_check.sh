@@ -17,11 +17,11 @@ check_root
 ypserv_maps_exist || exit $RESULT_NOT_APPLICABLE
 
 read -r -d '' PROBLEM_MESSAGE <<'EOF'
-Package ypserv in RHEL 7 uses TokyoCabinet as a back-end library to store
-generated NIS maps, while GDBM has been used in RHEL 6. As a consequence,
-map files generated on RHEL 6 won't be readable on RHEL 7.
+The ypserv package in Red Hat Enterprise Linux 7 uses TokyoCabinet as a back-end library to store
+generated NIS maps, while in Red Hat Enterprise Linux 6 it was GDBM. As a consequence, the
+map files generated on Red Hat Enterprise Linux 6 will not be readable on Red Hat Enterprise Linux 7.
 
-It is advised to re-generate maps after upgrading.
+It is advised to re-generate maps after the upgrade.
 EOF
 
 log_high_risk "$PROBLEM_MESSAGE"
@@ -29,9 +29,9 @@ log_high_risk "$PROBLEM_MESSAGE"
 read -r -d '' PROBLEM_SOLUTION <<EOF
 ${PROBLEM_MESSAGE}
 
-In order to re-generate maps you should run manually:
-root #> systemctl start ypserv.service
-root #> make NOPUSH=true -C /var/yp all
+In order to re-generate the maps, run manually (as root):
+# systemctl start ypserv.service
+# make NOPUSH=true -C /var/yp all
 EOF
 
 solution_file "$PROBLEM_SOLUTION"

@@ -14,9 +14,9 @@ get_domainname() {
         log_debug "Searching for a NIS domain: "
         if [ -n "$NISDOMAIN" ]; then
             DOMAINNAME=$NISDOMAIN
-            log_debug "domain is '$DOMAINNAME' "
+            log_debug "The domain is '$DOMAINNAME' "
         else
-            log_debug "domain not found"
+            log_debug "The domain not found"
             exit $RESULT_NOT_APPLICABLE
         fi
     fi
@@ -25,10 +25,10 @@ get_domainname() {
 # there are some NIS maps created?
 ypserv_maps_exist() {
     if ls /var/yp/*/*byname &>/dev/null; then
-        log_debug "some ypserv maps exist"
+        log_debug "Some ypserv maps exist."
         return 0
     fi
-    log_debug "no ypserv maps exist"
+    log_debug "No ypserv maps exist."
     return 1
 }
 
@@ -57,10 +57,10 @@ backup_config() {
     backup_config_file $@
     ret=$?
     if [ $ret -eq 0 ] ; then
-        log_debug "file ${1} backed-up to ${VALUE_TMP_PREUPGRADE}${1}"
+        log_debug "The ${1} file was backed up to ${VALUE_TMP_PREUPGRADE}${1}."
         return 0
     else
-        log_debug "backing-up file ${1} failed: ${ret}"
+        log_debug "Backing up the ${1} file failed: ${ret}."
         return 1
     fi
 }

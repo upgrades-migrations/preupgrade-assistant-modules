@@ -23,8 +23,8 @@ export errlogfile
 
 if [ ! -d "${datadir}/mysql" ] ; then
     cat >>$SOLUTION_FILE <<EOF
-No MySQL data stack initialized at $datadir. In case you have the MySQL
-initialized in another place, see:
+No MySQL data stack initialized at $datadir. In case you have MySQL
+initialized in a different place, see:
 [link:https://access.redhat.com/site/articles/723833]
 EOF
     exit $RESULT_PASS
@@ -32,21 +32,21 @@ fi
 
 cat >>$SOLUTION_FILE <<EOF
 Before migrating from MySQL 5.1 to MariaDB 5.5, back up all your data,
-including any MySQL databases. You can upgrade the data using two possible ways:
+including any MySQL databases. You can upgrade the data in two possible ways:
 
-The first way is to dump all data into an SQL file, so you can restore them after
-migration to MariaDB 5.5. For back-up using this way, use:
-  root> service mysqld start
-  user> mysqldump --all-databases --routines --triggers --events>/your/backup.sql
+The first one is to dump all your data into an SQL file, so you can restore it after
+migrating to MariaDB 5.5. For backing up the data in this way, use:
+  # service mysqld start
+  $ mysqldump --all-databases --routines --triggers --events>/your/backup.sql
 
-The second way is to use the in-place upgrade, so files stay un-touched when
-upgrading to the MariaDB and mysql_upgrade is called after migration.
-For back-up the binary files, stop the server and copy the data files to
-the safe location:
-  root> service mysqld stop
-  root> cp -a $datadir /your/backup/location
+The second one is to use the in-place upgrade, so the files stay untouched when
+upgrading to the MariaDB and mysql_upgrade is called after the migration.
+For backing up the binary files, stop the server and copy the data files to
+a safe location:
+  # service mysqld stop
+  # cp -a $datadir /your/backup/location
 
-The in-place upgrade method is usually faster, however, there are certain risks
+The in-place upgrade method is usually faster. However, there are certain risks
 and known problems. For more information, refer to the MySQL 5.5 Release Notes:
 [link:http://dev.mysql.com/doc/relnotes/mysql/5.5/en/]
 [link:http://dev.mysql.com/doc/refman/5.5/en/upgrading-from-previous-series.html]

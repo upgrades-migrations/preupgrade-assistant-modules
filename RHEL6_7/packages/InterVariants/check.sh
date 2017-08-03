@@ -44,18 +44,18 @@ ADDON_PKGS=$(comm -2 -3 <(echo "$THIS_VARIANT_PKGS") <(echo "$BASIC_VAR_PKGS"))
 
 [ -n "$OTHER_VARIANT_PKGS" ] && {
   result=$RESULT_FAIL
-  log_high_risk "You have installed Red Hat signed packages for different variant of RHEL system!"
-  echo "Some Red Hat signed packages are appointed for different variant RHEL systems.
-In this case we don't support inplace upgrade to new RHEL-7 systems with these packages.
+  log_high_risk "You have installed some packages signed by Red Hat for a different variant of the Red Hat Enterprise Linux system."
+  echo "Some packages signed by Red Hat are appointed for different variants of Red Hat Enterprise Linux systems.
+In this case we do not support the in-place upgrade to the new Red Hat Enterprise Linux 7 system.
 These packages will be probably removed:
 $OTHER_VARIANT_PKGS" >> solution.txt
 }
 
 [ -n "$ADDON_PKGS" ] && {
   result=$RESULT_FAIL
-  log_high_risk "You have installed Red Hat signed packages which need special subscriptions."
-  echo "Some Red Hat siggned packages are available only in special systems which required
-some other subscriptions. Be sure you have all needed subscriptions for these packages:
+  log_high_risk "You have installed packages signed by Red Hat which need special subscriptions."
+  echo "Some packages signed by Red Hat are available only in special systems which require
+additional subscriptions. Make sure you have all the subscriptions needed for these packages:
 $ADDON_PKGS" >> solution.txt
 }
 

@@ -6,12 +6,12 @@
 mkdir -p "$POSTUPGRADE_DIR/openssh" \
  && cp fix_sshkeys.sh "$POSTUPGRADE_DIR/openssh/" \
  || {
-   log_error "Can't copy postupgrade script to right directory."
+   log_error "Cannot copy the postupgrade script to the right directory."
    exit_error
 }
 
-echo "Private server's ssh keys inside /etc/ssh have different group and permissions
-on RHEL 7 system. These keys will be fixed by postupgrade script." > solution.txt
+echo "Private server's ssh keys in /etc/ssh have a different group and permissions
+in Red Hat Enterprise Linux 7 but it is fixed by the postupgrade script." > solution.txt
 
 line=$( grep  -nm 1 "^\s*Match" /etc/ssh/sshd_config | cut -d ":" -f 1 )
 
@@ -23,12 +23,11 @@ cat /etc/ssh/sshd_config | tail -n $lines | grep -q "^\s*AuthorizedKeysCommand"
 [[ $? -ne 0 ]] && exit $RESULT_FIXED
 
 
-log_medium_risk "Options AuthorizedKeysCommand or AuthorizedKeysCommandUser were detected in Match section."
+log_medium_risk "The options AuthorizedKeysCommand or AuthorizedKeysCommandUser were detected in the Match section."
 
-echo "Options AuthorizedKeysCommand or AuthorizedKeysCommandUser were
-detected in Match section. These options possibly will not be accepted inside
-this section. Please check it. Bug will be patched in future. For more
-information see https://bugzilla.redhat.com/show_bug.cgi?id=1105119" >> solution.txt
+echo "The options AuthorizedKeysCommand or AuthorizedKeysCommandUser were
+detected in the Match section. They probably will not be accepted inside
+this section. Check it. The bug will be patched in the future." >> solution.txt
 
 exit $RESULT_FAIL
 

@@ -38,7 +38,7 @@ generate_postupgrade_script()
 #!/bin/bash
 
 if [ "\$(id -u)" != 0 ]; then
-    echo >&2 "please, run this under 'root' user"
+    echo >&2 "Run this under root"
     exit 1
 fi
 
@@ -68,15 +68,15 @@ case "$rv" in
     1)
         # Don't double-quote $packages here, intentional
         packages=$(set -f;  echo $packages)
-        log_error "at least packages $packages are downgraded in RHEL7"
-        log_medium_risk "having one of [$packages] installed can break the upgrade"
+        log_error "at least the following packages are downgraded in Red Hat Enterprise Linux 7: $packages "
+        log_medium_risk "having one of the following packages installed might break the upgrade: $packages "
 
         generate_postupgrade_script
 
         exit_fixed
         ;;
     *)
-        log_error "unknown error"
+        log_error "an unknown error"
         exit_error
         ;;
 esac

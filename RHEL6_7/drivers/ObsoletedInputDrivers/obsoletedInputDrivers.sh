@@ -20,7 +20,7 @@ DEP_LIST=""
 # Removed modules first
 for mod in $LDM_LIST; do
 	if grep -q -e "^$mod\$" modRemovedList; then
-		log_extreme_risk "Your last X11 session loaded module '$mod' that was removed in Red Hat Enterprise Linux 7."
+		log_extreme_risk "Your last X11 session loaded the module '$mod' that was removed in Red Hat Enterprise Linux 7."
 		RESULT="$RESULT_FAIL"
 		RM_LIST="$RM_LIST\n\t$mod"
 	fi
@@ -29,7 +29,7 @@ done
 # Deprecated modules second
 for mod in $LDM_LIST; do
 	if grep -q -e "^$mod\$" modDeprecatedList; then
-		log_medium_risk "Your last X11 session loaded module '$mod' that was deprecated in Red Hat Enterprise Linux 7."
+		log_medium_risk "Your last X11 session loaded the module '$mod' that was deprecated in Red Hat Enterprise Linux 7."
 		RESULT="$RESULT_FAIL"
 		DEP_LIST="$DEP_LIST\n\t$mod"
 	fi
@@ -39,7 +39,7 @@ done
 rm -f solution.txt
 if test -n "$RM_LIST"; then
 	echo -e \
-	"Your last X11 session loaded input drivers modules that were removed in Red Hat Enterprise Linux 7. You will need to use different input drivers or upgrade your hardware configuration in order to address this issue. The list of the removed modules follows: $RM_LIST" >> solution.txt
+	"Your last X11 session loaded input drivers modules that were removed in Red Hat Enterprise Linux 7. Use different input drivers or upgrade your hardware configuration in order to address this issue. The list of the removed modules follows: $RM_LIST" >> solution.txt
 fi
 
 if test -n "$DEP_LIST"; then

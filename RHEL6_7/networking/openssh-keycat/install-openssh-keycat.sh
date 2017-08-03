@@ -33,7 +33,7 @@ yum install openssh-keycat -y || {
     yum install openssh-keycat -y
 }
 [ $? -ne 0 ] && {
-      echo "Package openssh-keycat couldn't be installed. Please install it manually."
+      echo "The openssh-keycat package could not be installed automatically. Install it manually."
       exit 1
 }
 exit 0

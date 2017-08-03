@@ -25,34 +25,34 @@ def main():
     rpms = get_dist_native_list()
 
     if 'yum-plugin-downloadonly' in rpms:
-        solution_file("In RHEL 7 functionality of yum-plugin-downloadonly is a part of yum core.\n\n")
+        solution_file("In Red Hat Enterprise Linux 7 the functionality of yum-plugin-downloadonly is a part of yum core.\n\n")
     if 'yum-plugin-security' in rpms:
-        solution_file("In RHEL 7 functionality of yum-plugin-security is a part of yum core.\n\n")
+        solution_file("In Red Hat Enterprise Linux 7 the functionality of yum-plugin-security is a part of yum core.\n\n")
     if 'yum-presto' in rpms:
-        solution_file("In RHEL 7 functionality of yum-presto is a part of yum core and --disablepresto option is no longer supported, please make sure none of your scripts are relying on it.\n")
+        solution_file("In Red Hat Enterprise Linux 7 the functionality of yum-presto is a part of yum core and the --disablepresto option is no longer supported. Make sure none of your scripts relies on it.\n")
         with open('/etc/yum/pluginconf.d/presto.conf', 'r') as presto_conf:
             for line in presto_conf.readlines():
                 line = line.strip()
                 if (line.startswith('keepdeltas') or line.startswith('minimum_percentage')) and result=='clean':
-                    solution_file('In RHEL 7 deltarpm configuration options have changed and moved from /etc/yum/pluginconf.d/presto.conf to /etc/yum.conf.\n')
+                    solution_file('In Red Hat Enterprise Linux 7 the deltarpm configuration options have changed and moved from /etc/yum/pluginconf.d/presto.conf to /etc/yum.conf.\n')
                     result = 'fixed'
                 if line.startswith('keepdeltas'):
-                    solution_file("Your /etc/yum/pluginconf.d/presto.conf file contains 'keepdeltas' option, which is not supported in RHEL 7. This option will not be copied to your /etc/yum.conf\n")
+                    solution_file("Your /etc/yum/pluginconf.d/presto.conf file contains 'keepdeltas' option, which is not supported in Red Hat Enterprise Linux 7. This option will not be copied to your /etc/yum.conf\n")
                 elif line.startswith('minimum_percentage'):
-                    solution_file("Your /etc/yum/pluginconf.d/presto.conf file contains 'minimum_percentage' option, which is not supported in RHEL 7, but you can use 'deltarpm_percentage' instead in /etc/yum.conf.\n")
+                    solution_file("Your /etc/yum/pluginconf.d/presto.conf file contains 'minimum_percentage' option, which is not supported in Red Hat Enterprise Linux 7 but you can use 'deltarpm_percentage' instead in /etc/yum.conf.\n")
                     deltarpm_percentage = None
                     try:
                         deltarpm_percentage = re.match(r'minimum_percentage\s*=\s*(\d+)$', line).groups()[0]
                     except:
-                        solution_file("Cannot parse minimum_percentage value: '%s'. Please review it and manually add 'deltarpm_percentage' option to /etc/yum.conf.\n" % line)
+                        solution_file("Cannot parse minimum_percentage value: '%s'. Review it and add the 'deltarpm_percentage' option to /etc/yum.conf manually.\n" % line)
                     if not deltarpm_percentage is None:
-                        solution_file("Current value of 'minumum_percentage' is %s. This value will be copied to 'deltarpm_percentage' option in /etc/yum.conf.\n" % deltarpm_percentage)
+                        solution_file("The current value of 'minumum_percentage' is %s. This value will be copied to the 'deltarpm_percentage' option in /etc/yum.conf.\n" % deltarpm_percentage)
                         with open(upg_config_file, 'a') as dst:
                            dst.write("\n# This value has been copied from 'minimum_percentage' option value from yum-presto config file.\ndeltarpm_percentage=%s\n" % deltarpm_percentage)
         solution_file("\n")
 
-    solution_file("After the upgrade it will be impossible to undo/redo/rollback to pre-upgrade yum transactions. Please run 'yum history new' after the upgrade to start a new history file.\n\n")
-    solution_file("The way yum groups work has changed in RHEL 7. By default yum treats groups as objects now. Please refer to the documentation for more information.\n\n")
+    solution_file("After the upgrade it will be impossible to undo/redo/rollback to pre-upgrade yum transactions. Run 'yum history new' after the upgrade to start a new history file.\n\n")
+    solution_file("The way yum groups work has changed in Red Hat Enterprise Linux 7. By default yum treats groups as objects now. Refer to the documentation for more information.\n\n")
 
     return result
 

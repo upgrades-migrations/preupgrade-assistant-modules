@@ -197,7 +197,7 @@ def main():
 		for pkg in output.split("\n"):
 			pkgstrip = pkg.strip()
 			if pkgstrip and (pkgstrip not in redhat_list):
-				log_high_risk("Found non-Red Hat rpm package dependent on HAL:" + pkg)
+				log_high_risk("Found an RPM package not signed by Red Hat dependent on HAL:" + pkg)
 				failed = True
 	
 	return failed
@@ -205,7 +205,7 @@ def main():
 if __name__ == "__main__":
 	if os.geteuid() != 0:
 		sys.stdout.write("Need to be root.\n")
-		log_slight_risk("The script needs to be run under root account")
+		log_slight_risk("The script needs to be run under the root account")
 		exit_error()
 	if main():
 		exit_fail()

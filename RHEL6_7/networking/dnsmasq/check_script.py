@@ -35,8 +35,8 @@ class SolutionText(object):
     """
     def __init__(self):
         self.header = """Some issues have been found in your DNSMASQ configuration.
-Use following solutions to fix them:"""
-        self.tail = """For more information, please see the DNSMASQ manual page
+Use the following solutions to fix them:"""
+        self.tail = """For more information, see the DNSMASQ manual page
 'man 8 dnsmasq'."""
         self.solutions = []
 
@@ -66,7 +66,7 @@ CONFIG_CHECKS = []
 
 def register_check(check):
     """
-    Function decorator that adds configuration check into list of checks.
+    Function decorator that adds configuration check into a list of checks.
     """
     CONFIG_CHECKS.append(check)
     return check
@@ -74,7 +74,7 @@ def register_check(check):
 
 def run_checks(files_to_check):
     """
-    Runs all available checks on files loaded into files_to_check list.
+    Runs all available checks on files loaded into the files_to_check list.
     """
     gl_result = EXIT_PASS
 
@@ -93,11 +93,11 @@ def run_checks(files_to_check):
 def check_interface_labels(file_path, buff):
     """
     Handle IPv4 interface-address labels in Linux. These are
-    often used to emulate the old IP-alias addresses. Before,
+    often used to emulate old IP-alias addresses. Before,
     using --interface=eth0 would service all the addresses of
-    eth0, including ones configured as aliases, which appear
-    in ifconfig as eth0:0. Now, only addresses with the label
-    eth0 are active. This is not backwards compatible: if you
+    eth0, including the ones configured as aliases, which appear
+    in ifconfig as eth0:0. Now, only the addresses with the label
+    eth0 are active. This is not backwards compatible; if you
     want to continue to bind the aliases too, you need to add
     eg. --interface=eth0:0 to the config.
     """
@@ -114,15 +114,15 @@ def check_interface_labels(file_path, buff):
 
     if status == EXIT_FAIL:
         sol_text.add_solution(
-"""'interface' option with defined interface name:
+"""'interface' option with a defined interface name:
 --------------------------------------------------
 Previously, dnsmasq configured with ex. '--interface=eth0' would bind
 and listen on all addresses of the 'eth0' interface, including addresses
 configured as aliases (which appear in ifconfig output as ex. 'eth0:0').
-Now only addresses with the label 'eth0' are used (in other words, the
+Now only the addresses with the label 'eth0' are used (in other words, the
 addresses configured as aliases for the interface are NOT used).
-If you want dnsmasq to continue to listen on addresses configured as
-asliases for the interface, you have to specify each alias in the
+If you want dnsmasq to continue to listen on the addresses configured as
+aliases for the interface, you have to specify each alias in the
 configuration using the 'interface' option (ex. '--interface=eth0:0').""")
 
     return status
@@ -154,16 +154,16 @@ def check_dhcp_tags(file_path, buff):
 
     if status == EXIT_INFORMATIONAL:
         sol_text.add_solution(
-"""Using DHCP tag system:
+"""Using a DHCP tag system:
 -------------------------
-In new dnsmasq version, the way of configuring tags used in DHCP options
-have changed. The old way is still still works, but it is advised to use
-the new syntax for new configurations and if possible also for existing
-ones. The new syntax in configuration options supprting tags is as follows:
-- To set a tag, use 'set:<tag>' as the argument of the option.
-- To match a tach, use 'tag:<tag>' as the argument of the option,
-  (instead of old 'net:<tag>' way).
-- As a NOT operator use '!' (instead of old '#').
+In the new dnsmasq version, the way of configuring tags used in DHCP options
+has changed. The old way still works, but it is advised to use
+the new syntax for new configurations and if possible, also for the already existing
+ones. The new syntax in configuration options supporting tags is as follows:
+- to set a tag, use 'set:<tag>' as the argument of the option.
+- to match a tag, use 'tag:<tag>' as the argument of the option 
+  (instead of the old 'net:<tag>' way).
+- as the NOT operator use '!' (instead of the old '#').
 
 dhcp-host option can now set more than one tag.""")
 
@@ -177,7 +177,7 @@ dhcp-host option can now set more than one tag.""")
 
 def is_config_changed():
     """
-    Checks if configuration files changed.
+    Checks if the configuration files changed.
     """
     with open(VALUE_ALLCHANGED, "r") as f:
         files = f.read()
@@ -207,7 +207,7 @@ def return_with_code(code):
 
 def remove_comments(lines):
     """
-    Removes the following types of comments from passed string and returns it:
+    Removes the following types of comments from a passed string and returns it:
     # .*
     """
     string = ""
@@ -220,7 +220,7 @@ def remove_comments(lines):
 
 def is_file_loaded(path=""):
     """
-    Checks if file with given 'path' is already loaded in FILES_TO_CHECK.
+    Checks if the file with a given 'path' is already loaded in FILES_TO_CHECK.
     """
     for f in FILES_TO_CHECK:
         if f.path == path:
@@ -230,22 +230,22 @@ def is_file_loaded(path=""):
 
 def load_more_config():
     """
-    Finds configuration files that are included in some configuration
+    Finds the configuration files included in a configuration
     file, reads it, closes and adds into FILES_TO_CHECK list.
     """
     def load_config_file(path=""):
         """
-        Load file with the given path if it is not already loaded.
+        Load the file with the given path if it is not already loaded.
         """
         if is_file_loaded(path):
             return
         try:
             f = open(path, 'r')
         except:
-            log_error("Cannot open configuration file: \"" + path + "\"")
+            log_error("Cannot open the configuration file: \"" + path + "\"")
             exit_error()
         else:
-            log_info("Loading configuration file \"" + path + "\"")
+            log_info("Loading the configuration file \"" + path + "\"")
             filtered_string = remove_comments(f.readlines())
             f.close()
             FILES_TO_CHECK.append(ConfFile(buffer=filtered_string,
@@ -254,7 +254,7 @@ def load_more_config():
 
     def load_config_from_dir(path=""):
         """
-        Walk recursively through the given dir and load all files.
+        Walk recursively through the given directory and load all the files.
         """
         def filter_files(path):
             if os.path.isfile(path):
@@ -295,7 +295,7 @@ def load_main_config():
             "Cannot open the configuration file: \"" + CONFIG_FILE + "\"")
         exit_error()
     else:
-        log_info("Loading configuration file: \"" + CONFIG_FILE + "\"")
+        log_info("Loading the configuration file: \"" + CONFIG_FILE + "\"")
         filtered_string = remove_comments(f.readlines())
         f.close()
         FILES_TO_CHECK.append(ConfFile(buffer=filtered_string,

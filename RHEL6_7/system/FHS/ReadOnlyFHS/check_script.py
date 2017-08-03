@@ -40,7 +40,7 @@ def ro_dirs(paths):
 					if path_prefix == mtab_line[1]:
 						if ro_flag(mtab_line):
 							ret = True
-							log_extreme_risk(mtab_line[1]+" is read-only. In-place upgrade requires "+path+" to be writable!")
+							log_extreme_risk(mtab_line[1]+" is read-only. The in-place upgrade requires "+path+" to be writable.")
 							raise FoundRO()
 					path_prefix = path_prefix[:path_prefix.rindex(r"/")]
 		except FoundRO:
@@ -55,7 +55,7 @@ def ro_dirs(paths):
 
 if __name__ == "__main__":
 	if os.geteuid() != 0:
-		log_error("The script needs to be run under root account")
+		log_error("The script needs to be run under the root account")
 		exit_error()
 	ro_dirs_result = ro_dirs((r"/usr", r"/var", r"/var/run", r"/var/lock"))
 	if ro_dirs_result:

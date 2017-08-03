@@ -45,12 +45,12 @@ function uuid_to_dev()
 # $1 device
 function detect_whirlpool_hash()
 {
-	log_debug "Checking hash spec for device $1"
+	log_debug "Checking hash spec for a device $1"
 
 	local hash=$($CRYPTSETUP luksDump $1 2>/dev/null | $GREP "Hash spec:" | $CUT -f 2)
 
 	test -n "$hash" || {
-		log_error "cryptsetup hash spec parsing failed for device $1"
+		log_error "cryptsetup hash spec parsing failed for a device $1"
 		wrap_exit $RESULT_ERROR
 	}
 
@@ -77,7 +77,7 @@ function check_device()
 		log_debug "Translating $device to device path"
 		device=$(uuid_to_dev $device)
 		test -n $device || {
-			log_error "UUID translation to device path failed"
+			log_error "UUID translation to device path failed."
 			wrap_exit $RESULT_ERROR 
 		}
 	fi
@@ -102,12 +102,12 @@ function check_crypttab()
 		test -z "$dst" && continue
 		test "${dst#\#}" = "$dst" || continue
 
-		log_debug "Going to check device identified by: '$src'"
+		log_debug "Going to check a device identified by: '$src'"
 
 		check_device $src
 		if [ $? -ne 0 ]; then
 			log_error "Whirlpool hash spec detected in a LUKS device ($src) specified in crypttab"
-			log_high_risk "In place upgrade can not proceed further. The system with such LUKS device in crypttab risks to be left unbootable after an upgrade"
+			log_high_risk "The in-place upgrade cannot proceed further. The system with such a LUKS device in crypttab risks being left unbootable after the upgrade."
 			wrap_exit $RESULT_FAILED
 		fi
 	done < $VALUE_TMP_PREUPGRADE$CONFIG_FILE
@@ -123,7 +123,7 @@ function check_remaining_devices()
 	local count=0
 	local dev
 
-	log_info "Check remaining devices in system using blkid"
+	log_info "Check remaining devices on the system using blkid"
 
 	IFS=$'\n'
 
@@ -132,7 +132,7 @@ function check_remaining_devices()
 		check_device "$dev"
 		if [ $? -ne 0 ]; then
 			count=$[count+1]
-			log_warning "LUKS device $dev uses Whirlpool hash spec. The device can't be unlocked in an upgraded system."
+			log_warning "LUKS device $dev uses Whirlpool hash spec. The device cannot be unlocked on the upgraded system."
 		fi
 	done
 

@@ -35,7 +35,7 @@ yum --assumeyes install java || {
     yum --assumeyes install java
 }
 [ $? -eq 0 ] || {
-  echo "Java could't be installed. Please check your system and install it manually if necessary."
+  echo "Java could not be installed. Check your system and install it manually if necessary."
   exit 1
 }
 

@@ -15,14 +15,14 @@ cp $SYSCONFIG_FILE $VALUE_TMP_PREUPGRADE/cleanconf/$SYSCONFIG_FILE
 
 if grep "^export " $SYSCONFIG_FILE; then
     solution_file \
-"$SYSCONFIG_FILE will not be a shell script in RHEL 7 anymore so all 'export VARIABLE=VALUE' has to be changed to 'VARIABLE=VALUE'.
+"The $SYSCONFIG_FILE file will not be a shell script in Red Hat Enterprise Linux 7 anymore, so all 'export VARIABLE=VALUE' have to be changed to 'VARIABLE=VALUE'.
     
 # sed -i 's/^export //' $SYSCONFIG_FILE
 
-There is the $VALUE_TMP_PREUPGRADE/cleanconf/$SYSCONFIG_FILE with the fixed configuration.
+The $VALUE_TMP_PREUPGRADE/cleanconf/$SYSCONFIG_FILE file has a fixed configuration already.
 "
     
-    log_slight_risk "export shell commands will be deleted from $SYSCONFIG_FILE"
+    log_slight_risk "The 'export' commands will be removed from the $SYSCONFIG_FILE file."
 
     sed -i 's/^export //' $VALUE_TMP_PREUPGRADE/cleanconf/$SYSCONFIG_FILE && exit $RESULT_FIXED
 

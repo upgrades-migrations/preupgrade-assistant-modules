@@ -55,7 +55,7 @@ if service_is_enabled "iptables" || service_is_enabled "ip6tables"; then
     cp $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
   fi
 
-  log_warning "Please read Remediation instructions."
+  log_warning "Read remediation instructions."
   exit_informational
 fi
 

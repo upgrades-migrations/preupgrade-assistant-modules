@@ -8,9 +8,10 @@ check_root
 POLKIT_BACKUP_DIR="$VALUE_TMP_PREUPGRADE/polkit_conf"
 
 echo \
-"PolicyKit (alias polkit) doesn't use *.conf *.pkla file. Everything is inside
-*.rules files instead, which contains rules written in javascript (See more in
+"PolicyKit (alias polkit) does not use *.conf and *.pkla files anymore. Everything is inside
+*.rules files instead, which contain rules written in JavaScript. (See more in
 Red Hat Enterprise Linux 7 Desktop Migration and Administration Guide, chapter 4).
+[link:https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Desktop_Migration_and_Administration_Guide/policykit.html]
 " > solution.txt
 
 
@@ -34,13 +35,13 @@ for item_dir in /etc/polkit-1 /usr/share/polkit-1; do
 done
 
 [ ${#files_arr[*]} -gt 0 ] && {
-  log_slight_risk "Some polkit config files are modyfied or owns!"
+  log_slight_risk "Some polkit config files are modified or your own config files."
   echo \
-"All modified/owns *.conf and *.pkla files are backed-up inside (with original tree structure):
+"All modified or your own *.conf and *.pkla files are backed up inside (with the original tree structure):
 $POLKIT_BACKUP_DIR
 
-If you want apply these rules, you must rewrite them manualy to javascript code
-or modify existing javascript rules! Here is list of modified and own files:
+If you want to apply these rules, rewrite them manually to JavaScript code
+or modify existing JavaScript rules. A list of modified or your own files:
 " >> solution.txt
 
   result=$RESULT_FAIL
@@ -48,7 +49,7 @@ or modify existing javascript rules! Here is list of modified and own files:
     echo "$item_file" >> solution.txt
     mkdir -p ${POLKIT_BACKUP_DIR}/$( dirname $item_file )
     cp -f $item_file ${POLKIT_BACKUP_DIR}/$item_file || {
-      log_error "Backup  of $item_file failed!"
+      log_error "The backup  of $item_file failed."
       result=$RESULT_ERROR
     }
   done

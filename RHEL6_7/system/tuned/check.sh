@@ -13,7 +13,7 @@ if [[ -d "$TUNED_DIR" ]]; then
 
     sed -i s/POSTUPGRADE_DIR/\$POSTUPGRADE_TUNED_DIR/g solution.txt
     cp -Rv $TUNED_DIR/* $POSTUPGRADE_TUNED_DIR
-    log_medium_risk "We detected tuned profiles under $TUNED_DIR directory. See tuned-adm and tuned-profiles for more information."
+    log_medium_risk "Tuned profiles were detected in the $TUNED_DIR directory. See tuned-adm and tuned-profiles for more information."
     exit $RESULT_FAILED
 fi
 

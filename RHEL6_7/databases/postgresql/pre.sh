@@ -137,13 +137,13 @@ check_home_dir() {
 
     postgres_home=`run_as_postgres pwd`
     if test "$postgres_home" != "$HOME_DIR"; then
-        log_error "bad postgre's home directory '$postgres_home'"
+        log_error "Incorrect PostgreSQL home directory '$postgres_home'."
         SKIP_TESTING=yes
         return $RESULT_FAIL
     fi
 
     HOME_DIR_OK=yes
-    log_info "$STR_OK postgres's home directory is '$postgres_home'"
+    log_info "$STR_OK PostgreSQL home directory is '$postgres_home'."
     return $RESULT_PASS
 }
 
@@ -153,19 +153,19 @@ check_data_dir() {
 
     pgdata_dir=`run_as_postgres 'echo $PGDATA'`
     if test "$pgdata_dir" != "$DATA_DIR"; then
-        log_high_risk "PGDATA dir is $pgdata_dir instead of $DATA_DIR"
+        log_high_risk "PGDATA directory is $pgdata_dir instead of $DATA_DIR."
         SKIP_TESTING=yes
         return $RESULT_FAIL
     fi
 
     if test ! -d "$pgdata_dir"; then
-        log_error "PGDATA directory $pgdata_dir does not exist"
+        log_error "PGDATA directory $pgdata_dir does not exist."
         SKIP_TESTING=yes
         return $RESULT_FAIL
     fi
 
     DATA_DIR_OK=yes
-    log_info "$STR_OK PGDATA points to correct path '$DATA_DIR'"
+    log_info "$STR_OK PGDATA points to the correct path '$DATA_DIR'."
     return $RESULT_PASS
 }
 
@@ -174,20 +174,20 @@ check_is_initialized() {
 
     if test ! -f "$PG_VERSION_FILE"; then
         append_to_solution <<EOF
-* Be careful.  This seems that you have installed PostgreSQL server but you
-  don't have initialized the data directory.  That means, either you have never
-  used PostgreSQL server or you are using PostgreSQL server from
-  postgresql-server package some different way (which would need manual
+* Be careful. It seems that you have installed PostgreSQL server but you
+  have not initialized the data directory. It means that either you have never
+  used PostgreSQL server or you are using PostgreSQL server from the
+  postgresql-server package in a different way (which would need manual
   interaction).
 EOF
         log_error \
-            "$PG_VERSION_FILE does not exist, are you using PostgreSQL server?"
+            "The $PG_VERSION_FILE file does not exist, are you using PostgreSQL server?"
         SKIP_TESTING=yes
         return $RESULT_FAIL
     fi
 
     DATA_DIR_INITIALIZED=yes
-    log_info "$PG_VERSION_FILE is on place, db seems to be initialized"
+    log_info "The $PG_VERSION_FILE file is on its place, the database seems to be initialized."
     return $RESULT_PASS
 }
 
@@ -199,7 +199,7 @@ check_different_usage() {
 
     # check that the init file exists
     if test ! -f "$INITFILE"; then
-        log_error "The initfile $INITFILE not found"
+        log_error "The initfile $INITFILE not found."
         SKIP_TESTING=yes
         return $RESULT_FAIL
     fi
@@ -210,15 +210,15 @@ check_different_usage() {
     # risk.
     links=`find_links "$INITFILE" /etc/rc.d/init.d`
     if test $? -eq 0; then
-        log_high_risk "There seems to be non-default PostgreSQL init.d usage" \
-                      "via $INITFILE symbolic links or hardlinks"
+        log_high_risk "There seems to be a non-default PostgreSQL init.d usage" \
+                      "via $INITFILE symbolic links or hardlinks."
         append_to_solution <<EOF
 * We support running multiple instances of PostgreSQL server at the same time
   (achieved usually by symlinking the init file).  This situation was detected
   on your system.  Unfortunately, we are unable to handle such cases
-  automatically in preupgrade-assistant.  You should look at upstream pg_dumpall
-  documentation and go through that steps with respect to your special
-  configuration.  Links are:
+  automatically in the Preupgrade Assistant.  Look at upstream pg_dumpall
+  documentation and follow the steps with respect to your special
+  configuration.  The links are:
 `echo "$links" | sed 's|^|    |'`
 EOF
         SKIP_TESTING=yes
@@ -240,7 +240,7 @@ EOF
   See upstream HOWTO for pg_dumpall:
   [link:$UPSTREAM_DOC_PGDUMP]
 EOF
-    log_slight_risk "We can't tell for 100% that the system will be in-place upgradable"
+    log_slight_risk "We cannot tell for 100% that the system will be in-place upgradable."
     DIFFERENT_USAGE_OK=yes
     return $RESULT_PASS
 }
@@ -251,19 +251,19 @@ start_server() {
 
     $SERVICE_BIN postgresql status &>/dev/null
     if test $? -eq 0; then
-        log_info "PostgreSQL is already running"
+        log_info "PostgreSQL is already running."
         return $RESULT_PASS
     fi
     # try to start..
     $SERVICE_BIN postgresql start &>/dev/null
     res=$?
     if test "$res" -eq 0; then
-        log_info "Successfully started PostgreSQL"
+        log_info "Successfully started PostgreSQL."
         PLAN_STOP_SERVER=yes
         return $RESULT_PASS
     fi
 
-    log_error "Can't start PostgreSQL server - res: $res"
+    log_error "Cannot start PostgreSQL server."
     STARTED_OK=no
     return $RESULT_FAIL
 }
@@ -283,7 +283,7 @@ check_enabled() {
     # FIXME: is this correct way?
     $CHKCONFIG_BIN --list postgresql | grep "on" >/dev/null
     if test "$?" -eq 0; then
-        log_info "PostgreSQL is enabled at least in one runlevel"
+        log_info "PostgreSQL is enabled at least in one runlevel."
         return $RESULT_PASS
     fi
 
@@ -301,7 +301,7 @@ EOF
 check_permissions() {
     $FUNC_ENTRY
     if test "$STARTED_OK" != "yes"; then
-        log_error "To check db permissions we need to have server started"
+        log_error "To check db permissions we need to have server started."
         return $RESULT_FAIL
     fi
 
@@ -328,7 +328,7 @@ EOF
             return $RESULT_FAIL
         fi
 
-        log_info "The 'postgres' user has enough permissions"
+        log_info "The 'postgres' user has enough permissions to process the upgrade."
         return $RESULT_PASS
     fi
 

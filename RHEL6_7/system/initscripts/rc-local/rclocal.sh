@@ -15,7 +15,7 @@ fi
 
 grep $RC_LOCAL $VALUE_CONFIGCHANGED > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-    log_high_risk "File $RC_LOCAL was changed"
+    log_high_risk "The $RC_LOCAL file was changed."
     exit_fail
 fi
 exit_pass

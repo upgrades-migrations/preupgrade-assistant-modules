@@ -19,7 +19,7 @@ COMPONENT = 'ipa-server'
 
 def main():
     if not ipaserver_installed:
-        log_info("ipa-server package not installed")
+        log_info("The ipa-server package not installed")
         exit_not_applicable()
 
     if not installutils.is_ipa_configured():

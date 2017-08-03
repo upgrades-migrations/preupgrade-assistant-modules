@@ -23,7 +23,7 @@ for line in `cat $RPM_QA`; do
     # Check for debuginfo packages
     echo "$NAME" | grep "debuginfo" 1>/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        echo "Package $NAME will be uninstalled."
+        echo "The $NAME package will be uninstalled."
         $RPM_ERASE $NAME
         continue
     fi
@@ -39,14 +39,14 @@ done
 echo "Remove all debuginfo and 32bit multilib packages done"
 cat $RHELUP_CONFIG
 if [ ! -f "$RHELUP_CONFIG" ]; then
-    echo "redhat-upgrade-tool config file $RHELUP_CONFIG was not found on system."
-    echo "No RHEL 6 packages will be deleted."
+    echo "redhat-upgrade-tool config file $RHELUP_CONFIG was not found on the system."
+    echo "No Red Hat Enterprise Linux 6 packages will be deleted."
     exit 0
 fi
 
 if [ ! -f "$RHSIGNED_PKGS" ]; then
-    echo "File with RedHat signed packages is missing."
-    echo "No RHEL 6 packages will be deleted."
+    echo "The file with packages signed by Red Hat is missing."
+    echo "No Red Hat Enterprise Linux 6 packages will be deleted."
     exit 0
 fi
 
@@ -64,19 +64,19 @@ fi
 
 grep '[postupgrade]' $RHELUP_CONFIG 1>/dev/null 2>&1
 if [ $? -ne 0 ]; then
-   echo "redhat-upgrade-tool was not called with option --cleanup-post."
+   echo "redhat-upgrade-tool was not called with an option --cleanup-post."
    exit 0
 fi
 grep '^cleanup[[:space:]]*=[[:space:]]*True' $RHELUP_CONFIG 1>/dev/null 2>&1
 if [ $? -ne 0 ]; then
-   echo "redhat-upgrade-tool was not called with option --cleanup-post."
+   echo "redhat-upgrade-tool was not called with an option --cleanup-post."
    exit 0
 fi
 for line in `cat $RPM_QA`; do
     NAME=`rpm -q --qf '%{NAME}' $line`
     grep $NAME $RHSIGNED_PKGS 2>/dev/null 1>/dev/null
     if [ $? -ne 0 ]; then
-       echo "The $NAME package is not signed by RedHat and will not be erased."
+       echo "The $NAME package is not signed by Red Hat and will not be erased."
     else
        $RPM_ERASE $NAME
     fi

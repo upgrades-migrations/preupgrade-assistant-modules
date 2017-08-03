@@ -21,7 +21,7 @@ do
     echo "$PEM" | grep "$PEM_NAME" > /dev/null
     if [ $? -eq 0 ]; then
         found_info=1
-        log_info "Content detects $NAME Add-On. No action is needed for RHEL 7."
+        log_info "The module detects $NAME Add-On. No action is needed for Red Hat Enterprise Linux 7."
     continue
     fi
 
@@ -35,7 +35,7 @@ do
     echo "$PEM" | grep "$PEM_NAME" > /dev/null
     if [ $? -eq 0 ]; then
         found=1
-        log_high_risk "Content detects $NAME Add-On. If you would like to do an in-place upgrade, please specify $NAME repo to as --addrepo option in redhat-upgrade-tool"
+        log_high_risk "The module detects the $NAME Add-On. If you want to do the in-place upgrade, specify the $NAME repo as an argument to an --addrepo option in redhat-upgrade-tool."
         continue
     fi
 

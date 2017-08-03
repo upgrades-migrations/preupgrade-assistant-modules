@@ -23,7 +23,7 @@ if test -s "$SEMANAGE_EXPORT_FILE"; then
 	cp postupgrade.d/restoreConfig.sh ${TARGET_DIR}/${TARGET_SCRIPT_NAME}
 	chmod a+x ${TARGET_DIR}/${TARGET_SCRIPT_NAME}
 	RESULT="$RESULT_FIXED"
-	log_info "Custom selinux configuration has been saved and it will be restored by a postupgrade script after the system upgrade."
+	log_info "The custom SELinux configuration has been saved and it will be restored by a postupgrade script after the system upgrade."
 fi
 
 exit $RESULT

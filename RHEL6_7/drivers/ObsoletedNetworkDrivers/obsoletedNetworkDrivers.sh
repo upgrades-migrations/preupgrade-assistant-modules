@@ -26,7 +26,7 @@ for _driver in "${!drivers[@]}"; do
 	# Remove the driver from modules list, no need to repeat the same piece of information twice
 	unset modules["$_driver"]
 	if grep -q -e "^$_driver\$" modRemovedList; then
-		log_extreme_risk "The kernel driver '$_driver' required to service hardware present in your system is not available in Red Hat Enterprise Linux 7. This suggests that your system contains hardware that is not supported in Red Hat Enterprise Linux 7 release."
+		log_extreme_risk "The kernel driver '$_driver' required to service the hardware present in your system is not available in Red Hat Enterprise Linux 7. This suggests that your system contains  hardware that is not supported in Red Hat Enterprise Linux 7."
 		RESULT="$RESULT_FAIL"
 		continue
 	fi
@@ -36,7 +36,7 @@ done
 
 for _module in "${!modules[@]}"; do
 	if grep -q -e "^$_module\$" modRemovedList; then
-		log_extreme_risk "The kernel module '$_module' required to service hardware present in your system is not available in Red Hat Enterprise Linux 7. This suggests that your system contains hardware that is not supported in Red Hat Enterprise Linux 7 release."
+		log_extreme_risk "The kernel module '$_module' required to service the hardware present in your system is not available in Red Hat Enterprise Linux 7. This suggests that your system contains  hardware that is not supported in Red Hat Enterprise Linux 7."
 		RESULT="$RESULT_FAIL"
 		continue
 	fi
@@ -48,7 +48,7 @@ done
 rm -f solution.txt
 if test ${#drivers[@]} -ge 1 -o ${#modules[@]} -ge 1; then
 	echo -e \
-"The script detected a presence of hardware serviced by kernel network drivers that were removed in Red Hat Enterprise Linux 7. This means that the use of the hardware that was serviced by these drivers will not be possible after the upgrade. You need to modify your hardware configuration in order to address this issue. The list of the hardware that requires these drivers follows:\n" >> solution.txt
+"The script detected a presence of hardware serviced by kernel network drivers that were removed in Red Hat Enterprise Linux 7. This means that the use of the hardware that was serviced by these drivers will not be possible after the upgrade. Modify your hardware configuration in order to address this issue. The list of the hardware that requires these drivers follows:\n" >> solution.txt
 	for _driver in "${!drivers[@]}"; do
 		echo "Driver: $_driver" >> solution.txt
 		for _desc in ${drivers["$_driver"]}; do

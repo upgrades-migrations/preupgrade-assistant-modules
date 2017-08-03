@@ -6,10 +6,10 @@ function solution() {
     printf '%s\n\n' "$@" | fold -s >> "$SOLUTION_FILE" || exit_error
 }
 
-solution 'Quota netlink daemon has been moved from "quota" package into "quota-nld" package.'
+solution 'The quota netlink daemon has been moved from the "quota" package into the "quota-nld" package.'
 
 if service_is_enabled 'quota_nld'; then
-    solution '"quota_nld" service is enabled on the old system.'
+    solution 'The "quota_nld" service is enabled on the old system.'
 
     mkdir -p $VALUE_TMP_PREUPGRADE/postupgrade.d/quota_nld/ || exit_error
     cat <<'EOM' >$VALUE_TMP_PREUPGRADE/postupgrade.d/quota_nld/install_package.sh || exit_error
@@ -50,20 +50,20 @@ yum --assumeyes install quota-nld || {
     yum --assumeyes install quota-nld
 }
 [ $? -eq 0 ] || {
-  echo "Package quota-nld could't be installed. Please install it manually."
+  echo "The quota-nld package could not be installed. You must do it manually."
   exit 1
 }
 EOM
     chmod +x $VALUE_TMP_PREUPGRADE/postupgrade.d/quota_nld/install_package.sh || exit_error
 
-    solution '"quota-nld" package will be installed by a postupgrade scriptlet.'
-    solution 'You can reenable "quota_nld" service with "systemctl enable
+    solution 'The "quota-nld" package will be installed by a postupgrade scriptlet.'
+    solution 'You can re-enable the "quota_nld" service with the "systemctl enable
 quota_nld.service" command and then reboot, or start it with "systemctl
 start quota_nld.service" immediately on the new system.'
     exit_fixed
 else
-    solution '"quota_nld" service is not enabled on the old system.'
-    solution '"quota-nld" package will not be installed into the new system.'
+    solution 'The "quota_nld" service is not enabled on the old system.'
+    solution 'The "quota-nld" package will not be installed into the new system.'
     exit_pass
 fi
 

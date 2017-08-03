@@ -44,9 +44,9 @@ ALL_AFFECTED_PKGS=$( comm -1 -2 \
 [ -n "$ALL_AFFECTED_PKGS" ] || exit $RESULT_PASS # improbable situation
 
 echo "Some utilities were replaced, removed, moved between packages or their path changed.
-Please, check your scripts for possible problems. 
+Check your scripts for possible problems. 
 
-The list below does not contain utilities from removed packages, which were not replaced
+The list below does not contain utilities from removed packages which were not replaced
 by other packages or utilities which were moved into
 packages replacing obsolete original packages." >> solution.txt
 

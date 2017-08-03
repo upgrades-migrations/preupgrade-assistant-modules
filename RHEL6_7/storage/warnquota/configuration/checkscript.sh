@@ -12,7 +12,7 @@ function config_file_changed() {
     grep -q -P "\\s\\Q${1}\\E\\z" "$VALUE_CONFIGCHANGED"
 }
 
-solution 'warnquota tool configuration is fully compatible.'
+solution 'The warnquota tool configuration is fully compatible.'
 
 STATUS=$RESULT_PASS;
 for CONF_FILE in /etc/quotagrpadmins /etc/quotatab /etc/warnquota.conf; do

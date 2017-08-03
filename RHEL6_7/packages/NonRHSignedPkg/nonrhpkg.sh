@@ -19,13 +19,13 @@ get_dist_non_native_list() {
   done < "$VALUE_RPM_QA"
 }
 
-echo " * nonrhpkgs - this file contains all RHEL 6 packages not signed by RH keys - you will have to handle them yourself." >>"$KICKSTART_README"
+echo " * nonrhpkgs - this file contains all Red Hat Enterprise Linux 6 packages not signed by Red Hat keys - you will have to handle them yourself." >>"$KICKSTART_README"
 get_dist_non_native_list > "$KICKSTART_DIR/nonrhpkgs"
 [ -s "$KICKSTART_DIR/nonrhpkgs" ] || {
-  log_info "All packages are RH signed, no 3rd party keys detected"
+  log_info "All packages are signed by Red Hat, no third party keys were detected."
   exit $RESULT_PASS;
 }
 
 #We detected some non-redhat package
-log_high_risk "We detected some non-RH signed packages, you can find the list in [link:kickstart/nonrhpkgs]. You need to handle them yourself!"
+log_high_risk "We detected some packages not signed by Red Hat. You can find the list in [link:/root/preupgrade/kickstart/nonrhpkgs]. You need to handle them yourself."
 exit $RESULT_FAIL

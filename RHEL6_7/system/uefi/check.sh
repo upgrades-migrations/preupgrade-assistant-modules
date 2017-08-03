@@ -17,5 +17,5 @@ if efibootmgr >/dev/null 2>&1; then
 	exit_informational
 fi
 
-echo "This system does not use EFI. Preupgrade Assistant will not replace your current bootloader automatically, it is too dangerous. If you wish to use GRUB2, do it manually after the upgrade using grub2-install and grub2-mkconfig." > solution.txt
+echo "This system does not use EFI. The Preupgrade Assistant will not replace your current bootloader automatically as it is too dangerous. If you wish to use GRUB2, do it manually after the upgrade using grub2-install and grub2-mkconfig." > solution.txt
 exit_informational

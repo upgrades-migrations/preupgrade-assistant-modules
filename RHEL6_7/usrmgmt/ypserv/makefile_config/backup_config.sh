@@ -27,10 +27,10 @@ EOF
     log_high_risk "${PROBLEM_DESC}"
     exit $RESULT_FAILED
 else
-    log_debug "Patching file ${CONFIG_FILE} succeeded."
+    log_debug "Patching the ${CONFIG_FILE} file succeeded."
     echo "
-File ${CONFIG_FILE} was patched successfully in ${VALUE_TMP_PREUPGRADE}/${CONFIG_FILE}
-After upgrade you should copy it back manually.
+The ${CONFIG_FILE} file was patched successfully in ${VALUE_TMP_PREUPGRADE}/${CONFIG_FILE}
+Copy it back manually after the upgrade.
 
 " > solution.txt
 fi

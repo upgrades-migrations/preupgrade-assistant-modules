@@ -17,7 +17,7 @@ fi
 # with the more specific ones later; hence take the last match.
 get_mysql_option(){
 	if [ $# -ne 3 ] ; then
-		log_warning "get_mysql_option requires 3 arguments: section option default_value"
+		log_warning "get_mysql_option requires three arguments: section option default_value"
 		return
 	fi
 	sections="$1"
@@ -36,7 +36,7 @@ get_mysql_option(){
 #  1) default values are hardcoded in the code of mysqld daemon or
 #     mysqld_safe script
 #  2) configurable values are defined in /etc/my.cnf
-#  3) default values for helper scripts are specified bellow
+#  3) default values for helper scripts are specified below
 # So, in case values are defined in my.cnf, we need to get that value.
 # In case they are not defined in my.cnf, we need to get the same value
 # in the daemon, as in the helper scripts. Thus, default values here
@@ -76,10 +76,10 @@ backup_config() {
     my_backup_config_file $@
     ret=$?
     if [ $ret -eq 0 ] ; then
-        log_debug "file ${1} backed-up to ${VALUE_TMP_PREUPGRADE}${1}"
+        log_debug "The ${1} file was backed up to ${VALUE_TMP_PREUPGRADE}${1}."
         return 0
     else
-        log_debug "backing-up file ${1} failed: ${ret}"
+        log_debug "Backing up the ${1} file failed: ${ret}"
         return 1
     fi
 }

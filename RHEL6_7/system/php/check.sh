@@ -73,9 +73,9 @@ sh_ini_check() {
 #                      MAIN                              #
 ##########################################################
 echo 'PHP was updated from version 5.3 to version 5.4.
-Please read the Red Hat Enterprise Linux 7 Developer Guide
+Read the Red Hat Enterprise Linux 7 Developer Guide
 and upstream migration guide for more details:
-http://php.net/manual/en/migration54.php
+[link:http://php.net/manual/en/migration54.php]
 ' > solution.txt
 
 ## copy postupgrade script - run always when php is installed
@@ -86,11 +86,11 @@ php_cli=0
 rpm -q php-cli >/dev/null 2>/dev/null || {
   # shell scripts - not 100% secure solution
   php_cli=1
-  log_medium_risk "This is only partial solution! For complete reliable check please install php-cli package."
+  log_medium_risk "This is only a partial solution. For a complete reliable check install the php-cli package."
 }
 
 DIR=$( get_extension_dir $php_cli ) || {
-  log_error "php-common" "Can't find extension directory: $DIR"
+  log_error "php-common" "Cannot find the extension directory: $DIR"
   exit_error
 }
 
@@ -121,7 +121,7 @@ fi
   # print results ##############
   [ -n "$used_params" ] && {
     result=$RESULT_FAIL
-    log_slight_risk "Some used parameters are not more available in PHP 5.4."
+    log_slight_risk "Some used parameters are not available in PHP 5.4 anymore."
     echo "These parameters are used but are no more available in PHP 5.4
 (file: parameters):"
     for ffile in $ffiles; do
@@ -135,7 +135,7 @@ fi
 [ ${#enabled_params[@]} -ne 0 ] && {
   result=$RESULT_FAIL
   log_slight_risk "Some parameters are enabled in /etc/php.ini or /etc/php.d/* but are no more available in PHP 5.4."
-  echo "These parameters are enabled in /etc/php.ini or /etc/php.d/*, but are no more available in PHP 5.4:"
+  echo "These parameters are enabled in /etc/php.ini or /etc/php.d/* but are no more available in PHP 5.4:"
   printf -- "%s\n" "${enabled_params[@]}"
   echo
 } >> solution.txt
@@ -143,7 +143,7 @@ fi
 [ ${#disabled_params[@]} -ne 0 ] && {
   result=$RESULT_FAIL
   log_slight_risk "Some parameters are disabled in /etc/php.ini or /etc/php.d/* but are no more available in PHP 5.4."
-  echo "These parameters are disabled in /etc/php.ini or /etc/php.d/*, but are no more available in PHP 5.4:"
+  echo "These parameters are disabled in /etc/php.ini or /etc/php.d/* but are no more available in PHP 5.4:"
   printf -- "%s\n" "${disabled_params[@]}"
   echo
 } >> solution.txt
@@ -153,8 +153,8 @@ fi
 # but we will keep it here yet - may it'll be highlighted
 tmp=$(grep -E "^php\-(imap|tidy|pecl\-apc|zts)" $VALUE_RPM_QA | awk '{ print $1 }')
 [ -n "$tmp" ] && {
-  log_medium_risk "Some packages are installed, but are not available in RHEL-7: $(echo $tmp)."
-  echo "Following packages are not available in RHEL-7:
+  log_medium_risk "Some packages are installed but they are not available in Red Hat Enterprise Linux 7: $(echo $tmp)."
+  echo "The following packages are not available in Red Hat Enterprise Linux 7:
 $tmp
 " >> solution.txt
 }
@@ -172,14 +172,14 @@ for file in $DIR/*so; do
   RPM_NAME=$(rpm -q --qf '%{NAME}' "$RPM")
   is_dist_native "$RPM_NAME"
   if [ $? -ne 0 ]; then
-    log_slight_risk "The PHP module $file was not installed by any Red Hat-signed package."
+    log_slight_risk "The PHP module $file was not installed by any package signed by Red Hat."
     tmp="${tmp}${file}\n"
   fi
 done
 
 [ -n "$tmp" ] && {
   echo -e "
-Following PHP module files are either not handled by any package or not signed by Red Hat:
+The following PHP module files are either not handled by any package or not signed by Red Hat:
 $tmp" >> solution.txt
   result=$RESULT_FAIL
 }

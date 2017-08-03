@@ -48,14 +48,14 @@ cp $CONFIG_FILE $VALUE_TMP_PREUPGRADE/cleanconf/$CONFIG_FILE
 #workaround to openscap buggy missing PATH
 export PATH=$PATH:/usr/bin
 
-solution "Please upgrade your configuration by:\
+solution "Upgrade your configuration by:\
   postfix upgrade-configuration"
 
-solution "If you plan to use postscreen daemon, please restart postfix service \
+solution "If you plan to use a postscreen daemon, restart the postfix service \
 by:
   systemctl restart postfix"
 
-solution "There is new smtpd_relay_restrictions parameter with the built-in
+solution "There is a new smtpd_relay_restrictions parameter with the built-in
 default settings:
 
     smtpd_relay_restrictions =
