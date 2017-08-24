@@ -14,8 +14,8 @@ Source0:        %{name}-%{version}.tar.gz
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{pkg_name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires:       preupgrade-assistant >= 2.4.0
-BuildRequires:  preupgrade-assistant-tools >= 2.4.0
+Requires:       preupgrade-assistant >= 2.4.4
+BuildRequires:  preupgrade-assistant-tools >= 2.4.4
 
 #pkgdowngrades module is crucial and requires redhat-upgrade-tool
 Requires:       redhat-upgrade-tool >= 0.7.49
@@ -91,7 +91,7 @@ mkdir -p $RPM_BUILD_ROOT%{_datadir}/preupgrade/RHEL6_7/3rdparty
 rm -rf $RPM_BUILD_ROOT/%{_datadir}/preupgrade/common
 
 # General cleanup
-find $RPM_BUILD_ROOT%{_datadir}/preupgrade/ -name "*.ini" -delete
+find $RPM_BUILD_ROOT%{_datadir}/preupgrade/RHEL6_7 -regex ".*/\(module\|group\)\.ini$" -regextype grep -delete
 find $RPM_BUILD_ROOT%{_datadir}/preupgrade/ -name "READY" -delete
 find $RPM_BUILD_ROOT -name '.gitignore' -delete
 
