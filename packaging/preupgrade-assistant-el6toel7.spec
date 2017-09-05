@@ -17,9 +17,6 @@ BuildRoot:      %{_tmppath}/%{pkg_name}-%{version}-%{release}-root-%(%{__id_u} -
 Requires:       preupgrade-assistant >= 2.4.4
 BuildRequires:  preupgrade-assistant-tools >= 2.4.4
 
-#pkgdowngrades module is crucial and requires redhat-upgrade-tool
-Requires:       redhat-upgrade-tool >= 0.7.49
-
 # static data are required by our modules & old contents
 # are obsoleted by this package
 Obsoletes:      preupgrade-assistant-contents < 0.6.41-6
