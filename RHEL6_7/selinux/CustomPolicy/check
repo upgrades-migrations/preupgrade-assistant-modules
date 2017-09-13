@@ -3,7 +3,7 @@
 
 #END GENERATED SECTION
 
-check_root
+
 fix_script="fix_SELinuxCustomPolicy.sh"
 
 rm -f solution.txt

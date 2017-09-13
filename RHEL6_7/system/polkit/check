@@ -4,7 +4,7 @@
 #END GENERATED SECTION
 
 rm -f solution.txt
-check_root
+
 POLKIT_BACKUP_DIR="$VALUE_TMP_PREUPGRADE/polkit_conf"
 
 echo \

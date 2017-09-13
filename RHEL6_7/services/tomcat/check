@@ -146,9 +146,9 @@ def _set_exit_func(efunc):
     global _use_exit_func
     if efunc is exit_error:
         _use_exit_func = exit_error
-    elif efunc in [exit_fail, exit_failed] and _use_exit_func is not exit_error:
+    elif efunc is exit_fail and _use_exit_func is not exit_error:
         _use_exit_func = exit_fail
-    elif efunc is exit_fixed and _use_exit_func not in [exit_error, exit_fail, exit_failed]:
+    elif efunc is exit_fixed and _use_exit_func not in [exit_error, exit_fail]:
         _use_exit_func = exit_fixed
     elif efunc is exit_informational and _use_exit_func is exit_pass:
         _use_exit_func = exit_informational

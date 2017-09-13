@@ -14,7 +14,7 @@
 
 #END GENERATED SECTION
 
-check_root
+
 
 . ../common.sh
 

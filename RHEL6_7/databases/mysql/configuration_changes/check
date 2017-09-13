@@ -5,8 +5,8 @@
 
 #END GENERATED SECTION
 
-# This check can be used if you need root privilegues
-check_root
+
+
 
 source ../mysql-common.sh
 
@@ -172,7 +172,7 @@ provide the same functionality as you have now:" >> "$SOLUTION_FILE"
     else
       cat "$OPTION_FIXED_FILE" | sort | uniq >> "$SOLUTION_FILE"
     fi
-    result=$RESULT_FAILED
+    result=$RESULT_FAIL
 fi
 
 if [ ! -f "$OPTION_NOT_OK_FILE" ]; then
@@ -183,10 +183,10 @@ else
 Some options were not commented out in the files listed below and therefore MariaDB 5.5 might fail unexpectedly.
 The listed options should be replaced or commented out manually:" >> "$SOLUTION_FILE"
     cat "$OPTION_NOT_OK_FILE" | sort | uniq >> "$SOLUTION_FILE"
-    result=$RESULT_FAILED
+    result=$RESULT_FAIL
 fi
 
-[ "$result" == "$RESULT_FAILED" ] && echo "
+[ "$result" == "$RESULT_FAIL" ] && echo "
 The files mentioned above are backups of your original configuration files.
 After the upgrade you must manually replace the contents of the default
 MariaDB 5.5 configuration (as is appropriate to your environment) with the

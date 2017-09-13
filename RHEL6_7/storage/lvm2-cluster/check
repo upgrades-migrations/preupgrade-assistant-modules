@@ -2,7 +2,7 @@
 . /usr/share/preupgrade/common.sh
 #END GENERATED SECTION
 
-check_root
+
 
 # Check if any of lvm cluster services are enabled.
 if service_is_enabled "clvmd"; then

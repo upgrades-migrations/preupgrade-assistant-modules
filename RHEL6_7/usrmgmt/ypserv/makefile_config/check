@@ -25,7 +25,7 @@ Fixing the ${CONFIG_FILE} file failed. You might have wrong MINUID/MINGID
 definitions in that file, and YPPUSH_ARGS might be missing there.
 EOF
     log_high_risk "${PROBLEM_DESC}"
-    exit $RESULT_FAILED
+    exit $RESULT_FAIL
 else
     log_debug "Fixing the ${CONFIG_FILE} file succeeded."
     echo "

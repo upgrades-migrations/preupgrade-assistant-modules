@@ -4,8 +4,8 @@
 
 #END GENERATED SECTION
 
-# This check can be used if you need root privilegues
-check_root
+
+
 
 # Copy your config file from RHEL6 (in case of scenario RHEL6_7)
 # to Temporary Directory
@@ -55,7 +55,7 @@ then
 else
   log_error "Cannot use doveconf to parse the configuration files."
   rm -f $TMPF1 $TMPF2
-  exit $RESULT_FAILED
+  exit $RESULT_FAIL
 fi
 
 log_info "The configuration files from $CONFIG_FILE will be fixed by the postupgrade script."

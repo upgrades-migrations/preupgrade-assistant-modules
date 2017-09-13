@@ -7,8 +7,8 @@ check_rpm_to "bash" ""
 
 #END GENERATED SECTION
 
-# This check can be used if you need root privilegues
-check_root
+
+
 
 source ../mysql-common.sh
 export datadir

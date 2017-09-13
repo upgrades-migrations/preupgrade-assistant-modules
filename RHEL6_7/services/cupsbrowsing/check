@@ -37,18 +37,18 @@ RESULT=$RESULT_FIXED
 
 if grep -qiw LDAP <(echo "$BROWSELOCALPROTOCOLS $BROWSEREMOTEPROTOCOLS"); then
     log_high_risk "LDAP browsing is no longer available in CUPS."
-    RESULT=$RESULT_FAILED
+    RESULT=$RESULT_FAIL
 fi
 
 if [ -n "$BROWSEPORT" ] && [ "$BROWSEPORT" -ne 631 ]; then
     log_high_risk "The CUPS BrowsePort directive cannot be migrated to cups-browsed."
-    RESULT=$RESULT_FAILED
+    RESULT=$RESULT_FAIL
 fi
 
 if [ -n "$BROWSESHORTNAMES" ]; then
     if ! grep -qiw "$BROWSESHORTNAMES" <(echo $TRUE); then
 	log_high_risk "The 'BrowseShortNames No' CUPS directive cannot be migrated to cups-browsed."
-	RESULT=$RESULT_FAILED
+	RESULT=$RESULT_FAIL
     fi
 fi
 
@@ -82,7 +82,7 @@ if [ "$SEND_BROWSE" != 0 ]; then
     # BrowseAddress is not understood by cups-browsed.
     if grep -i '^ *BrowseAddress ' "$CUPSD_CONF"; then
 	log_high_risk "CUPS Browsing is currently used to advertise queues. However, the BrowseAddress directive has been deprecated and cannot be migrated to the cups-browsed service."
-	RESULT=$RESULT_FAILED
+	RESULT=$RESULT_FAIL
     fi
 fi
 if [ "$RECV_BROWSE" != 0 ]; then
@@ -93,13 +93,13 @@ if [ "$RECV_BROWSE" != 0 ]; then
     # understood, so watch out for it.
     if grep -i '^ *BrowseAllow ' "$CUPSD_CONF" | grep -q '^[^#]*@'; then
 	log_high_risk "CUPS Browsing is currently used to discover CUPS queues. However, the BrowseAllow directive has been deprecated and cannot be migrated to the cups-browsed service."
-	RESULT=$RESULT_FAILED
+	RESULT=$RESULT_FAIL
     fi
 
     # BrowseDeny is not understood at all.
     if grep -qi '^ *BrowseDeny ' "$CUPSD_CONF"; then
 	log_high_risk "CUPS Browsing is currently used to discover CUPS queues. However, the BrowseDeny directive has been deprecated and cannot be migrated to the cups-browsed service."
-	RESULT=$RESULT_FAILED
+	RESULT=$RESULT_FAIL
     fi
 
     grep -i '^ *BrowseAllow ' "$CUPSD_CONF" | grep -v '^[^#]*@' \

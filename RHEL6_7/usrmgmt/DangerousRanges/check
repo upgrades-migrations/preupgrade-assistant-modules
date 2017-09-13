@@ -74,12 +74,12 @@ Your system contains UIDs or GIDs in the range 500 - 999. Therefore, the Red Hat
 " >>solution.txt
 
 result=0
-[ $founderror -eq 1 ] && result=$RESULT_FAILED
+[ $founderror -eq 1 ] && result=$RESULT_FAIL
 rhelup_preupgrade_hookdir="$VALUE_TMP_PREUPGRADE/preupgrade-scripts"
 [ $logindefs -eq 1 ] &&
  $(grep "/etc/login.defs" $VALUE_CONFIGCHANGED >/dev/null || $(mkdir -p "$rhelup_preupgrade_hookdir" && install -m755 fixlogindefs.sh "$rhelup_preupgrade_hookdir"/ )) &&
  result=$RESULT_FIXED
-[ $founderror -eq 1 ] && result=$RESULT_FAILED
+[ $founderror -eq 1 ] && result=$RESULT_FAIL
 [ $result -gt 0 ] && exit $result
 
 #no issues found, so remove solution text

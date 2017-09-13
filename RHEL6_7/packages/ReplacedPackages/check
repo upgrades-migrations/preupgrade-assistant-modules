@@ -130,7 +130,7 @@ do
     }
     other_repositories="${other_repositories}$channel "
     msg_channel=" ($channel channel in Red Hat Enterprise Linux 7)"
-    statuscode=$RESULT_FAILED
+    statuscode=$RESULT_FAIL
     filename_suffix="-notbase"
   fi
 

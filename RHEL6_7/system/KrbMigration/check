@@ -5,8 +5,8 @@ check_applies_to "krb5-server"
 
 #END GENERATED SECTION
 
-# This check can be used if you need root privilegues
-check_root
+
+
 
 KRB_SYSCONFIG_FILE=/etc/sysconfig/krb5kdc
 

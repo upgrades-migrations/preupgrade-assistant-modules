@@ -11,8 +11,8 @@ if [ ! -f /etc/squid/squid.conf ] ; then
     exit $RESULT_NOT_APPLICABLE;
 fi
 
-# This check can be used if you need root privilegues
-check_root
+
+
 
 # Copy your config file from RHEL6 (in case of scenario RHEL6_7) 
 # to Temporary Directory
