@@ -5,8 +5,8 @@ check_applies_to "openssh-server"
 
 #END GENERATED SECTION
 
-# This check can be used if you need root privilegues
-check_root
+
+
 
 SYSCONFIG_FILE=/etc/sysconfig/sshd
 

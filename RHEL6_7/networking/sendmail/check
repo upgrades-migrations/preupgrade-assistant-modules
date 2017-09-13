@@ -17,8 +17,8 @@ CONFIG_FILE="/etc/sysconfig/sendmail"
 [ -f "$CONFIG_FILE" ] ||
   exit_not_applicable
 
-# This check can be used if you need root privilegues
-check_root
+
+
 
 
 mkdir -p $VALUE_TMP_PREUPGRADE/cleanconf/$(dirname $CONFIG_FILE)

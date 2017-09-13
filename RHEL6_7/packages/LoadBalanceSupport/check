@@ -4,7 +4,7 @@
 
 #END GENERATED SECTION
 
-check_root
+
 
 if [ -z "$SOLUTION_FILE" ]; then
   cat /dev/null > ./solution.txt

@@ -10,7 +10,7 @@
 
 #END GENERATED SECTION
 
-check_root
+
 
 . ../common.sh
 
@@ -36,4 +36,4 @@ EOF
 
 solution_file "$PROBLEM_SOLUTION"
 
-exit $RESULT_FAILED
+exit $RESULT_FAIL

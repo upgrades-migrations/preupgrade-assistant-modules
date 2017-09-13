@@ -2,7 +2,7 @@
 . /usr/share/preupgrade/common.sh
 #END GENERATED SECTION
 
-check_root
+
 
 POSTUPGRADE_DIR=$VALUE_TMP_PREUPGRADE/postupgrade.d/lvm2-services
 POSTUPGRADE_UNIT_LIST=units_to_enable

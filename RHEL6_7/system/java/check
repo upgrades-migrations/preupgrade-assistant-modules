@@ -134,7 +134,7 @@ check_java_gcj() {
     "Java applications compiled by GCJ will not work. Update your" \
     "Java applications to be sure that they run with OpenJDK" \
     "version 7 or 8."
-  set_result $RESULT_FAILED
+  set_result $RESULT_FAIL
 }
 
 
@@ -152,7 +152,7 @@ check_java6() {
       "If it is possible, remove OpenJDK 6" \
       "before you upgrade to Red Hat Enterprise Linux 7."
     log_high_risk "The $pkg_old_java package is installed, but it is not supported for upgrades."
-    set_result $RESULT_FAILED
+    set_result $RESULT_FAIL
 
     # at least we back up config files
     old_jvmdir=$(get_jvm_dir "$pkg_old_java")

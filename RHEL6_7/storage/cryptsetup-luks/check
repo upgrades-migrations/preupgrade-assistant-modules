@@ -2,7 +2,7 @@
 . /usr/share/preupgrade/common.sh
 #END GENERATED SECTION
 
-check_root
+
 
 CONFIG_FILE=/etc/crypttab
 
@@ -108,7 +108,7 @@ function check_crypttab()
 		if [ $? -ne 0 ]; then
 			log_error "Whirlpool hash spec detected in a LUKS device ($src) specified in crypttab"
 			log_high_risk "The in-place upgrade cannot proceed further. The system with such a LUKS device in crypttab risks being left unbootable after the upgrade."
-			wrap_exit $RESULT_FAILED
+			wrap_exit $RESULT_FAIL
 		fi
 	done < $VALUE_TMP_PREUPGRADE$CONFIG_FILE
 }

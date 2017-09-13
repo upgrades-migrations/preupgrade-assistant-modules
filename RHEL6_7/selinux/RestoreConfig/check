@@ -5,8 +5,8 @@ check_applies_to "policycoreutils-python"
 
 #END GENERATED SECTION
 
-# This check can be used if you need root privilegues
-check_root
+
+
 
 SEMANAGE_EXPORT_FILE=semanage_export
 

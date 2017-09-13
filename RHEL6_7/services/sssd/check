@@ -4,7 +4,7 @@
 . /usr/share/preupgrade/common.sh
 #END GENERATED SECTION
 
-check_root
+
 check_applies_to "sssd"
 
 function solution() {

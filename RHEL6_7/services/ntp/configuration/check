@@ -2,7 +2,7 @@
 . /usr/share/preupgrade/common.sh
 #END GENERATED SECTION
 
-check_root
+
 
 # The RHEL6 ntp and ntpdate configuration can be used without changes on RHEL7.
 # Some configuration files are not copied to the cleanconf directory
