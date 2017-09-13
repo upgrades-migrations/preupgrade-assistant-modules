@@ -1,0 +1,137 @@
+#!/usr/bin/python
+
+from __future__ import unicode_literals
+import os
+import shutil
+import sys
+from distutils import dir_util
+from preupg.utils import SystemIdentification, FileHelper
+from preupg import settings
+
+
+class ModuleInit(object):
+
+    """Class handles with common log files"""
+
+    def __init__(self, assessment_dir, dst_arch, contents, scenario):
+        self.common_result_dir = os.path.join(assessment_dir, settings.common_name)
+        self.assessment_dir = assessment_dir
+        self.dst_arch = dst_arch
+        self.contents = contents
+        self.scenario = scenario
+
+    def get_default_name(self, filename):
+        """Function returns a full default name need for symlink"""
+        return os.path.join(self.common_result_dir, filename)
+
+    def remove_common_symlink(self, filename):
+        """Function removes a symlink if it already exists"""
+        filename_remove = self.get_default_name(filename)
+        if os.path.islink(filename_remove):
+            os.unlink(filename_remove)
+
+    def _get_required_arch_dirname(self):
+        """
+        Get expected dirname of common data for requested assessment of system.
+
+        In case that dst_arch is not specified by --dst-arch option, final
+        arch is arch of current system (e.g. x86_64). In case that destination
+        architecture is specified by the option and it is different to source
+        arch, specific dirname for cross-architecture is returned. E.g. for
+        source arch "i386" and destination arch "x86_64" returns "i386-x86_64".
+
+        Doesn't matter when directory exist or not. Just return expected dirname,
+        which correspond to used convention.
+        """
+        arch = src_arch = SystemIdentification.get_arch()
+        if self.dst_arch and src_arch != self.dst_arch:
+            arch = "%s-%s" % (src_arch, self.dst_arch)
+        return arch
+
+    def create_common_symlink(self, filename, variant):
+        "Function removes previous link if exists and then creates a new one"
+        self.remove_common_symlink(filename)
+        sym_link_name = filename.replace(variant, 'default')
+        architecture = self._get_required_arch_dirname()
+        os.symlink(os.path.join(self.common_result_dir,
+                                architecture,
+                                filename),
+                   os.path.join(self.common_result_dir, sym_link_name))
+
+    def copy_kickstart_files(self, dir_name, variant):
+        """
+        Function copies files which are needed by kickstart
+
+        :param source dir_name:
+        :return:
+        """
+        for file_name in settings.KS_FILES:
+            target_file = os.path.join(settings.KS_DIR, file_name)
+            orig_name = file_name.replace('default', variant)
+            source_name = os.path.realpath(os.path.join(dir_name, file_name))
+            if not os.path.exists(target_file) and os.path.exists(source_name):
+                shutil.copyfile(source_name, target_file)
+
+    def get_system_versions(self):
+        """Returns versions of system to be upgraded - source and destination
+        version. E.g. ["6.9", "7.3"]
+        """
+        content = FileHelper.get_file_content(os.path.join(self.common_result_dir,
+                                                           "release_version"),
+                                              "r", True)
+        return [x.strip() for x in content]
+
+    def prep_symlinks(self):
+        """Prepare a symlinks for relevant architecture and Server Variant"""
+        server_variant = SystemIdentification.get_variant()
+        if server_variant is None:
+            return
+
+        # We need to copy /usr/share/preupgrade/RHEL6_7/common also in case of
+        # usage --contents option. Some contents needs a /root/preupgrade/RHEL6_7/common
+        # directory
+        if self.contents:
+            usr_common_name = os.path.join(settings.source_dir, self.scenario, settings.common_name)
+            if os.path.exists(usr_common_name):
+                dir_util.copy_tree(usr_common_name, os.path.join(self.assessment_dir, settings.common_name))
+        # We have repositories for i386 architecture but packages are built
+        # sometimes as i686 architecture. That's problematic in some cases
+        # so we solve this for now by this little hack ugly.
+        i386_dir = os.path.join(self.common_result_dir, 'i386')
+        i386_x64_dir = os.path.join(self.common_result_dir, 'i386-x86_64')
+        i686_x64_dir = os.path.join(self.common_result_dir, 'i686-x86_64')
+        i686_dir = os.path.join(self.common_result_dir, 'i686')
+        if not os.path.exists(i686_dir) and os.path.exists(i386_dir):
+            os.symlink(i386_dir, i686_dir)
+        if not os.path.exists(i686_x64_dir) and os.path.exists(i386_x64_dir):
+            os.symlink(i386_x64_dir, i686_x64_dir)
+        dir_name = os.path.join(self.common_result_dir,
+                                self._get_required_arch_dirname())
+        if not os.path.exists(dir_name):
+            curr_arch = dst_arch = SystemIdentification.get_arch()
+            if self.dst_arch:
+                dst_arch = self.dst_arch
+            versions = self.get_system_versions()
+            sys.stderr.write("The migration from Red Hat Enterprise Linux"
+                             " (RHEL) %s %s to RHEL %s %s is not supported"
+                             ".\n" % (versions[0], curr_arch,
+                                      versions[1], dst_arch))
+            return
+        server_variant_files = [files for files in os.listdir(dir_name) if files.startswith(server_variant) or files.startswith("Common")]
+        self.copy_kickstart_files(self.common_result_dir, server_variant)
+        for files in server_variant_files:
+            # First create a default links to "ServerVariant_"
+            if files.startswith(server_variant):
+                self.create_common_symlink(files, server_variant)
+            elif files.startswith("Common"):
+                self.create_common_symlink(files, "Common")
+
+if __name__ == "__main__":
+
+    i = ModuleInit(
+        assessment_dir = os.environ['PREUPGM_INIT_ASSESSMENT_DIR'],
+        dst_arch = os.environ['PREUPGM_INIT_DST_ARCH'],
+        contents = os.environ['PREUPGM_INIT_CONTENTS'],
+        scenario = os.environ['PREUPGM_INIT_SCENARIO'],
+    )
+    i.prep_symlinks()
