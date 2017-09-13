@@ -1,0 +1,2 @@
+The SMB1 protocol is deprecated as it is replaced by the SMB2 protocol since Red Hat Enterprise Linux 7.2. SMB1 is now considered insecure, due to its vulnerability to man-in-the-middle attacks. The support for the SMB2 protocol will not be backported to Red Hat Enterprise Linux 6 version of samba* packages. Therefore, for security and compatibility reasons, upgrade the whole RHEL-based client-server network together.
+For the detailed information regarding interworking with Microsoft Windows based networks, see https://access.redhat.com/articles/3164551.

@@ -1,0 +1,10 @@
+#!/bin/bash
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+
+
+
+
+log_slight_risk "SMB1 protocol is deprecated and it is replaced by SMB2."
+exit $RESULT_FAIL
