@@ -1,32 +1,33 @@
 #!/bin/bash
 
 . /usr/share/preupgrade/common.sh
-check_applies_to "openssh-server"
 
 #END GENERATED SECTION
 
 
+SYSCONFIG_FILE="/etc/sysconfig/sshd"
+CLEAN_SYSCONFIG_FILE="$VALUE_TMP_PREUPGRADE/cleanconf/$SYSCONFIG_FILE"
 
+mkdir -p $(dirname $CLEAN_SYSCONFIG_FILE)
+cp -a $SYSCONFIG_FILE $CLEAN_SYSCONFIG_FILE
 
-SYSCONFIG_FILE=/etc/sysconfig/sshd
+if grep -q "^[[:space:]]*export[[:space]]" $SYSCONFIG_FILE; then
+    msg="The $SYSCONFIG_FILE file will not be a shell script in Red Hat"
+    msg+=" Enterprise Linux 7 anymore, so all 'export VARIABLE=VALUE' have to"
+    msg+=" be changed to 'VARIABLE=VALUE'."
+    echo -e "$msg" >> solution.txt
 
-mkdir -p $VALUE_TMP_PREUPGRADE/cleanconf/$(dirname $SYSCONFIG_FILE)
-cp $SYSCONFIG_FILE $VALUE_TMP_PREUPGRADE/cleanconf/$SYSCONFIG_FILE
+    log_info "The 'export' commands will be removed from the $SYSCONFIG_FILE file."
+    sed -i 's/^[[:space:]]*export[[:space:]]//' $CLEAN_SYSCONFIG_FILE && {
+        msg="The $CLEAN_SYSCONFIG_FILE file has a fixed configuration already"
+        msg+=" and will be applied on the target system automatically."
+        exit_fixed
+    }
 
-if grep "^export " $SYSCONFIG_FILE; then
-    solution_file \
-"The $SYSCONFIG_FILE file will not be a shell script in Red Hat Enterprise Linux 7 anymore, so all 'export VARIABLE=VALUE' have to be changed to 'VARIABLE=VALUE'.
-    
-# sed -i 's/^export //' $SYSCONFIG_FILE
-
-The $VALUE_TMP_PREUPGRADE/cleanconf/$SYSCONFIG_FILE file has a fixed configuration already.
-"
-    
-    log_slight_risk "The 'export' commands will be removed from the $SYSCONFIG_FILE file."
-
-    sed -i 's/^export //' $VALUE_TMP_PREUPGRADE/cleanconf/$SYSCONFIG_FILE && exit $RESULT_FIXED
-
-    exit $RESULT_FAIL
+    # imporbably situation, it's here just for completeness
+    log_high_risk "The $CLEAN_SYSCONFIG_FILE has not been fixed. Fix it manually."
+    exit_fail
 else
-    exit $RESULT_PASS
+    exit_pass
 fi
+
