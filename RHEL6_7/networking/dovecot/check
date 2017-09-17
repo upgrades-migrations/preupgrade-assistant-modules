@@ -75,7 +75,7 @@ fi
 chmod +x $PREF/dovecot_postupgrade.sh
 
 rm -f $TMPF1 $TMPF2
-exit $RESULT_FIXED
+exit_fail
 
 ############################# postupgrade script ##########################################
 #!/bin/bash

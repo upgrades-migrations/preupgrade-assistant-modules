@@ -318,7 +318,7 @@ echo -n "
 
 [ $notprovided -eq 1 ] && [ -z "$other_repositories" ] && statuscode=$RESULT_FIXED
 
-[ $found -eq 1 ] && log_slight_risk "\
+[ $found -eq 1 ] && log_info "\
 Some packages installed on the system changed their names between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. Although they should be compatible, monitor them after the update." && exit $statuscode
 
 rm -f solution.txt && touch solution.txt
