@@ -140,8 +140,7 @@ I case 3, to be completely correct you could check that user is not using rhel7 
 
 if __name__ == "__main__":
 	if os.geteuid() != 0 and not devel_time:
-		sys.stdout.write("Need to be root.\n")
-		log_slight_risk("The script needs to be run under the root account.")
+		log_error("The script needs to be run under the root account.")
 		exit_error()
 	if ifcfg_error():
 		exit_fail()

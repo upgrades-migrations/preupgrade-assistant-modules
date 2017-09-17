@@ -7,6 +7,7 @@ check_applies_to "openssh-server"
 
 
 
+#FIXME: needs rewrite
 
 SSHD_CONFIG_FILE=/etc/ssh/sshd_config
 

@@ -236,7 +236,7 @@ EOF
   See the upstream how-to article for pg_dumpall:
   [link:$UPSTREAM_DOC_PGDUMP]
 EOF
-    log_slight_risk "We cannot tell for 100% that the system will be in-place upgradeable."
+    log_info "We cannot tell for 100% that the system will be in-place upgradeable."
     DIFFERENT_USAGE_OK=yes
     return $RESULT_PASS
 }
@@ -340,7 +340,7 @@ EOF
     # Even if user misconfigured the pg_hba.conf contents, most likely he did
     # not changed the 'postgres' role.  Thus we can assume he is Superuser (with
     # slight risk).
-    return $RESULT_PASS
+    return $RESULT_FAIL
 }
 
 filter_comments() {

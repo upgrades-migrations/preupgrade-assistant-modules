@@ -385,7 +385,7 @@ def check_tcp_listen_queue(file_path, buff):
             return EXIT_ERROR
         # the new default and minimum value is "10"
         if number > 0 and number < 10:
-            log_slight_risk("Found \"" + match.group(0) + "\" in \"" +
+            log_info("Found \"" + match.group(0) + "\" in \"" +
                             file_path + "\"")
             sol_text.add_solution(
 """The tcp-listen-queue statement with a value less than 10:
@@ -420,7 +420,7 @@ def check_zone_statistics(file_path, buff):
     status = EXIT_PASS
 
     for match in match_iter:
-        log_slight_risk("Found \"" + match.group(0) + "\" in \"" +
+        log_info("Found \"" + match.group(0) + "\" in \"" +
                         file_path + "\"")
         sol_text.add_solution(
 """The 'zone-statistics' arguments changed:

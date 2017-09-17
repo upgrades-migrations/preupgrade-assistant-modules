@@ -204,8 +204,7 @@ def main():
 
 if __name__ == "__main__":
 	if os.geteuid() != 0:
-		sys.stdout.write("Need to be root.\n")
-		log_slight_risk("The script needs to be run under the root account.")
+		log_error("The script needs to be run under the root account.")
 		exit_error()
 	if main():
 		exit_fail()

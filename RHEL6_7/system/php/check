@@ -85,7 +85,8 @@ php_cli=0
 rpm -q php-cli >/dev/null 2>/dev/null || {
   # shell scripts - not 100% secure solution
   php_cli=1
-  log_medium_risk "This is only a partial solution. For a complete reliable check install the php-cli package."
+  log_high_risk "This is only a partial solution. For a complete reliable check install the php-cli package."
+  result=$RESULT_FAIL
 }
 
 DIR=$( get_extension_dir $php_cli ) || {
