@@ -32,7 +32,7 @@ cp $CONFIG_FILE $VALUE_TMP_PREUPGRADE/cleanconf/$CONFIG_FILE
 # the exit should be RESULT_PASS
 
 # If configuration can not be used on target system (like RHEL 7 in case of RHEL6_7)
-# scenario then result should be RESULT_FAILED. Correction of 
+# scenario then result should be RESULT_FAIL. Correction of 
 # configuration file is provided either by solution script
 # or by postupgrade script located in $VALUE_TMP_PREUPGRADE/postupgrade.d/
 
