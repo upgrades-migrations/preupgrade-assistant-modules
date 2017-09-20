@@ -9,9 +9,44 @@
 
 # Copy your config file from RHEL6 (in case of scenario RHEL6_7)
 # to Temporary Directory
-CONFIG_FILE="/etc/dovecot/"
-uid_val="$(awk '/^first_valid_uid/ { print $3}' /etc/dovecot/conf.d/10-mail.conf)"
-cp --parents -ar $CONFIG_FILE $VALUE_TMP_PREUPGRADE/dirtyconf
+CONFIG_DIR="/etc/dovecot/"
+
+# Exit if the configuration is invalid
+validate ( ) {
+read conf
+err_msg=$(echo "$conf" | grep -o "\/.*[[:digit:]]")
+if [ "$err_msg" != "" ];then
+    log_high_risk "Error in $err_msg."
+return 1
+fi
+}
+
+doveconf 2>&1- | validate
+
+if [ $? -eq 1 ];then
+    log_high_risk "The Dovecot configuration is invalid. Fix it or remove the dovecot package before proceeding with the upgrade."
+    exit $RESULT_FAIL
+fi
+
+#Get the values of first_valid_uid
+uid_val=$(doveconf -a | awk -F' = ' '/^first_valid_uid/ { print $2}')
+explicit_uid_val=$(doveconf -aN | awk -F' = ' '/^first_valid_uid/ { print $2}')
+
+#Get the list of all possible places, where the first_valid_uid may be defined.
+#List is compiled in line by line manner where the main configuration file
+#continues to be read after each crawl into the included configuration directory.
+declare -a included_files
+while read line; do
+    included_files=("${included_files[@]}" $(echo "$line" | awk '/^\!include(_try)?\>/ {print $2}' ))
+    if echo "$line" | grep -q "^first_valid_uid" ;then
+        included_files=( "${included_files[@]}" dovecot.conf )
+    fi
+done < /etc/dovecot/dovecot.conf
+loaded_conf="$PWD/loaded.conf"
+
+cat /dev/null > "$loaded_conf"
+
+cp --parents -ar $CONFIG_DIR $VALUE_TMP_PREUPGRADE/dirtyconf
 
 #workaround to openscap buggy missing PATH
 export PATH=$PATH:/usr/bin
@@ -53,12 +88,12 @@ then
     rm -f $TMPF1 $TMPF2
   fi
 else
-  log_error "Cannot use doveconf to parse the configuration files."
+  log_high_risk "The Dovecot configuration is invalid. Fix it or remove the dovecot package before proceeding with the upgrade."
   rm -f $TMPF1 $TMPF2
   exit $RESULT_FAIL
 fi
 
-log_info "The configuration files from $CONFIG_FILE will be fixed by the postupgrade script."
+log_info "The configuration files from $CONFIG_DIR will be fixed by the postupgrade script."
 log_slight_risk "In some corner cases your configuration might not be migrated automatically."
 echo "\
 The doveconf tool should be able to migrate your configuration, but there is a slight risk
@@ -69,13 +104,47 @@ file manually on the new system.
 PREF=$POSTUPGRADE_DIR/dovecot
 mkdir -p $PREF
 sed '2,/^#!\//d' $0 >$PREF/dovecot_postupgrade.sh
-if ! [[ -z "$uid_val" ]] && [ "$uid_val" -lt 1000 ];then
-  export uid_val ; perl -pi -e '$_ .= qq(sed -i -e "s/first_valid_uid = 1000/first_valid_uid = $ENV{"uid_val"}/g" /etc/dovecot/conf.d/10-mail.conf\n) if  /restorecon -R $CONFIG_FILE/' "$PREF"/dovecot_postupgrade.sh
-fi
 chmod +x $PREF/dovecot_postupgrade.sh
 
 rm -f $TMPF1 $TMPF2
-exit $RESULT_FIXED
+cd /etc/dovecot/
+
+#Get the the config, that actually provides the first_valid_uid directive
+#As the configuration files are sourced in the manner explained above
+#the folllowing code block ensures, the tracking of the actual
+#configuration file providing the first_valid_uid directive.
+if [[ "${included_files[@]}" != "" ]];then
+    printf '%s\n' ${included_files[@]} | while IFS= read -r included_file 
+    do
+        if [ -e "$included_file" ];then
+            if grep -q "^first_valid_uid" "$included_file" ;then
+                echo "$included_file" > "$loaded_conf"
+            fi
+
+        fi
+    done
+fi
+last_loaded=$(cat "$loaded_conf")
+last_loaded="$VALUE_TMP_PREUPGRADE/dirtyconf${CONFIG_DIR}${last_loaded}"
+export uid_val 
+export last_loaded
+
+if [[ "$explicit_uid_val" == "" ]];then
+    #Change the explcitly stated default value on the target system to the default value on the source system
+    perl -pi -e '$_ .= qq(first_valid_uid = $ENV{uid_val}\n) if eof ' "$VALUE_TMP_PREUPGRADE/dirtyconf/$CONFIG_DIR/dovecot.conf"
+    log_medium_risk "You are using the first_valid_uid in the reserved range."
+    log_info "The value of the first_valid_uid directive has been explicitly set to $uid_val in $VALUE_TMP_PREUPGRADE/dirtyconf/$CONFIG_DIR/dovecot.conf."
+    echo "You are using the default first_valid_uid of $uid_val for Dovecot users, which is in the UID range reserved for the system users in Red Hat Enterprise Linux 7. The value of the first_valid_uid directive has been explicitly set to $uid_val in $VALUE_TMP_PREUPGRADE/dirtyconf/$CONFIG_DIR/dovecot.conf in order not to break the dovecot functionality on the target system. This is not a secure configuration. Migrate your regular users to UIDs 1000 and above, and increase the value of the first_valid_uid directive to 1000 or above in the target system." >> $SOLUTION_FILE
+    exit_fail
+elif [ "$explicit_uid_val" -lt 1000 ];then
+    log_medium_risk "You are using the first_valid_uid in the reserved range."
+    echo "You have configured the first_valid_uid of $explicit_uid_val for Dovecot users in $last_loaded, which is in the UID range reserved for the system users in Red Hat Enterprise Linux 7. This is not a secure configuration. Migrate your regular users to UIDs 1000 and above, and increase the value of the first_valid_uid directive to 1000 or above in the target system." >> $SOLUTION_FILE
+    exit_fail
+
+else
+    log_info "The first_valid_uid directive in your Dovecot configuration is compatible with Red Hat Enterprise Linux 7." 
+    exit_pass
+fi
 
 ############################# postupgrade script ##########################################
 #!/bin/bash
@@ -84,7 +153,7 @@ exit $RESULT_FIXED
 
 #END GENERATED SECTION
 
-CONFIG_FILE="/etc/dovecot"
+CONFIG_DIR="/etc/dovecot"
 # This is simple postupgrade script.
 
 # Source file was taken from source system and stored in preupgrade-assistant temporary directory
@@ -93,7 +162,7 @@ CONFIG_FILE="/etc/dovecot"
 # to new configuration (on target system)
 # Just call
 
-# Make some modifications in $VALUE_TMP_PREUPGRADE/$CONFIG_FILE before conversion if needed
+# Make some modifications in $VALUE_TMP_PREUPGRADE/$CONFIG_DIR before conversion if needed
 
 function checkconfig
 {
@@ -104,9 +173,9 @@ function checkconfig
   return $ret
 }
 
-mv $CONFIG_FILE $CONFIG_FILE.preup
-cp -ar /root/preupgrade/dirtyconf/$CONFIG_FILE $CONFIG_FILE
-restorecon -R $CONFIG_FILE
+mv $CONFIG_DIR $CONFIG_DIR.preup
+cp -ar /root/preupgrade/dirtyconf/$CONFIG_DIR $CONFIG_DIR
+restorecon -R $CONFIG_DIR
 
 
 if checkconfig
@@ -115,12 +184,12 @@ then #original configuration works
 fi
 
 CONVLOG=$(mktemp --tmpdir preupgrade-dovecot-XXXXXX.log)
-doveconf -n -c $CONFIG_FILE/dovecot.conf >/etc/dovecot.conf.preupnew 2>$CONVLOG
+doveconf -n -c $CONFIG_DIR/dovecot.conf >/etc/dovecot.conf.preupnew 2>$CONVLOG
 ret=$?
-rm -rf $CONFIG_FILE
-mkdir $CONFIG_FILE
-mv /etc/dovecot.conf.preupnew $CONFIG_FILE/dovecot.conf
-restorecon -R $CONFIG_FILE
+rm -rf $CONFIG_DIR
+mkdir $CONFIG_DIR
+mv /etc/dovecot.conf.preupnew $CONFIG_DIR/dovecot.conf
+restorecon -R $CONFIG_DIR
 
 if [ $ret -eq 0 ] && checkconfig
 then #regenerated configuration works
@@ -129,8 +198,8 @@ then #regenerated configuration works
 fi
 
 
-rm -rf $CONFIG_FILE
-cp -ar /root/preupgrade/dirtyconf/$CONFIG_FILE $CONFIG_FILE
+rm -rf $CONFIG_DIR
+cp -ar /root/preupgrade/dirtyconf/$CONFIG_DIR $CONFIG_DIR
 #conversion failed, log should contain necessary information
 cat $CONVLOG >&2
 rm -f $CONVLOG
