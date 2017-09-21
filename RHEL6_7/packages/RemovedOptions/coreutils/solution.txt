@@ -1,4 +1,4 @@
-A number of options and binary files have been removed from the coreutils packages in Red Hat Enterprise Linux 7. The functionality of some scripts can be affected.
+A number of options and binary files have been removed from the coreutils packages in Red Hat Enterprise Linux 7. The functionality of some scripts might be affected.
 
 This is a complete list of removed options and binary files, including the solutions and new options:
 

@@ -1,3 +1,3 @@
 The module stores enabled repositories for Kickstart issues in the [link:./kickstart/available-repos] file.
-During the generation of Kickstart these repositories are added to the Kickstart script.
+During the generation of Kickstart, these repositories are added to the Kickstart script.
 

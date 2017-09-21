@@ -1,1 +1,1 @@
-The in-place upgrade to Red Hat Enterprise Linux 7 as a guest on Hyper-V is not currently supported.
+The in-place upgrade to Red Hat Enterprise Linux 7 as a guest on Hyper-V is not supported.

@@ -4,13 +4,13 @@ created by using the libgcrypt present in Red Hat Enterprise Linux 6 cannot be u
 present in Red Hat Enterprise Linux 7 unless the GCRYPT_WHIRLPOOL_BUG environmental variable is set.
 
 For optional LUKS containers (not involved in the system boot) it is not a critical
-obstacle and administrators can unlock such containers by using the environmental variable above.
+obstacle, and administrators can unlock such containers by using the environmental variable above.
 The situation is different when you deal with mandatory volumes: 
-In case the preupgrade script has detected the Whirlpool hash in one of the volumes
+In case the preupgrade script detects the Whirlpool hash in one of the volumes
 involved in the system boot (any volume listed in the /etc/crypttab configuration file),
 it is considered to be a blocking event for the in-place upgrade to continue. We strongly
-recommend to rehash the LUKS header using the cryptsetup-reencrypt package added to
-Red Hat Enterprise Linux 6.6 and later.
+recommend to rehash the LUKS header by using the cryptsetup-reencrypt package added to
+Red Hat Enterprise Linux 6.6 and later versions.
 
 A command for rehashing the LUKS header without changing the master key:
 `# cryptsetup-reencrypt -h sha1 --keep-key <path_to_luks_device>`

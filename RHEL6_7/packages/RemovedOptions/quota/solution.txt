@@ -14,4 +14,4 @@ usage help output. Both versions still recognize the '--cache' option.
 /usr/sbin/repquota: The '--no-batch-translation' option was corrected to '--no-cache'
 in the usage help output. Both versions still recognize the '--no-cache' option.
 
-Check that your scripts are aware of these changes.
+Verify that your scripts have been updated to work with these changes.

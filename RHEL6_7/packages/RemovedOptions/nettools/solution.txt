@@ -3,4 +3,4 @@ All option removals with the solutions are listed below.
 
 netstat : The '-T' or '--notrim' option is renamed to '-W' or '--wide'.
 
-Check that your scripts are aware of these changes.
+Verify that your scripts have been updated to work with these changes.

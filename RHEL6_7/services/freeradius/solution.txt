@@ -12,8 +12,8 @@ Available resources for performing the upgrade include:
 
 * The in-line comments located within the configuration files in the /etc/raddb/ directory. This is where the majority of the FreeRADIUS documentation can be found, and it is important to read the contents of the configuration files.
 
-* The upstream website [link:http://freeradius.org] and especially the wiki located at [link:wiki.freeradius.org]
+* The upstream website [link:http://freeradius.org] and especially the wiki located at [link:wiki.freeradius.org].
 
-* The FreeRADIUS users mailing list available at [link:http://lists.freeradius.org/mailman/listinfo/freeradius-users]
+* The FreeRADIUS users mailing list available at [link:http://lists.freeradius.org/mailman/listinfo/freeradius-users].
 
-* Further information at [link:http://freeradius.org/version3.html] and [link:https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/README.rst]
+* Further information at [link:http://freeradius.org/version3.html] and [link:https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/README.rst].

@@ -117,7 +117,7 @@ exposing MAC addresses in this way might have SECURITY and PRIVACY implications.
 '--tftp-lowercase'
 ------------------
 The '--tftp-lowercase' option instructs the TFTP server to convert filenames
-in TFTP requests to lowercase. This is useful for requests from machines that do not use the case sensitive filesystem. 
+in TFTP requests to lowercase. This is useful for requests from machines that do not use the case sensitive file system. 
 
 
 '--dhcp-client-update'

@@ -1,6 +1,6 @@
 Red Hat Enterprise Linux 7 includes a shared store for certificate authorities.
 You can find more information about this shared store by reading the
-following manual page on a Red Hat Enterprise Linux 7.x system:
+following man page on a Red Hat Enterprise Linux 7.x system:
 
  `$ man update-ca-trust`
 
@@ -13,5 +13,4 @@ files to the /etc/pki/ca-trust/source/anchors/ directory, and then type:
 
  `# update-ca-trust`
 
-Read the update-ca-trust manual page for more information.
 
