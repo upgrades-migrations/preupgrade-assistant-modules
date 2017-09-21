@@ -31,13 +31,13 @@ cp -f "$POST_SCRIPT" "$POSTUPGRADE_DIR/$SCRIPT_NAME"
 cp -f "yaboot_check" "$PRE_UPGRADE_DIR/"
 
 is_pkg_installed "yaboot" && is_dist_native "yaboot" || {
-    log_high_risk "The yaboot package signed by Red Hat is not installed on the system."
-    msg="You are using a boot mechanism that is not supported by Red Hat for your system."
+    log_high_risk "The yaboot package signed by Red Hat is not installed on your system."
+    msg="You are using a boot mechanism that is not supported by Red Hat."
     msg+=" You cannot upgrade to the new system unless you have installed the"
     msg+=" yaboot RPM package signed by Red Hat, and unless your system is configured to"
     msg+=" use this package.\n\n"
     msg+="When you install the required yaboot RPM package for your system to use it to"
-    msg+=" boot, run the preupg again to prepare"
+    msg+=" boot, run 'preupg' again to prepare"
     msg+=" your system for the upgrade."
     echo -e "\n$msg" >> solution.txt
     exit_fail
@@ -51,16 +51,16 @@ log_msg=""
 if [ -e "$DEFAULT_FILE" ]; then
     # ok, in this case $GENERATED_FILE is not generated but copied...
     cp -a "$DEFAULT_FILE" "$GENERATED_FILE"
-    log_info "The $DEFAULT_FILE has been backed up into the $GENERATED_FILE."
+    log_info "The $DEFAULT_FILE file has been backed up into the $GENERATED_FILE file."
 
-    msg="The $DEFAULT_FILE file exists already. In this case we assume you already"
-    msg+=" rewieved its content and it is prepared for in-place upgrade to the"
+    msg="The $DEFAULT_FILE file exists already. In this case we assume that you already"
+    msg+=" rewieved its content and that it is prepared for the in-place upgrade to the"
     msg+=" Red Hat Enterprise Linux 7 system. But because of the crucial"
     msg+=" importance of the validity of the file, make sure that the content"
     msg+=" of the file is as expected."
 
     log_msg="The $DEFAULT_FILE file has been found on the system already. Check"
-    log_msg+=" content of the file for correct settings before upgrade."
+    log_msg+=" the content of the file for the correct settings before upgrade."
 else
     ./cmdline-to-default-grub > "$GENERATED_FILE"
 
@@ -69,12 +69,12 @@ else
     msg+=" Review its content, especially the value of GRUB_CMDLINE_LINUX and"
     msg+=" modify it in case you find anything incorrect."
     msg+=" Improper values might result in an unbootable system."
-    msg+=" See the manual page for the GRUB 2 configuration.\n\n"
-    msg+="Then you have to move the file into $DEFAULT_FILE in case you"
-    msg+=" want to do an inplace-upgrade to the Red Hat Enterprise Linux 7 system."
+    msg+=" See the man page for the GRUB 2 configuration.\n\n"
+    msg+="Then, move the file into the $DEFAULT_FILE file in case you"
+    msg+=" want to do an in-place upgrade to the Red Hat Enterprise Linux 7 system."
 
     log_msg="The $DEFAULT_FILE file has not been found. Continue with"
-    log_msg+=" instructions in the report."
+    log_msg+=" the instructions in the report."
 fi
 
 echo -e "\n$msg" >> solution.txt

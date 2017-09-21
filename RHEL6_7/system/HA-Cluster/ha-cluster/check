@@ -39,7 +39,7 @@ if [ $found -eq 1 ]; then
 fi
 
 if [ -f "$CLUSTER_CONFIG" ] || [ -f "$COROSYNC_CONFIG" ]; then
-    log_high_risk "High Availability Add-On config files $CLUSTER_CONFIG or $COROSYNC_CONFIG exist. The upgrade is not possible."
+    log_high_risk "High Availability Add-On configuration files $CLUSTER_CONFIG or $COROSYNC_CONFIG exist. The upgrade is not possible."
     exit_fail
 fi
 

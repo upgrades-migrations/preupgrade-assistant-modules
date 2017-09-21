@@ -49,7 +49,7 @@ or modify the existing JavaScript rules. A list of modified or your own files:
     echo "$item_file" >> solution.txt
     mkdir -p ${POLKIT_BACKUP_DIR}/$( dirname $item_file )
     cp -f $item_file ${POLKIT_BACKUP_DIR}/$item_file || {
-      log_error "The backup of $item_file failed."
+      log_error "The backup of the $item_file file failed."
       result=$RESULT_ERROR
     }
   done

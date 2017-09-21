@@ -35,7 +35,7 @@ class SolutionText(object):
     def __init__(self):
         self.header = """Some issues have been found in your dnsmasq configuration.
 Use the following solutions to fix them:"""
-        self.tail = """For more information, see `man 8 dnsmasq`."""
+        self.tail = """For more information, see the dnsmasq(8) man pages."""
         self.solutions = []
 
     def add_solution(self, solution=""):
@@ -114,12 +114,12 @@ def check_interface_labels(file_path, buff):
         sol_text.add_solution(
 """The 'interface' option with a defined interface name:
 Previously, dnsmasq configured with, for example, the '--interface=eth0' option would bind
-and listen on all addresses of the 'eth0' interface, including addresses
+and listen on all addresses of the 'eth0' interface, including the addresses
 configured as aliases (which are displayed in the ifconfig output as, for example, 'eth0:0').
-Now only the addresses with the label 'eth0' are used. In other words, the
+Now, only the addresses with the label 'eth0' are used. In other words, the
 addresses configured as aliases for the interface are not used.
-If you want dnsmasq to continue to listen on the addresses configured as
-aliases for the interface, you have to specify each alias in the
+If you want dnsmasq to continue listening on the addresses configured as
+aliases for the interface, specify each alias in the
 configuration by using the 'interface' option (for example, '--interface=eth0:0').""")
 
     return status

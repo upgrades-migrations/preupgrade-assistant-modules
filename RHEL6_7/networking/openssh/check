@@ -26,7 +26,7 @@ cat /etc/ssh/sshd_config | tail -n $lines | grep -q "^\s*AuthorizedKeysCommand"
 log_medium_risk "The 'AuthorizedKeysCommand' or 'AuthorizedKeysCommandUser' options were detected in the Match section."
 
 echo "The 'AuthorizedKeysCommand' or 'AuthorizedKeysCommandUser' options were
-detected in the Match section. They probably will not be accepted inside
+detected in the Match section. They might not be accepted inside
 this section. Check it. The bug will be fixed in the future." >> solution.txt
 
 exit $RESULT_FAIL

@@ -12,7 +12,7 @@ ARCH=`arch`
 if [ $ARCH == 'ppc64' ]; then
     grep '^cpu.*POWER6' /proc/cpuinfo
     if [ $? -eq 0 ]; then
-        log_extreme_risk 'POWER6 processors are not supported on the PowerPC and PowerPC64 architectures in Red Hat Enterprise Linux 7.'
+        log_extreme_risk 'POWER6 processors are not supported on the PowerPC and 64-bit PowerPC architectures in Red Hat Enterprise Linux 7.'
         exit $RESULT_FAIL
     fi
 fi

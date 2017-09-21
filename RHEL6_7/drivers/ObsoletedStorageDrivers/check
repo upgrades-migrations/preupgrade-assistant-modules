@@ -70,7 +70,7 @@ if test ${#drivers[@]} -ge 1 -o ${#modules[@]} -ge 1; then
 		echo "" >> solution.txt
 	done
 	echo -e \
-"More information about the hardware can be found in the /sys/bus/<bus>/devices/<id>/ directory or with the tools that gather information about devices using a specific bus. These include lspci for pci, lsusb for usb, and lspcmcia for pcmcia." >> solution.txt
+"More information about the hardware can be found in the /sys/bus/<bus>/devices/<id>/ directory, or with the tools that gather information about devices using a specific bus. These include lspci for pci, lsusb for usb, and lspcmcia for pcmcia." >> solution.txt
 fi
 
 exit $RESULT

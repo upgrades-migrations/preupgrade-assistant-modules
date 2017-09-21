@@ -19,7 +19,7 @@ if [[ -f "/boot/grub/$FILE_NAME" ]]; then
         echo
         echo -n "The /boot/grub/splash.xpm.gz file will be preserved"
         echo -n " to work around the behavior of the existing GRUB. You"
-        echo -n "can delete this file safely only after your GRUB 2 setup is"
+        echo -n " can delete this file safely only after your GRUB 2 setup is"
         echo -n " working."
     } >> grub.txt
 

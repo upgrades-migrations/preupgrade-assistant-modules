@@ -28,7 +28,7 @@ def uid_is_dangerous(uid):
 
 
 def print_help():
-    print ("Checks if passwd NIS map includes UID lower than 1000 for a domainname")
+    print ("Checks if passwd NIS map includes a UID lower than 1000 for a domainname")
     print ("Usage: %s domainname")
 
 
@@ -47,7 +47,7 @@ def check_uids():
         if not fh:
             return (2)
     except gdbm.error as e:
-        sys.stderr.write("Cannot open NIS map file %s for reading: %s" % (map_file, e))
+        sys.stderr.write("Cannot open the %s NIS map file for reading: %s" % (map_file, e))
         return (2)
 
     uid=fh.firstkey()

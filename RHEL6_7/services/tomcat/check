@@ -51,15 +51,15 @@ solutionTexts = {
         ),
     "manager_role" : (
         "* The roles that are required to use the Manager application changed from a single manager"
-        " role to the manager-gui, manager-script, manager-jmx, and manager-status roles. You will"
-        " need to assign the roles required for the functionality you want to access."
+        " role to the manager-gui, manager-script, manager-jmx, and manager-status roles."
+        " Assign the roles required for the functionality that you want to access."
         " The manager role will be updated to manager-gui by the postupgrade script automatically,"
         " but a further update might be required if you use the other roles."
         ),
     "admin_role" : (
         "* The roles that are required to use the Host Manager application changed from a single"
-        " admin role to the admin-gui and admin-script roles. You will need to assign the roles"
-        " required for the functionality you want to access."
+        " admin role to the admin-gui and admin-script roles. Assign the roles"
+        " required for the functionality that you want to access."
         " The admin role will be updated to admin-gui by the postupgrade script automatically,"
         " but a further update might be required if you use the admin-script role."
         ),
@@ -521,8 +521,8 @@ for fname in appWebXmlList + appContextXmlList + [
 
 # check if tomcat from EPEL (or different source) is installed
 if is_pkg_installed("tomcat"):
-    log_high_risk("A tomcat package from EPEL or a third party is installed"
-                  " and must be removed before the in-place upgrade.")
+    log_high_risk("A tomcat package from EPEL or a third party is installed."
+                  " Remove it before the in-place upgrade.")
     _print_solution("tomcatEPEL")
     _set_exit_func(exit_fail)
     # add pre-upgrade check script, which check, that package was really

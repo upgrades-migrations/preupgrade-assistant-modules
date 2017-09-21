@@ -11,13 +11,13 @@ declare -A options
 
 declare -A options
 
-m='Make sure that ldap://<uri> or ldap:/// @VERB@ specified in SLAPD_URLS.'
+m='Make sure that ldap://<uri> or ldap:/// @VERB@ is specified in SLAPD_URLS.'
 options[SLAPD_LDAP]=$m
 
-m='Make sure that ldaps://<uri> or ldaps:/// @VERB@ specified in SLAPD_URLS.'
+m='Make sure that ldaps://<uri> or ldaps:/// @VERB@ is specified in SLAPD_URLS.'
 options[SLAPD_LDAPS]=$m
 
-m='Make sure that ldapi://<socket> or ldapi:/// @VERB@ specified in SLAPD_URLS.'
+m='Make sure that ldapi://<socket> or ldapi:/// @VERB@ is specified in SLAPD_URLS.'
 options[SLAPD_LDAPI]=$m
 
 m='You are using the SLAPD_URLS variable, which will work as expected.
@@ -29,7 +29,7 @@ See the systemd.service(5) man pages, the options prefixed with "Timeout".'
 options[SLAPD_SHUTDOWN_TIMEOUT]=$m
 
 m='You are using the SLAPD_ULIMIT_SETTINGS variable, which will not have any effect.
-Resource management can be configured using the systemd resource control mechanism.
+Resource management can be configured by using the systemd resource control mechanism.
 For more information, see the systemd.resource-control(5) man pages.'
 options[SLAPD_ULIMIT_SETTINGS]=$m
 
@@ -55,22 +55,22 @@ If you are using the bdb or hdb openldap back ends, it is necessary to update
 the database.
 
 Back up the data:
-`# slapcat -l backup.ldif`
+# slapcat -l backup.ldif
 
-For more information about slapcat, see the slapcat(8) man pages.
+For more information about slapcat, see the slapcat(8C) man pages.
 
 After the upgrade, use libdb-utils to upgrade the current database:
-`# db_recover -v -h /var/lib/ldap/`
-`# db_upgrade -v -h /var/lib/ldap/*.bdb`
-`# db_checkpoint -v -h /var/lib/ldap -1`
-`# chown -R ldap:ldap /var/lib/ldap/`
+# db_recover -v -h /var/lib/ldap/
+# db_upgrade -v -h /var/lib/ldap/*.bdb
+# db_checkpoint -v -h /var/lib/ldap -1
+# chown -R ldap:ldap /var/lib/ldap/
 
 Alternatively, you can delete the database contents and use
 the backup to repopulate the database again.
 
 Do not use this approach unless upgrading the database fails.
-`# rm /var/lib/ldap/*`
-`# slapadd -l backup.ldif`
+# rm /var/lib/ldap/*
+# slapadd -l backup.ldif
 
 === Configuration ===
 The Red Hat Enterprise Linux 6 openldap sysconfig configuration can mostly be used in Red Hat Enterprise Linux 7 without
@@ -132,15 +132,16 @@ fi
 
 if [ "$change_maybe_needed" = "no" ]; then
   cat >> $SOLUTION_FILE <<EOF
-Your openldap sysconfig file does not configure any options. The openldap server
+Your openldap sysconfig file does not configure any options. The OpenLDAP server
 will not work without the correct configuration. There is probably something wrong with
 your installation.
 Make sure that $ldap_sysconfig ($ldap_sysconfig_new in Red Hat Enterprise Linux 7) is present, and at
 least the SLAPD_URLS variable is set to a valid URL.
-See the slapd(8) man pages, the '-h URLlist' option.
+See the slapd(8C) man pages, the '-h URLlist' option.
 EOF
 
   exit_error
 fi
-log_high_risk "There are crucial changes between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 openldap configuration. Take the steps recommended in the solution text to ensure the correct functionality."
+<<<<<<< HEAD
+log_high_risk "There are crucial changes between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 openldap configuration. Take the steps recommended in the remediation instructions to ensure the correct functionality."
 exit_fail

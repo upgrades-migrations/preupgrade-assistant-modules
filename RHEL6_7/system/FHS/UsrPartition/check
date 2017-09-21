@@ -12,6 +12,6 @@ if [ $? -eq 1 ]; then
     log_extreme_risk "The /usr/ directory is located on a separate partition. The in-place upgrade is not possible."
     exit $RESULT_FAIL
 fi
-log_debug "Checking the $FSTAB file done."
+log_debug "Checking the $FSTAB file finished."
 log_debug "The /usr/ directory is not located on a separate partition. The in-place upgrade is possible."
 exit $RESULT_PASS

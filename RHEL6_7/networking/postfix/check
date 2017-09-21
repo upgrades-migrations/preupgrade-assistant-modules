@@ -30,8 +30,7 @@ export PATH=$PATH:/usr/bin
 solution "To upgrade your configuration, type:\
   postfix upgrade-configuration"
 
-solution "To use a postscreen daemon, restart the postfix service \
-by typing:
+solution "To use a postscreen daemon, restart the postfix service by typing:\
   systemctl restart postfix"
 
 solution "There is a new smtpd_relay_restrictions parameter with the built-in

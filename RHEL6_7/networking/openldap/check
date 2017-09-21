@@ -29,7 +29,7 @@ chown -R ldap:ldap $confdir " >> $SOLUTION_FILE
    if [[ "$?" -eq 0 ]];then
 
       echo "Change the database directive in the $confile file to 'bdb'." >> $SOLUTION_FILE
-      log_high_risk "The back-ldbm database back end is obsolete and should not be used."
+      log_high_risk "The back-ldbm database back end is obsolete. Do not use it."
       exit_fail
    else
       log_medium_risk "A directory format is recommended for the slapd configuration."

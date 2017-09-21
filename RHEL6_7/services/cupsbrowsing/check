@@ -41,7 +41,7 @@ if grep -qiw LDAP <(echo "$BROWSELOCALPROTOCOLS $BROWSEREMOTEPROTOCOLS"); then
 fi
 
 if [ -n "$BROWSEPORT" ] && [ "$BROWSEPORT" -ne 631 ]; then
-    log_high_risk "The CUPS BrowsePort directive cannot be migrated to cups-browsed."
+    log_high_risk "The 'BrowsePort' CUPS directive cannot be migrated to cups-browsed."
     RESULT=$RESULT_FAIL
 fi
 
@@ -81,7 +81,7 @@ if [ "$SEND_BROWSE" != 0 ]; then
 
     # BrowseAddress is not understood by cups-browsed.
     if grep -i '^ *BrowseAddress ' "$CUPSD_CONF"; then
-	log_high_risk "CUPS Browsing is currently used to advertise queues. However, the BrowseAddress directive has been deprecated and cannot be migrated to the cups-browsed service."
+	log_high_risk "CUPS Browsing is currently used to advertise queues. However, the 'BrowseAddress' directive has been deprecated and cannot be migrated to the cups-browsed service."
 	RESULT=$RESULT_FAIL
     fi
 fi
@@ -92,13 +92,13 @@ if [ "$RECV_BROWSE" != 0 ]; then
     # cups-browsed. In particular, the "@..." syntax is not
     # understood, so watch out for it.
     if grep -i '^ *BrowseAllow ' "$CUPSD_CONF" | grep -q '^[^#]*@'; then
-	log_high_risk "CUPS Browsing is currently used to discover CUPS queues. However, the BrowseAllow directive has been deprecated and cannot be migrated to the cups-browsed service."
+	log_high_risk "CUPS Browsing is currently used to discover CUPS queues. However, the 'BrowseAllow' directive has been deprecated and cannot be migrated to the cups-browsed service."
 	RESULT=$RESULT_FAIL
     fi
 
     # BrowseDeny is not understood at all.
     if grep -qi '^ *BrowseDeny ' "$CUPSD_CONF"; then
-	log_high_risk "CUPS Browsing is currently used to discover CUPS queues. However, the BrowseDeny directive has been deprecated and cannot be migrated to the cups-browsed service."
+	log_high_risk "CUPS Browsing is currently used to discover CUPS queues. However, the 'BrowseDeny' directive has been deprecated and cannot be migrated to the cups-browsed service."
 	RESULT=$RESULT_FAIL
     fi
 
@@ -107,7 +107,7 @@ if [ "$RECV_BROWSE" != 0 ]; then
 fi
 
 BACKGROUND="
-The Browsing and BrowsePoll configuration directives have been removed from CUPS. The cups-browsed service replaces these two directives. This module identifies possible incompatibilities in the configuration file.
+The 'Browsing' and 'BrowsePoll' configuration directives have been removed from CUPS. The cups-browsed service replaces these two directives. This module identifies possible incompatibilities in the configuration file.
 "
 
 if [ "$RESULT" == "$RESULT_FIXED" ]; then
@@ -147,9 +147,9 @@ else
     solution_file "$BACKGROUND
 Your configuration cannot be migrated automatically. Either migrate to DNS-SD, or, to continue using the CUPS Browsing protocol, adjust your configuration for the cups-browsed.conf file.
 
-By default, CUPS uses DNS-SD to advertise print queues on the network. Discovery is performed by the applications. GTK+ applications do this as part of the print dialog implementation. To use DNS-SD, enable the 'avahi' service and make sure to allow mDNS (UDP port 5353) through the firewall.
+By default, CUPS uses DNS-SD to advertise print queues on the network. Discovery is performed by the applications. GTK+ applications do this as part of the print dialog implementation. To use DNS-SD, enable the 'avahi' service and allow mDNS (UDP port 5353) through the firewall.
 
-Alternatively, you can use the cups-browsed service, which provides basic CUPS Browsing compatibility. The main browsing configuration has been moved to the [link:cleanconf/etc/cups/cups-browsed.conf] file.
+Alternatively, you can use the cups-browsed service, which provides the basic CUPS Browsing compatibility. The main browsing configuration has been moved to the [link:cleanconf/etc/cups/cups-browsed.conf] file.
 "
 
 fi

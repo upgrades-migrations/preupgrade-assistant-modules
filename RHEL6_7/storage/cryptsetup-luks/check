@@ -132,12 +132,12 @@ function check_remaining_devices()
 		check_device "$dev"
 		if [ $? -ne 0 ]; then
 			count=$[count+1]
-			log_warning "The LUKS device $dev uses a Whirlpool hash spec. The device cannot be unlocked on the upgraded system."
+			log_warning "The LUKS device $dev uses a Whirlpool hash spec. The device cannot be unlocked on the target system."
 		fi
 	done
 
 	test $count -eq 0 || {
-		log_warning "The preupgrade script detected the $count LUKS devices with a Whirlpool hash spec."
+		log_warning "The preupgrade script detected $count LUKS devices with a Whirlpool hash spec."
 		return 1
 	}
 }

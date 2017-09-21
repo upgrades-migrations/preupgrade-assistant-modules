@@ -10,7 +10,7 @@ if service_is_enabled snmpd; then
 Net-SNMP in Red Hat Enterprise Linux 7 has been updated to version 5.7.2. It includes many fixes and new features.
 In most configurations, no changes to the configuration files are necessary.
 See the following knowledge base article at [link:https://access.redhat.com/site/articles/696163] for any known incompatibilities.
-All applications consuming SNMP data from this system should be carefully retested with the updated Net-SNMP package.
+Retest carefully all applications consuming SNMP data from this system with the updated Net-SNMP package.
 _EOF_
     exit $RESULT_INFORMATIONAL
 fi

@@ -34,7 +34,7 @@ do
     echo "$PEM" | grep "$PEM_NAME" > /dev/null
     if [ $? -eq 0 ]; then
         found=1
-        log_high_risk "The module detects the $NAME Add-On. If you want to do the in-place upgrade, specify the $NAME repo as an argument to the '--addrepo' option in redhat-upgrade-tool."
+        log_high_risk "The module detects the $NAME Add-On. If you want to do the in-place upgrade, specify the $NAME repository as an argument to the '--addrepo' option in redhat-upgrade-tool."
         continue
     fi
 

@@ -36,8 +36,8 @@ while read -r i ; do
   if [ `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` -lt 200 ]
   then
     grep " $myname " systemids >/dev/null 2>/dev/null && continue
-    echo " System account \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation. This usage is prohibited and might cause migration issues." >>solution.txt
-    log_slight_risk "System account \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation. This usage is prohibited and might cause migration issues."
+    echo " System account \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation. This usage is prohibited and might cause migration problems." >>solution.txt
+    log_slight_risk "System account \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation. This usage is prohibited and might cause migration problems."
     founderror=1
   fi
 done < "$VALUE_PASSWD"
@@ -61,8 +61,8 @@ while read -r i ; do
   if [ `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` -lt 200 ]
   then
     grep " $myname " systemids >/dev/null 2>/dev/null && continue
-    echo " System group \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation. This ID is prohibited from the use and might cause migration issues." >>solution.txt
-    log_slight_risk "System group \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation. This ID is prohibited from the use and might cause migration issues."
+    echo " System group \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation. This ID is prohibited from the use and might cause migration problems." >>solution.txt
+    log_slight_risk "System group \"$myname\" uses ID `echo $i | awk -F':' '{ if ( $3 ~ /^[0-9]+$/ ) { print $3 } else {print $4} }'` without reservation. This ID is prohibited from the use and might cause migration problems."
     founderror=1
   fi
 done < "$VALUE_GROUP"

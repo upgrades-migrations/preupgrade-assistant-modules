@@ -24,7 +24,7 @@ ret=$RESULT_INFORMATIONAL
 
 check_base_modules() {
     echo "\
-* httpd.conf loads the modules that are loaded in conf.modules.d/*conf
+* The httpd.conf file loads the modules that are loaded in conf.modules.d/*conf
   in the new httpd version. Therefore, the following modules will be removed from
   httpd.conf:
 " >> $SOLUTION_FILE
@@ -38,7 +38,7 @@ check_base_modules() {
     echo >> $SOLUTION_FILE
 
     echo "\
-* httpd.conf loads the default modules that have been removed in the new version
+* The httpd.conf file loads the default modules that have been removed in the new version
   of httpd. The following modules will be therefore removed from httpd.conf:
 " >> $SOLUTION_FILE
     while read line
@@ -254,7 +254,7 @@ if [ $? -eq 0 ]; then
 fi
 
 if [ $ret -ne $RESULT_PASS ]; then
-    echo "Read more on [link:http://httpd.apache.org/docs/2.4/upgrading.html] to find out solutions for these problems." >> $SOLUTION_FILE
+    echo "See [link:http://httpd.apache.org/docs/2.4/upgrading.html] to determine solutions for these problems." >> $SOLUTION_FILE
 fi
 
 echo >> $SOLUTION_FILE
@@ -279,7 +279,7 @@ yum install -y mod_ldap || {
     yum install -y mod_ldap
 }
 [ \$? -eq 0 ] || {
-  echo \"The mod_ldap package was not installed and you must install it manually.\" >&2
+  echo \"The mod_ldap package was not installed. Install it manually.\" >&2
 }
 
 " >> "$POSTUPGRADE_DIR/httpd.sh"

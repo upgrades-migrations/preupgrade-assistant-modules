@@ -23,11 +23,11 @@ Web at [link: http://mariadb.org/en/about/].
 
 MariaDB upstream uses the same file names as original MySQL.
 That means that the MariaDB shell is called 'mysql', MariaDB daemon is called
-'mysqld_safe' and the client library is called 'libmysqlclient.so'.
+'mysqld_safe', and the client library is called 'libmysqlclient.so'.
 
 To keep MariaDB packages properly distinguished from the original
-MySQL packages, Red Hat Enterprise Linux 7 uses MariaDB names where not necessary to follow
-upstream. It means the following layout is used in Red Hat Enterprise Linux 7:
+MySQL packages, Red Hat Enterprise Linux 7 uses MariaDB names where it is not necessary to follow
+upstream. It means that the following layout is used in Red Hat Enterprise Linux 7:
  - The MariaDB packages names are called 'mariadb', 'mariadb-libs', 'mariadb-server',
    and so on.
  - Only the mariadb and mariadb-libs packages provide also RPM symbols 'mysql'
@@ -83,12 +83,12 @@ if [ $nonrh_mysql_deps_issues -gt 0 ] ; then
 MariaDB RPM packages do not provide mysql names except 'mariadb',
 'mariadb-libs', and 'mariadb-devel'. Packages requiring other packages
 (mysql-server, mysql-embedded, mysql-embedded-devel, mysql-test, or mysql-bench)
-need to be rebuilt, so that they start reqiuring mariadb-* packages
+need to be rebuilt, so that they start requiring mariadb-* packages
 instead. The following dependency issues have been found within the installed
 packages:
 $(cat $nonrh_mysql_deps_file | uniq)
-If you rebuild those packages, or update to a newer version, it might
-fix this issue.
+If you rebuild those packages, or update to a later version, it might
+solve this problem.
 EOF
 fi
 
@@ -122,14 +122,14 @@ done
 if [ $nonrh_service_deps -gt 0 ] ; then
     cat >>$SOLUTION_FILE <<EOF
 
-The following potential issues have been spotted in the services:
+The following potential problems have been spotted in the services:
 $(cat $nonrh_service_deps_file | uniq)
 Change all services that require mysqld to require mariadb instead.
 EOF
 else
     cat >>$SOLUTION_FILE <<EOF
 
-No issues in the services have been found, but check your services anyway.
+No problems in the services have been found, but check your services anyway.
 In case a service requires mysqld in Red Hat Enterprise Linux 6, or it needs to start before
 mysqld, set Require=mariadb.service and After=mariadb.service in Red Hat Enterprise Linux 7 for
 those services.
@@ -161,7 +161,7 @@ if [ $nonrh_plugins -gt 0 ] ; then
 
 All plug-ins not delivered by Red Hat Enterprise Linux 6 and compiled for MySQL 5.1 need
 to be rebuilt for MariaDB 5.5 after the migration to Red Hat Enterprise Linux 7. The following
-potential issues have been spotted in the plug-in directory:
+potential problems have been spotted in the plug-in directory:
 $(cat $nonrh_plugins_file | uniq)
 Rebuild those plug-ins or update them to the latest release compatible with MariaDB.
 EOF

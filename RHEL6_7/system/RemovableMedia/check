@@ -78,7 +78,7 @@ def find_removable():
 
 if __name__ == "__main__":
 	if os.geteuid() != 0:
-		log_error("The script needs to be run under the root account.")
+		log_error("The script needs to be run under root.")
 		exit_error()
 	if find_removable():
 		exit_fail()

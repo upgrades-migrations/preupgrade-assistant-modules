@@ -55,7 +55,7 @@ functionality.
 
 Note: All packages from the debug repositories
 are skipped, and Red Hat recommends that you remove
-them before the upgrade.
+them before upgrade.
 
 The following packages are obsolete, and they are replaced by
 new ones:" >solution.txt
@@ -136,8 +136,8 @@ Then, enable any equivalent repositories (if they are disabled), and install any
 For this purpose, run a prepared script:
 $_DST_NOAUTO_POSTSCRIPT <path/to/pkglist-file>
 
-which will install the available packages listed in the file.
-See the ${KICKSTART_README} file for the details on pkglist files.
+The script will install the available packages listed in the file.
+See the ${KICKSTART_README} file for the details about pkglist files.
 " >>solution.txt
 }
 
@@ -159,7 +159,7 @@ done
 
 echo \
 "
-If a package not signed by Red Hat requires these packages, you may need to check if an alternative solution provided by Red Hat works for you. You might need to get the missing package from a source other than the Red Hat Enterprise Linux repositories.
+If a package not signed by Red Hat requires these packages, check if an alternative solution provided by Red Hat works for you. You might need to get the missing package from a source other than the Red Hat Enterprise Linux repositories.
 
 Install these new packages manually after the assessment, as Red Hat cannot assess the suitability of the replacements for your workload." >>solution.txt
 

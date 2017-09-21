@@ -47,7 +47,7 @@ while read line; do
     rq_msg="${rq_msg% })"
 
     [ "$rq_msg" == " (required by packages not signed by Red Hat:)" ] && rq_msg=""
-    [ -n "$rq_msg" ] && $tmp_log_risk "The $soname_lib library from $pkg$rq_msg was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7"
+    [ -n "$rq_msg" ] && $tmp_log_risk "The $soname_lib library from $pkg$rq_msg was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
 
     echo "$soname_lib from $pkg$rq_msg" >>solution.txt
     echo "$soname_lib from $pkg$rq_msg" >>"$removed_tmp"

@@ -48,7 +48,7 @@ do
   done
   j="${j% })"
   [ "$j" == " (required by NonRH signed package(s):)" ] && j=""
-  [ -n "$j" ] && log_high_risk "The $pkg $j package removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7"
+  [ -n "$j" ] && log_high_risk "The $pkg $j package was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   echo "$pkg$j" >>solution.txt
   found=1
 done < "$RemovedPkgs"
@@ -72,7 +72,7 @@ other sources than Red Hat Enterprise Linux.
 [ $found -eq 1 ] && log_high_risk "After upgrading to Red Hat Enterprise Linux 7, there are still some el6 packages left. Add the '--cleanup-post' option to redhat-upgrade-tool to remove them automatically."
 
 [ $found -eq 1 ] && log_medium_risk "\
-We detected that some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of the packages that depend on the removed packages." && exit $RESULT_FAIL
+Some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of the packages that depend on the removed packages." && exit $RESULT_FAIL
 
 rm -f solution.txt && touch solution.txt
 
