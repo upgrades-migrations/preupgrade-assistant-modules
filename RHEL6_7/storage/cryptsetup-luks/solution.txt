@@ -13,7 +13,8 @@ recommend to rehash the LUKS header by using the cryptsetup-reencrypt package ad
 Red Hat Enterprise Linux 6.6 and later versions.
 
 A command for rehashing the LUKS header without changing the master key:
-`# cryptsetup-reencrypt -h sha1 --keep-key <path_to_luks_device>`
+
+# cryptsetup-reencrypt -h sha1 --keep-key <path_to_luks_device>
 
 Supply a device identified to be using the Whirlpool hash instead of the
 pattern: <path_to_luks_device>.

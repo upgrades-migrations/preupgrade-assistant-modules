@@ -2,4 +2,4 @@ Applications developed in the C programming language can use dynamic libraries (
 
 You can find the list of the unchanged dynamic libraries and their package names in the [link:./kickstart/NoSonameBumpLibs] file.
 
-If it is not clear what libraries the third-party binary or RPM uses, it is possible to use the 'ldd' utility for the C binary, or enter the `rpm -q --whatrequires SONAME` command for the whole RPM package. No problems are expected to occur if there are only .so files listed in the NoSonameBumpLibs file and unversioned shared libraries.
+If it is not clear what libraries the third-party binary or RPM uses, it is possible to use the 'ldd' utility for the C binary, or enter the 'rpm -q --whatrequires SONAME' command for the whole RPM package. No problems are expected to occur if there are only .so files listed in the NoSonameBumpLibs file and unversioned shared libraries.

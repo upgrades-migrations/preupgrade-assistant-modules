@@ -3,7 +3,7 @@ quota-warnquota package.
 If you used warnquota on the source system, install the quota-warnquota
 package on the target system with the following command:
 
-`# yum --assumeyes install quota-warnquota`
+# yum --assumeyes install quota-warnquota
 
 Do not forget to check the warnquota configuration files (/etc/quotagrpadmins, /etc/quotatab, and /etc/warnquota.conf) before using the tool.
 Install a cron job to execute the warnquota tool periodically if you used it on the source system. 

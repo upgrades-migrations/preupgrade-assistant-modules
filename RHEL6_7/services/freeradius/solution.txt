@@ -8,7 +8,7 @@ Available resources for performing the upgrade include:
 
 * The files located in the /usr/share/doc/freeradius*/ directories. Many of these documents are installed by the freeradius-doc subpackage. It is recommended that you install this package.
 
-* The FreeRADIUS man pages, especially unlang(5), and radiusd.conf(5). To see a list of available man pages, type `man -k radius`.
+* The FreeRADIUS man pages, especially unlang(5), and radiusd.conf(5). To see a list of available man pages, enter the 'man -k radius' command.
 
 * The in-line comments located within the configuration files in the /etc/raddb/ directory. This is where the majority of the FreeRADIUS documentation can be found, and it is important to read the contents of the configuration files.
 
