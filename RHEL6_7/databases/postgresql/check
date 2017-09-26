@@ -225,7 +225,7 @@ EOF
     append_to_solution <<EOF
 * Even if the postgresql-server is probably configured correctly, we are unable
   to say for 100% that the server is not used in some specific way on your
-  computer, so check that the
+  machine, so check that the
   $INITFILE initfile is the only trigger the server is started by.
   In any way, we suggest that you use the in-place PostgreSQL database upgrade for
   the conversion of the data stack to a newer PostgreSQL server.

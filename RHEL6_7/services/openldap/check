@@ -57,7 +57,7 @@ the database.
 Back up the data:
 # slapcat -l backup.ldif
 
-For more information about slapcat, see the slapcat(8C) man pages.
+For more information about slapcat, see the slapcat(8) man pages.
 
 After the upgrade, use libdb-utils to upgrade the current database:
 # db_recover -v -h /var/lib/ldap/
@@ -137,11 +137,11 @@ will not work without the correct configuration. There is probably something wro
 your installation.
 Make sure that $ldap_sysconfig ($ldap_sysconfig_new in Red Hat Enterprise Linux 7) is present, and at
 least the SLAPD_URLS variable is set to a valid URL.
-See the slapd(8C) man pages, the '-h URLlist' option.
+See the slapd(8) man pages, the '-h URLlist' option.
 EOF
 
   exit_error
 fi
-<<<<<<< HEAD
+
 log_high_risk "There are crucial changes between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 openldap configuration. Take the steps recommended in the remediation instructions to ensure the correct functionality."
 exit_fail
