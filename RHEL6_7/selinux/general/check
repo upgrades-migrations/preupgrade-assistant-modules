@@ -19,7 +19,7 @@ cp -a ./postupgrade.d/00-selinux-sandbox.sh ${TARGET_DIR} || exit ${RESULT_ERROR
 cp -a ./postupgrade.d/01-selinux-autorelabel.sh ${TARGET_DIR} || exit ${RESULT_ERROR}
 
 if [[ $(selinuxenabled) -eq 0 ]] ; then
-    log_high_risk "There were changes in SELinux policies between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. See the solution to resolve this issue."
+    log_high_risk "There were changes in SELinux policies between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. See the solution to resolve this problem."
     cat >solution.txt <<EOF
 We have detected that you are using SELinux. To have working SELinux in Red Hat Enterprise Linux 7, type 'semodule -r sandbox' before running redhat-upgrade-tool.
 EOF

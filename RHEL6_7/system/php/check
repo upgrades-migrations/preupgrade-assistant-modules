@@ -85,7 +85,7 @@ php_cli=0
 rpm -q php-cli >/dev/null 2>/dev/null || {
   # shell scripts - not 100% secure solution
   php_cli=1
-  log_medium_risk "This is only a partial solution. For a complete reliable check install the php-cli package."
+  log_medium_risk "This is only a partial solution. Install the php-cli package for a complete reliable check."
 }
 
 DIR=$( get_extension_dir $php_cli ) || {
@@ -163,7 +163,7 @@ tmp=""
 for file in $DIR/*so; do
   RPM=$(rpm -qf "$file")
   if [ $? -ne 0 ]; then
-    log_slight_risk "The PHP module $file is not handled by any package."
+    log_slight_risk "The $file PHP module is not handled by any package."
     tmp="${tmp}${file}\n"
     continue
   fi
@@ -171,7 +171,7 @@ for file in $DIR/*so; do
   RPM_NAME=$(rpm -q --qf '%{NAME}' "$RPM")
   is_dist_native "$RPM_NAME"
   if [ $? -ne 0 ]; then
-    log_slight_risk "The PHP module $file was not installed by any package signed by Red Hat."
+    log_slight_risk "The $file PHP module was not installed by any package signed by Red Hat."
     tmp="${tmp}${file}\n"
   fi
 done

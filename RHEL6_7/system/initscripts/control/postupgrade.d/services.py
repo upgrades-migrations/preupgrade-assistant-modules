@@ -37,7 +37,7 @@ def parse_presetfile(filename):
         arr = open_file(filename)
     except IOError:
         print "ERROR: Unable to open a default preset file. Services will not be handled."
-        print "       Set required services manually."
+        print "       Set the required services manually."
         sys.exit(1)
 
     enable_re = re.compile("^enable (.*)$")
@@ -79,14 +79,14 @@ def check_preset(service, control="enable"):
             next(x for x in preset_re if x.match(service))
             control_service(service, control=control)
         except StopIteration:
-            sys.stderr.write("The %s service is not mentioned in the 90-default.preset file and therefore the postupgrade script will not handle it\n" % service)
+            sys.stderr.write("The %s service is not mentioned in the 90-default.preset file and therefore the postupgrade script will not handle it.\n" % service)
 
 def determine_services(services):
     found_services = []
     for service in services:
         service = service.strip()
         if not os.access("{0}/{1}.service".format(SYSTEMD_DIR, service), os.F_OK):
-            sys.stderr.write("systemd service %s.service does not exist.\n" % service)
+            sys.stderr.write("The systemd service %s.service does not exist.\n" % service)
             found_services.extend(find_service_files(service))
         else:
             found_services.append(service+".service")

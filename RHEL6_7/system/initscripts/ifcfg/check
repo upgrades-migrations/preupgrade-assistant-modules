@@ -127,7 +127,7 @@ I case 3, to be completely correct you could check that user is not using rhel7 
 					log_slight_risk(full_path + " is old style ethX name without HWADDR, its name can change after the upgrade.")
 					warning = True
 			elif is_udev(name):
-				log_slight_risk(full_path + " variable DEVICE is very similar to udev predictable network naming scheme. It might cause conflicts.")
+				log_slight_risk(full_path + " variable DEVICE is similar to udev predictable network naming scheme. It might cause conflicts.")
 				warning = True
 
 		if ethx_with_addr_count > 1:
@@ -141,7 +141,7 @@ I case 3, to be completely correct you could check that user is not using rhel7 
 if __name__ == "__main__":
 	if os.geteuid() != 0 and not devel_time:
 		sys.stdout.write("Need to be root.\n")
-		log_slight_risk("The script needs to be run under the root account.")
+		log_slight_risk("The script needs to be run under root.")
 		exit_error()
 	if ifcfg_error():
 		exit_fail()

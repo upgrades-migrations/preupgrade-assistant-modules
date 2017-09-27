@@ -117,7 +117,7 @@ exposing MAC addresses in this way might have SECURITY and PRIVACY implications.
 '--tftp-lowercase'
 ------------------
 The '--tftp-lowercase' option instructs the TFTP server to convert filenames
-in TFTP requests to lowercase. This is useful for requests from machines that do not use the case sensitive filesystem. 
+in TFTP requests to lowercase. This is useful for requests from machines that do not use the case sensitive file system. 
 
 
 '--dhcp-client-update'
@@ -163,7 +163,7 @@ DNS answers.
 ----------------------------------------------
 The '--ipset' option can be used to place the resolved IP addresses of queries
 for specified domains in the specified netfilter ipsets. These ipsets must already exist.
-For more information, see `man 8 ipset`.
+For more information, see the ipset(8) man page.
 
 
 

@@ -38,7 +38,7 @@ generate_postupgrade_script()
 #!/bin/bash
 
 if [ "\$(id -u)" != 0 ]; then
-    echo >&2 "Run this under root"
+    echo >&2 "Run this under root."
     exit 1
 fi
 
@@ -75,7 +75,7 @@ case "$rv" in
         exit_fixed
         ;;
     *)
-        log_error "an unknown error"
+        log_error "An unknown error"
         exit_error
         ;;
 esac

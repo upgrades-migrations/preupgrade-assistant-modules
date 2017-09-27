@@ -7,9 +7,9 @@
 fix_script="fix_SELinuxCustomPolicy.sh"
 
 rm -f solution.txt
-echo "Custom SELinux policy modules could not be found by sesearch. This is fixed by removing SELinux module sandbox.pp, which is replaced by sandboxX.pp, and which is disabled by default in Red Hat Enterprise Linux 7. 
-This also solves some other issues between sandbox.pp and sandboxX.pp. The module
-is removed by default now by the postcript: $POSTUPGRADE_DIR/$fix_script" > solution.txt
+echo "Custom SELinux policy modules could not be found by sesearch. This is fixed by removing SELinux module sandbox.pp, which is replaced by sandboxX.pp. The sandbox.pp module is disabled by default in Red Hat Enterprise Linux 7. 
+This also solves some other issues between sandbox.pp and sandboxX.pp. The sandbox.pp module
+is removed by default by the postcript: $POSTUPGRADE_DIR/$fix_script" > solution.txt
 /bin/cp $fix_script $POSTUPGRADE_DIR/$fix_script
 
 exit $RESULT_FIXED

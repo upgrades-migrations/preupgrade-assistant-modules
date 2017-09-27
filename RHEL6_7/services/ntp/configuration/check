@@ -68,8 +68,8 @@ The files have been saved to the /root/preupgrade/cleanconf/ directory.
 The configuration files tracked by RPM are saved to the same directory by the
 "Store modified config files for packages with unchanged version" rule.
 
-Note that the ntp package installed by default in Red Hat Enterprise Linux 7 is chrony.
-To switch back to ntp, type `yum install ntp` and `yum remove chrony`.
+By default, the ntp package installed in Red Hat Enterprise Linux 7 is chrony.
+To switch back to ntp, type 'yum install ntp' and 'yum remove chrony'.
 EOF
 
 exit_informational

@@ -5,4 +5,3 @@ be specified in the [dhcpd|dhcpd6|dhcrelay].service files on the "ExecStart" lin
 The specified arguments are automatically moved from the /etc/sysconfig/*
 files into the *.service files during upgrade. Verify that they are moved
 correctly and everything works as expected.
-

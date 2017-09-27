@@ -21,7 +21,7 @@ fix_zipl_conf() {
     # Take each kdump file in zipl.conf, remove it with grubby
     #
     local kdfile
-    info "Removing offending kernel-kdump records from the zipl.conf file"
+    info "Removing offending kernel-kdump records from the zipl.conf file..."
     bad_record_files \
       | while read kdfile;
         do
@@ -34,7 +34,7 @@ fix_zipl_conf() {
         # have the desired effect.  We list the remaining records
         # for easier debugging.
         #
-        info "Failed. These records were not removed:"
+        info "...failed. These records were not removed:"
         bad_record_files | sed 's/^/    ' >&2
         return 1
     fi
@@ -49,7 +49,7 @@ update_bootloader() {
     if [ $? -ne 0 ]
     then
         es=3
-        info "...failure; a full zipl output follows:"
+        info "...failed. A full zipl output follows:"
         sed 's/^/zipl: /' "$zipl_out" >&2
         sed 's/^/zipl.conf: /' "/etc/zipl.conf" >&2
     else
@@ -66,7 +66,7 @@ main() {
     local es=0
     if fix_zipl_conf && update_bootloader;
     then
-        info "The zipl.conf file and the boot loader fixed"
+        info "The zipl.conf file and the boot loader were fixed."
     else
         es=3
         info "Restoring the zipl.conf file from the local backup"

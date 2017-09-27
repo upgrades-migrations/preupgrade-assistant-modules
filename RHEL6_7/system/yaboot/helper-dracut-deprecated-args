@@ -43,8 +43,8 @@ for line in man_dracut_cmdline:
         new = line.strip()
 
 print
-print "This is supposed to be run on RHEL-7 and returns deprecated dracut args"
-print "DON'T FORGET TO REVIEW RESULT CAREFULLY!"
+print "This is supposed to be run on the Red Hat Enterprise Linux 7 system, and it returns deprecated dracut args."
+print "Review the result carefully."
 print "These records are known to be wrong:"
 print "  rd_NO_MULTIPATH"
 print "  rdinitdebug rdnetdebug"

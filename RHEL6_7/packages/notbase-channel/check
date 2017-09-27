@@ -57,7 +57,7 @@ get_req_pkgs() {
 
 ###################################################
 generate_req_msg() {
-  [ -n "$1" ] && echo " (required by Non Red Hat signed packages:$1)"
+  [ -n "$1" ] && echo " (required by packages not signed by Red Hat:$1)"
 }
 
 ###################################################
@@ -203,7 +203,7 @@ For this purpose, you can run a prepared script:
 
 $_DST_NOAUTO_POSTSCRIPT <path/to/pkglist-file>
 
-See the ${KICKSTART_README} file for details on 'pkglist' files.
+See the ${KICKSTART_README} file for details about the pkglist files.
 " >> solution.txt
   }
 }

@@ -1,6 +1,6 @@
 Some options were removed from the gawk package binaries between Red Hat Enterprise Linux 6
 and Red Hat Enterprise Linux 7. This might break the functionality of some of your scripts.
-All option removals for awk, gawk, and pgawk along with the solutions are listed below:
+All option removals for awk, gawk, and pgawk, along with the solutions, are listed below:
 
 - The '--compat' option was removed, the alternative is '--traditional'.
 - The '--copyleft' option was removed, the alternative is '--copyright' or '-C'.
@@ -8,4 +8,4 @@ All option removals for awk, gawk, and pgawk along with the solutions are listed
 - The '--usage' option was removed.
 - The '-D' option, which was the short form of the '--parsedebug' option, was changed to '-Y'.
 
-Check that your scripts are aware of these changes.
+Verify that your scripts have been updated to work with these changes.

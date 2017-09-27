@@ -77,14 +77,14 @@ do
     NOT_FOUND_SYSTEMD=0
     RPM=`rpm -qf /etc/init.d/$i`
     if [ $? -ne 0 ]; then
-        log_medium_risk "The $i service is not handled by any package and it will not be automatically enabled after the in-place upgrade."
+        log_medium_risk "The $i service is not handled by any package, and it will not be automatically enabled after the in-place upgrade."
         RESULT=1
         continue
     fi
     RPM_NAME=`rpm -q --qf "%{NAME}" $RPM`
     is_dist_native "$RPM_NAME"
     if [ $? -ne 0 ]; then
-        log_medium_risk "The $i service is not installed by Red Hat signed packages and it will not be automatically enabled after the in-place upgrade."
+        log_medium_risk "The $i service is not installed by Red Hat signed packages, and it will not be automatically enabled after the in-place upgrade."
         continue
     fi
     grep "/etc/init.d/$i" $VALUE_CONFIGCHANGED > /dev/null 2>&1
@@ -110,14 +110,14 @@ do
     fi
     RPM=`rpm -qf /etc/xinetd.d/$i`
     if [ $? -ne 0 ]; then
-        log_medium_risk "The $i service is not handled by any package and it will not be automatically enabled after the in-place upgrade."
+        log_medium_risk "The $i service is not handled by any package, and it will not be automatically enabled after the in-place upgrade."
         RESULT=1
         continue
     fi
     RPM_NAME=`rpm -q --qf "%{NAME}" $RPM`
     is_dist_native "$RPM_NAME"
     if [ $? -ne 0 ]; then
-        log_medium_risk "The $i service is not installed by Red Hat signed packages and it will not be automatically enabled after the in-place upgrade."
+        log_medium_risk "The $i service is not installed by Red Hat signed packages, and it will not be automatically enabled after the in-place upgrade."
         continue
     fi
     grep "/etc/xinetd.d/$i" $VALUE_CONFIGCHANGED > /dev/null 2>&1
@@ -139,14 +139,14 @@ do
     NOT_FOUND_SYSTEMD=0
     RPM=`rpm -qf /etc/init.d/$i`
     if [ $? -ne 0 ]; then
-        log_medium_risk "The $i service is disabled and it is not handled by any package. It will be disabled after the in-place upgrade."
+        log_medium_risk "The $i service is disabled, and it is not handled by any package. It will be disabled after the in-place upgrade."
         RESULT=1
         continue
     fi
     RPM_NAME=`rpm -q --qf "%{NAME}" $RPM`
     is_dist_native "$RPM_NAME"
     if [ $? -ne 0 ]; then
-        log_medium_risk "The $i service is disabled and it is not installed by Red Hat signed packages. It will be disabled after the in-place upgrade."
+        log_medium_risk "The $i service is disabled, and it is not installed by Red Hat signed packages. It will be disabled after the in-place upgrade."
         RESULT=1
         continue
     fi

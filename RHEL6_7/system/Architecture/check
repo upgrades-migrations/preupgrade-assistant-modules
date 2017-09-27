@@ -19,5 +19,5 @@ then
 exit $RESULT_PASS
 fi
 #Should not happen, but for safety.
-log_extreme_risk "Invalid architecture $myarch - this is not supported for Red Hat Enterprise Linux 6."
+log_extreme_risk "Invalid architecture $myarch. This is not supported for Red Hat Enterprise Linux 6."
 exit $RESULT_ERROR

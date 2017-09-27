@@ -1,4 +1,4 @@
-This system uses EFI, therefore redhat-upgrade-tool will install grub2-efi and shim during the upgrade. It is recommended to create the /etc/default/grub file before running redhat-upgrade-tool to ensure the correct grub2 configuration. Misconfiguration might make the system unbootable. As an example, the /etc/defaults/grub file can look like this:
+This system uses EFI, therefore the Red Hat Upgrade Tool will install the grub2-efi and shim packages during the upgrade. Create the /etc/default/grub file before running redhat-upgrade-tool to ensure the correct grub2 configuration. Misconfiguration might make the system unbootable. As an example, the /etc/defaults/grub file can look like this:
 
 GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR="$(sed 's, release .*$,,g' /etc/system-release)"

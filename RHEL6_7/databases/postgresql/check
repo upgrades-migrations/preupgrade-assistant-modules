@@ -171,14 +171,14 @@ check_is_initialized() {
 
     if test ! -f "$PG_VERSION_FILE"; then
         append_to_solution <<EOF
-* Important: It seems that you have installed PostgreSQL server, but you
+* Important: It seems that you have installed a PostgreSQL server, but you
   have not initialized the data directory. It means that either you have never
-  used PostgreSQL server or you are using PostgreSQL server from the
+  used a PostgreSQL server or you are using a PostgreSQL server from the
   postgresql-server package in a different way (which needs a manual
   interaction).
 EOF
         log_error \
-            "The $PG_VERSION_FILE file does not exist, are you using PostgreSQL server?"
+            "The $PG_VERSION_FILE file does not exist, are you using a PostgreSQL server?"
         SKIP_TESTING=yes
         return $RESULT_FAIL
     fi
@@ -232,8 +232,8 @@ EOF
   Still, the full data directory backup ($DATA_DIR) is the  administrator's responsibility. Up to that, backing up the database dump by
   running the "pg_dumpall" tool is strictly encouraged, because if something
   with the in-place upgrade goes wrong on the updated system, you will not be able
-  to go back to the earlier Red hat Enterprise Linux 6 PostgreSQL $PG_OLD_VERSION easily.
-  See the upstream how-to article for pg_dumpall:
+  to go back easily to the earlier Red Hat Enterprise Linux 6 PostgreSQL $PG_OLD_VERSION.
+  See the upstream article for pg_dumpall:
   [link:$UPSTREAM_DOC_PGDUMP]
 EOF
     log_slight_risk "We cannot tell for 100% that the system will be in-place upgradeable."
@@ -286,7 +286,7 @@ check_enabled() {
     log_error "PostgreSQL is not enabled after the system startup."
     append_to_solution <<EOF
 * Note that PostgreSQL is not enabled at the system startup. This is not really
-  risky, but it is at least worth observing. If that is on a server machine, PostgreSQL seems to be unused (if that is true, the sysadmin may uninstall the postgresql-server package).
+  risky, but it is at least worth observing. If that is on a server machine, PostgreSQL seems to be unused. If that is true, the sysadmin may uninstall the postgresql-server package.
 EOF
     return $RESULT_FAIL
 }
@@ -314,8 +314,8 @@ check_permissions() {
         if test $? -ne 0; then
             log_error "Cannot execute \"$cmd\", 'postgres' is not superuser."
             append_to_solution <<EOF
-* The 'postgres' role is not a superuser for PostgreSQL server.  You should
-  execute this SQL statement:
+* The 'postgres' role is not a superuser for PostgreSQL server.
+  Execute this SQL statement:
   ALTER USER postgres WITH SUPERUSER;
   under other PostgreSQL superuser account.
 EOF
@@ -332,7 +332,7 @@ EOF
   To make sure that everything is as expected, fix the "$PG_HBA_CONF_FILE" file
   so that it does not block the 'postgres' user to log in without a password. To achieve that, put the "local all postgres ident" line to be the
   first line of the file.
-  The upgrade process is fully independent on this file though; so if you are
+  The upgrade process is fully independent of this file though; so if you are
   sure that 'postgres' is of superuser role (default configuration), ignore this warning.
 EOF
 
@@ -365,7 +365,7 @@ check_options() {
     if test $? -eq 0; then
         append_to_solution <<EOF
 * The 'unix_socket_directory' option is not supported in Red Hat Enterprise Linux 7. Instead, we
-  use the 'unix_socket_directories' option (which is able to specify multiple
+  use the 'unix_socket_directories' option, which is able to specify multiple
   directories separated by commas. See the documentation of that option at
   [link:http://www.postgresql.org/docs/9.3/static/runtime-config-connection.html]
   Do not remove this option from the configuration file, just be prepared that you will
@@ -514,7 +514,7 @@ fi
 
 append_to_solution <<EOF
 * If you go the in-place upgrade way, you will run the
-  \`postgresql-setup upgrade\` command in Red Hat Enterprise Linux 7. Note that
+  'postgresql-setup upgrade' command in Red Hat Enterprise Linux 7. Note that
   this process does not keep the PostgreSQL configuration files (all configuration files
   will be generated from scratch). The original configuration files will be backed
   up in the $HOME_DIR/data-old/*.conf file and will need manual copying

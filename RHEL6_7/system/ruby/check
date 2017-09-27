@@ -14,14 +14,14 @@ for rb_dir_or_file in `find -P $RUBY_DIRS -maxdepth 0 -type d && find -P $SITE_L
 do
   RPM=`rpm -qf $rb_dir_or_file`
   if [ $? -ne 0 ]; then
-    log_slight_risk "$rb_dir_or_file is not owned by any RPM package."
+    log_slight_risk "The $rb_dir_or_file file or directory is not owned by any RPM package."
     FOUND=1
     continue
   fi
   RPM_NAME=`rpm -q --qf "%{NAME}" $RPM`
   is_dist_native "$RPM_NAME"
   if [ $? -ne 0 ]; then
-    log_slight_risk "$rb_dir_or_file is owned by an RPM package that was not signed by Red Hat."
+    log_slight_risk "The $rb_dir_or_file file or directory is owned by an RPM package that was not signed by Red Hat."
     FOUND=1
   fi
 done

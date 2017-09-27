@@ -138,10 +138,10 @@ do
   removeme="$removeme $orig_pkg"
 
   # logs / prints
-  [ -n "$msg_req" ] && log_slight_risk "The ${orig_pkg} package $msg_req was replaced between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7"
+  [ -n "$msg_req" ] && log_slight_risk "The ${orig_pkg} package $msg_req was replaced between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   [ $is_moved -eq 1 ] && $func_log_risk "The $orig_pkg package replacement moved to the $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. Enable this channel for the upgrade."
   [ $is_not_base -eq 1 ] && $func_log_risk "The $orig_pkg package replacement is a part of the $channel channel in Red Hat Enterprise Linux 7. Enable this channel for the upgrade."
-  echo "${orig_pkg}$msg_req was replaced by ${repl_pkgs}$msg_channel" >>solution.txt
+  echo "${orig_pkg}$msg_req was replaced by ${repl_pkgs}$msg_channel." >>solution.txt
   found=1
 done < <(get_dist_native_list | sort | uniq)
 
@@ -156,8 +156,8 @@ application life cycles." >>solution.txt
 One or more replacement packages are available only in other repositories.
 Provide these repositories to make the upgrade or migration successful." >>solution.txt
 [ $UPGRADE -eq 1 ] && echo -n "
-Be aware that for in-place upgrades, only the Optional repository is supported.
-Packages from other repositories should be removed first." >> solution.txt
+For in-place upgrades, only the Optional repository is supported.
+First, remove the packages from other repositories." >> solution.txt
 
  [ $optional -eq 1 ] && [ $UPGRADE -eq 1 ] && echo "
 For this purpose, if you want to upgrade, use the following additional option
@@ -183,10 +183,10 @@ $repos_texts
 
 Then, enable any equivalent repositories (if they are disabled), and
 install any needed packages.
-For this purpose (installation), you can run a prepared script:
+For this purpose (installation), run a prepared script:
 $_DST_NOAUTO_POSTSCRIPT $KICKSTART_DIR/${FILENAME_BASIS}-notbase
 
-which will install any remaining available packages from these repositories.
+The script will install any remaining available packages from these repositories.
 " >> solution.txt
   }
 }
@@ -312,7 +312,7 @@ for file in $(ls $KICKSTART_DIR/${FILENAME_BASIS}*); do
 done
 
 echo -n "
- * ${FILENAME_BASIS} - This file contains a list of packages that replace the original Red Hat Enterprise Linux 6 packages on the Red Hat Enterprise Linux 7 system, and that are available in the 'Base' channel. These packages will always be installed.
+ * ${FILENAME_BASIS} - This file contains a list of packages that replace the original Red Hat Enterprise Linux 6 packages on the Red Hat Enterprise Linux 7 system, and that are available in the Base channel. These packages will always be installed.
  * ${FILENAME_BASIS}-notbase - This file is similar to the ${FILENAME_BASIS} file, but the packages are a part of other channels, and they must be installed manually.
 " >> "$KICKSTART_README"
 

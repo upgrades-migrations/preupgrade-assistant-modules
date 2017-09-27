@@ -23,7 +23,7 @@ if grep -wq "^ROOTDIR" /etc/sysconfig/named  && [[ -d "$chroot_dir" ]];then
 
         fi
     done
-#Backuping  the configuration files
+#Backing up the configuration files
 
     printf '%s\n' ${bind_chroot_configs[@]} | while IFS= read -r config
     do
@@ -52,14 +52,14 @@ if grep -wq "^ROOTDIR" /etc/sysconfig/named  && [[ -d "$chroot_dir" ]];then
     fi
 #User info
 
-    echo "Your zonefiles under the chrooted directory take $total_size of space. Please backup them manually" >> $SOLUTION_FILE
-    echo "To backup your zone files,you can use the following commands:
+    echo "Your zonefiles under the chrooted directory take $total_size of space. Back them up manually." >> $SOLUTION_FILE
+    echo "To back up your zone files, use the following commands:
 
           tar -cvzf zonefiles.tar.gz -T $zonefile_list
           scp -p zonefiles.tar.gz root@1<REMOTE_HOST>:/path/to/backup/
          " >> $SOLUTION_FILE
 
-    log_high_risk "Zone files under the $zone_chroot_dir must be backed up manually"
+    log_high_risk "Zone files under the $zone_chroot_dir directory must be backed up manually."
 
     echo "Your bind-chroot setup configuration files have been backed up." >> $SOLUTION_FILE
 fi

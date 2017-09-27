@@ -205,7 +205,7 @@ def mv_webapps():
         # in this case, system probably hasn't had any webapps or it will
         # be stored on different place
         log_warning(
-            "The original directory %s does not exist now, which means that you probably"
+            "The original %s directory does not exist now, which means that you probably"
             " did not have your own web applications on the original system,"
             " or a different path was used. In the case that you had some web"
             " applications previously, copy them to a new directory:"
@@ -222,7 +222,7 @@ def mv_webapps():
         return False
     if os.system("/bin/mv %s %s" % (APP_WEB_HOME, APP_WEB_HOME_NEW)):
         log_error(
-            "Original web applications inside %s have not been moved to the new"
+            "Original web applications inside the %s directory have not been moved to the new"
             " %s directory, so tomcat cannot be used with them as it was before."
             " Move your old web applications manually."
               % (APP_WEB_HOME, APP_WEB_HOME_NEW)

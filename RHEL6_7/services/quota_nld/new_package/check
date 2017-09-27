@@ -57,9 +57,9 @@ EOM
     chmod +x $VALUE_TMP_PREUPGRADE/postupgrade.d/quota_nld/install_package.sh || exit_error
 
     solution 'The quota-nld package will be installed by a postupgrade scriptlet.'
-    solution 'You can re-enable the quota_nld service with the `systemctl enable
-quota_nld.service` command and then reboot, or start it with the `systemctl
-start quota_nld.service` command immediately on the target system.'
+    solution 'You can re-enable the quota_nld service with the "systemctl enable
+quota_nld.service" command and then reboot, or start it with the "systemctl
+start quota_nld.service" command immediately on the target system.'
     exit_fixed
 else
     solution 'The quota_nld service is not enabled on the source system.'

@@ -8,13 +8,13 @@ The clvm resource provides both clvmd and cmirrord daemon management.
 The cmirrord is an optional part of the clvm resource, and it can be enabled
 by using the 'with_cmirrord=1' parameter when setting up this resource.
 See the clvm resource description for more information (for example, by running
-'pcs resource describe ocf:heartbeat:clvm')
+'pcs resource describe ocf:heartbeat:clvm').
 
 Although there is still a possibility to run the clvmd and cmirrord daemons
-as a standalone system service without a need for cluster resource manager,
+as a stand-alone system service without a need for cluster resource manager,
 such a setup should be used for testing purposes only, and it should not
 be used in production. For this scenario, the new and optional packages called
 lvm2-cluster-standalone and cmirror-standalone contain respective systemd
 units to run clvmd (via lvm2-cluster-activation.service) and cmirrord
-(via lvm2-cmirrord.service) as standalone system services without cluster
+(via lvm2-cmirrord.service) as stand-alone system services without cluster
 resource manager involvement.

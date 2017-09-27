@@ -40,7 +40,7 @@ class SolutionText(object):
 Use the following solutions to fix them:"""
         self.tail = """For more information, see the BIND9 Administrator Reference
 Manual located in the /usr/share/doc/bind-9.9.4/Bv9ARM.pdf file, and in the 'DNS Servers'
-section of Red Hat Enterprise Linux 7 Networking Guide."""
+section of the Red Hat Enterprise Linux 7 Networking Guide."""
         self.solutions = []
 
     def add_solution(self, solution=""):
@@ -425,7 +425,7 @@ def check_zone_statistics(file_path, buff):
         sol_text.add_solution(
 """The 'zone-statistics' arguments changed:
 Arguments of the 'zone-statistics' option changed in the new version of BIND9.
-Replace the argument 'yes' with 'full', or replace the argument 'no' with 'terse'. The original options are still recognised by BIND9, and silently converted.""")
+Replace the argument 'yes' with 'full', and replace the argument 'no' with 'terse'. The original options are still recognised by BIND9, and silently converted.""")
         status = EXIT_INFORMATIONAL
 
     return status
@@ -620,7 +620,7 @@ def check_default_runtime_dir():
 
     if -1 in [opt_sec_start, opt_sec_end]:
         # unexpected error when BIND is used and works correctly
-        log_error("The options statement has not been found or configuration "
+        log_error("The options statement has not been found or the configuration "
                   "is broken.")
         return EXIT_ERROR
 
@@ -635,7 +635,7 @@ def check_default_runtime_dir():
                                 "BIND9 configuration automatically." % key)
                 status = EXIT_FAIL
             else:
-                log_info("The %s statement has been set to expected value: %s"
+                log_info("The %s statement has been set to the expected value: %s"
                          % (key, val))
                 if status < EXIT_FIXED:
                     status = EXIT_FIXED
@@ -810,7 +810,7 @@ def check_user(uid=0):
     """
     if os.geteuid() != uid:
         sys.stdout.write("Needs to be root.\n")
-        log_error("The script needs to be run under root")
+        log_error("The script needs to be run under root.")
         exit_error()
 
 
@@ -864,7 +864,7 @@ def load_main_config():
             "Cannot open the configuration file: \"" + CONFIG_FILE + "\"")
         exit_error()
     else:
-        log_info("Loading configuration file: \"" + CONFIG_FILE + "\"")
+        log_info("Loading the configuration file: \"" + CONFIG_FILE + "\"")
         filtered_string = remove_comments(f.read())
         f.close()
         FILES_TO_CHECK.append(ConfFile(buffer=filtered_string,

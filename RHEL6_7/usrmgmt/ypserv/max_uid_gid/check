@@ -41,7 +41,7 @@ with the /etc/login.defs file after the upgrade.
 EOF
 
 if [ $UID_RESULT -eq 0 ] ; then
-    log_high_risk "There are some UIDs in the range 500 - 999 in passwd.byuid NIS map."
+    log_high_risk "Some UIDs in the range 500 - 999 exist in the passwd.byuid NIS map."
     solution_file "$SOLUTION"
     exit_fail
 fi

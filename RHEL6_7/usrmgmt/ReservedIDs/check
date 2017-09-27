@@ -52,16 +52,16 @@ if [ -n "$nameline" ];
 then
 #check uid
 [ -n "$myuid" ] && ([ x`echo $nameline | cut -d':' -f3` == x"$myuid" ] || \
- write_file "Invalid UID used for the $myname account - now `echo $nameline | cut -d':' -f3`, should be $myuid". "This might cause troubles when an exact static UID is expected by an application.")
+ write_file "Invalid UID is used for the $myname account. Now, it is `echo $nameline | cut -d':' -f3`, but it should be $myuid". "This might cause troubles when an exact static UID is expected by an application.")
 #check gid
 [ -n "$mygid" ] && ([ x`echo $nameline | cut -d':' -f4` == x"$mygid" ] || \
- write_file "Invalid GID used for the $myname account - now `echo $nameline | cut -d':' -f4`, should be $mygid". "This might cause troubles when an exact static GID is expected by an application.")
+ write_file "Invalid GID is used for the $myname account. Now, it is `echo $nameline | cut -d':' -f4`, but it should be $mygid". "This might cause troubles when an exact static GID is expected by an application.")
 #check homedir (FIXME: Should we warn about this in preupgrade?)
 [ -n "$myhome" ] && ([ x`echo $nameline | cut -d':' -f6` == x"$myhome" ] || \
- log_info "Incorrect homedir used for the $myname account - now `echo $nameline | cut -d':' -f6`, should be $myhome based on the reservation data")
+ log_info "Incorrect home directory is used for the $myname account. Now, it is `echo $nameline | cut -d':' -f6`, but it should be $myhome based on the reservation data.")
 #check loginshell (FIXME: Should we warn about this in preupgrade?)
 [ -n "$myshell" ] && ([ x`echo $nameline | cut -d':' -f7` == x"$myshell" ] || \
- log_info "Incorrect shell used for the $myname account - now `echo $nameline | cut -d':' -f7`, should be $myshell based on the reservation data")
+ log_info "Incorrect shell is used for the $myname account. Now, it is `echo $nameline | cut -d':' -f7`, but it should be $myshell based on the reservation data.")
 fi
 
 #check for invalid reserveduid usage

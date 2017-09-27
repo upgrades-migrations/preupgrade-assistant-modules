@@ -93,9 +93,7 @@ The requirements in packages not signed by Red Hat were checked, but for the non
 rpm-packaged binaries check the compatibility list yourself
 by using, for example, the 'ldd <binary>' command.
 If some of your applications use the library on the list above, rebuild such a package or application against the new library.
-Applications available in Red Hat Enterprise Linux 7 will handle
-these bumps automatically by the update or migration to a new Red Hat Enterprise
-Linux because they were built against these libraries already.
+Applications available in Red Hat Enterprise Linux 7 will handle these bumps automatically because they were built against these libraries already.
 " >>solution.txt
 
 [ $found -eq 1 ] && log_medium_risk "\

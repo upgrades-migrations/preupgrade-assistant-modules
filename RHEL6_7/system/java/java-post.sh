@@ -54,9 +54,9 @@ while read line || [ -n "$line" ]; do
   # new jvm dir is NVRA of main openjdk package (dir owns now sub-package)
   new_jvmdir="/usr/lib/jvm/$(rpm -q "$pkg")"
   [ -d "$new_jvmdir" ] || {
-    log_error "The expected '$new_jvmdir' does not exist. The recovery of" \
+    log_error "The expected $new_jvmdir directory does not exist. The recovery of" \
               "the original configuration for the $pkg package failed. Recover" \
-              "the original configuration manually from '$old_jvmdir'".
+              "the original configuration manually from the $old_jvmdir directory".
     estatus=1
     continue
   }

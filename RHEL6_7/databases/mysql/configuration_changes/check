@@ -142,7 +142,7 @@ EOF
 grep -q "^language$" "$tmp_file" && {
         cat >> $SOLUTION_FILE <<EOF
 
-* MySQL 5.1 used the 'language' variable for specifying the directory which
+* MySQL 5.1 used the 'language' variable for specifying the directory that
 included the error message file. This option is now deprecated and has been
 replaced by the 'lc_messages_dir' and 'lc_messages' options.
 This also applies to the options in the configuration files.
@@ -163,7 +163,7 @@ if [ -f "$OPTION_FIXED_FILE" ] ; then
     echo -e "\n
 To provide at least basic functionality, some options were commented out
 in the files listed below.
-You should replace them with options suitable for your environment that
+Replace them with options suitable for your environment that
 provide the same functionality as you have now:" >> "$SOLUTION_FILE"
     if [ -f "$OPTION_NOT_OK_FILE" ]; then
       # print only files which are not inside $OPTIONS_NOT_OK_FILE
@@ -181,15 +181,15 @@ if [ ! -f "$OPTION_NOT_OK_FILE" ]; then
 else
     echo "\n
 Some options were not commented out in the files listed below and therefore MariaDB 5.5 might fail unexpectedly.
-The listed options should be replaced or commented out manually:" >> "$SOLUTION_FILE"
+Replace the listed options, or comment them out manually:" >> "$SOLUTION_FILE"
     cat "$OPTION_NOT_OK_FILE" | sort | uniq >> "$SOLUTION_FILE"
     result=$RESULT_FAIL
 fi
 
 [ "$result" == "$RESULT_FAIL" ] && echo "
 The files mentioned above are backups of your original configuration files.
-After the upgrade you must manually replace the contents of the default
-MariaDB 5.5 configuration (as is appropriate to your environment) with the
+After the upgrade, manually replace the contents of the default
+MariaDB 5.5 configuration (as is appropriate for your environment) with the
 information provided about the replaced or deprecated options listed in the
 backups. Afterwards, restart MariaDB for these changes to take effect.
 "

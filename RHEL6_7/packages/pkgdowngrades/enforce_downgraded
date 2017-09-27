@@ -105,12 +105,12 @@ def get_downgraded_packages(yb_repo, pkgs, arch):
             if not repo_pkgs:
                 # No alternative package in repo so we give up - this is task
                 # for other contents
-                logging.log(DEBUG3, "The package " + pkg.name + "was not found.")
+                logging.log(DEBUG3, "The " + pkg.name + " package was not found.")
 
             elif pkg.arch == "noarch":
                 actual_arch = repo_pkgs[0].arch
                 logging.warning(
-                    "The package '{0}' is not noarch anymore, {1} will be installed."
+                    "The '{0}' package is not noarch anymore, {1} will be installed."
                         .format(pkg.name, actual_arch))
                 repo_package = repo_pkgs[0]
 
@@ -125,7 +125,7 @@ def get_downgraded_packages(yb_repo, pkgs, arch):
             elif repo_pkgs[0].arch == "noarch":
                 repo_package = repo_pkgs[0]
                 logging.warning(
-                    "The package {0} switched to 'noarch' in the next RHEL release."
+                    "The {0} package switched to 'noarch' in the next RHEL release."
                             .format(pkg_key(pkg)))
 
             elif pkg.arch != arch:
@@ -137,7 +137,7 @@ def get_downgraded_packages(yb_repo, pkgs, arch):
                 repo_package = repo_pkgs[0]
 
         if not repo_package:
-            logging.log(DEBUG2, "The package '{0}.{1}' is skipped."
+            logging.log(DEBUG2, "The '{0}.{1}' package is skipped."
                                 .format(pkg.name, pkg.arch))
         else:
             if yum.packages.comparePoEVR(pkg, repo_package) > 0:
