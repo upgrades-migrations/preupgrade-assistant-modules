@@ -103,14 +103,14 @@ do
   if [ $is_moved -eq 1 ] || [ $is_not_base -eq 1 ]; then
     # [ "$channel" == "optional" ] && optional=1 # unused variable
     other_repositories="${other_repositories}$channel "
-    msg_channel=" ($channel channel in Red Hat Enterprise Linux 7)"
+    msg_channel=" (from the $channel channel in Red Hat Enterprise Linux 7)"
   fi
 
   # logs / prints
-  [ -n "$msg_req" ] && $func_log_risk "The package ${orig_pkg}$msg_req was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
+  [ -n "$msg_req" ] && $func_log_risk "The ${orig_pkg} package$msg_req was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   [ $is_moved -eq 1 ] && $func_log_risk "The partial replacement for the $orig_pkg package moved to the $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   [ $is_not_base -eq 1 ] && $func_log_risk "The partial replacement for the $orig_pkg package is available in the $channel channel in Red Hat Enterprise Linux 7."
-  echo "${orig_pkg}$msg_req was replaced by ${new_pkgs}$msg_channel" >>solution.txt
+  echo "The ${orig_pkg} package$msg_req was replaced by ${new_pkgs}$msg_channel" >>solution.txt
   {
     # store data to kickstart files
     [ -n "$msg_req" ] && filename_suffix="${filename_suffix}-required"
@@ -128,11 +128,11 @@ rm -f "$ObsoletedPkgs" "$MoveObsoletedPkgs" "$NotBasePkgs"
   repos_texts="$(echo "$migrate_repos" | cut -d ";" -f4)"
 
   echo "
-One or more replacement packages are available only in other repositories.
+One or more replacement packages are available only outside of the Base channel.
 If you want to install them later, attach the subscriptions that provide:
 $repos_texts
 
-Then, enable any equivalent repositories (if they are disabled), and install any needed packages.
+Then, enable the equivalent repositories (if they are disabled), and install any needed packages.
 For this purpose, run a prepared script:
 $_DST_NOAUTO_POSTSCRIPT <path/to/pkglist-file>
 

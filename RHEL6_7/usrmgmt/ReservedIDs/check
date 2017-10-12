@@ -82,5 +82,5 @@ echo " These issues do not usually cause critical failures, but in rare cases th
 
 #no issues found, so remake solution text
 rm solution.txt
-echo \ "The packages might create system accounts with static IDs based on the reservation in the /usr/share/doc/setup-*/uidgid file. If you have any violations against the uidgid file reservation, the applications might not work properly, or they might cause some unexpected behavior. In your case, no important divergence from the reservations was found. Even small differences (such as different login shells and application home directories) might be worth checking. See these in the warnings. Flaws in reserved IDs were not found on your system so this check passed, although the warnings might exist. " >solution.txt
+echo \ "The packages might create system accounts with static IDs based on the reservation in the /usr/share/doc/setup-*/uidgid file. If you have any violations against the uidgid file reservation, the applications might not work properly, or they might cause some unexpected behavior. However, no flaws in reserved IDs were found on your system. If you changed anything else besides UID or GID (such as different login shells and application home directories), check the changes carefully." >solution.txt
 exit $RESULT_PASS

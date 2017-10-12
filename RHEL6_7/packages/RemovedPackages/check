@@ -39,7 +39,7 @@ while read pkg
 do
   #skip non-rh and unavailable packages
   is_pkg_installed "$pkg" && is_dist_native $pkg || continue
-  j=" (required by NonRH signed package(s):"
+  j=" (required by package or packages not signed by Red Hat:"
   for k in $(rpm -q --whatrequires $pkg | grep -v "^no package requires" | \
    rev | cut -d'-' -f3- | rev)
   do
@@ -47,8 +47,8 @@ do
     is_dist_native $k ||  j="$j$k "
   done
   j="${j% })"
-  [ "$j" == " (required by NonRH signed package(s):)" ] && j=""
-  [ -n "$j" ] && log_high_risk "The $pkg $j package was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
+  [ "$j" == " (required by package or packages not signed by Red Hat:)" ] && j=""
+  [ -n "$j" ] && log_high_risk "The $pkg package$j was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   echo "$pkg$j" >>solution.txt
   found=1
 done < "$RemovedPkgs"
@@ -69,7 +69,7 @@ If a package not signed by Red Hat requires these packages, you may need to ask 
 vendor to provide an alternative solution, or you may get the missing package from
 other sources than Red Hat Enterprise Linux.
 " >>solution.txt
-[ $found -eq 1 ] && log_high_risk "After upgrading to Red Hat Enterprise Linux 7, there are still some el6 packages left. Add the '--cleanup-post' option to redhat-upgrade-tool to remove them automatically."
+[ $found -eq 1 ] && log_high_risk "After upgrading to Red Hat Enterprise Linux 7, there are still some packages from Red Hat Enterprise Linux 6 left. Add the '--cleanup-post' option to redhat-upgrade-tool to remove them automatically."
 
 [ $found -eq 1 ] && log_medium_risk "\
 Some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of the packages that depend on the removed packages." && exit $RESULT_FAIL

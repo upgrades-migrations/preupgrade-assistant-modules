@@ -138,10 +138,10 @@ do
   removeme="$removeme $orig_pkg"
 
   # logs / prints
-  [ -n "$msg_req" ] && log_slight_risk "The ${orig_pkg} package $msg_req was replaced between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
+  [ -n "$msg_req" ] && log_slight_risk "The ${orig_pkg} package$msg_req was replaced between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   [ $is_moved -eq 1 ] && $func_log_risk "The $orig_pkg package replacement moved to the $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. Enable this channel for the upgrade."
   [ $is_not_base -eq 1 ] && $func_log_risk "The $orig_pkg package replacement is a part of the $channel channel in Red Hat Enterprise Linux 7. Enable this channel for the upgrade."
-  echo "${orig_pkg}$msg_req was replaced by ${repl_pkgs}$msg_channel." >>solution.txt
+  echo "The ${orig_pkg} package$msg_req was replaced by ${repl_pkgs}$msg_channel." >>solution.txt
   found=1
 done < <(get_dist_native_list | sort | uniq)
 
@@ -210,7 +210,7 @@ rm -f "$ReplacedPkgs" "$MoveReplacedPkgs" "$NotBasePkgs"
     [ -z "$m" ] && continue
     replacement=$(echo $m | cut -d'|' -f2)
     notprovided=1
-    log_debug "The $i package is not in the RPM 'provides' directives of the replacement; $replacement. The in-place upgrade might not work properly, and it will be finished by the postupgrade script."
+    log_debug "The $i package is not a part of the RPM 'provides' list of the replacement; $replacement. The in-place upgrade might not work properly, and it will be finished by the postupgrade script."
     l="$l $m"
   done
 

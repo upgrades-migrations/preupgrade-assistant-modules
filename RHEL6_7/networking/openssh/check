@@ -27,7 +27,7 @@ log_medium_risk "The 'AuthorizedKeysCommand' or 'AuthorizedKeysCommandUser' opti
 
 echo "The 'AuthorizedKeysCommand' or 'AuthorizedKeysCommandUser' options were
 detected in the Match section. They might not be accepted inside
-this section. Check it. The bug will be fixed in the future." >> solution.txt
+this section. Check it." >> solution.txt
 
 exit $RESULT_FAIL
 

@@ -70,7 +70,7 @@ while read line; do
     [ -n "$npkgs" ] && [[ "$pkg" !=  "$npkgs" ]] \
       && pkgs_msg=" (in Red Hat Enterprise Linux 7 available in: $npkgs)"
     [ "$rq_msg" == " (required by packages not signed by Red Hat:)" ] && rq_msg=""
-    [ -n "$rq_msg" ] && $tmp_log_risk "The $pkg$rq_msg library changed its soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 ${pkgs_msg}"
+    [ -n "$rq_msg" ] && $tmp_log_risk :"The $pkg$rq_msg library changed its soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 ${pkgs_msg}"
     echo "$old_lib from $pkg$rq_msg changed to $new_lib$pkgs_msg" >>solution.txt
     echo "$old_lib from $pkg$rq_msg changed to $new_lib$pkgs_msg" >>"$sonamed_tmp"
     found=1

@@ -51,5 +51,5 @@ grep -v "/" "$KICKSTART_DIR/untrackedsystem" && \
  exit $RESULT_PASS
 
 #We detected some files untracked by rpm
-log_slight_risk "Some files untracked by RPM packages were detected. Some of these files might need a manual check or migration after redhat-upgrade-tool and/or might cause conflicts during the installation. Try to reduce the number of the unnecessary untracked files before running redhat-upgrade-tool."
+log_slight_risk "Some files untracked by RPM packages were detected. They might cause conflicts during the upgrade process. Handle these files manually. Try to reduce the number of the unnecessary untracked files before running redhat-upgrade-tool."
 exit $RESULT_FAIL

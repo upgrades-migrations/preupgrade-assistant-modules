@@ -12,12 +12,12 @@ function remove_packages {
         $RPM_ERASE $pkg
     done
 }
-echo "Remove preupgrade-assistant packages."
+echo "Removing the Preupgrade Assistant packages."
 remove_packages preupgrade-assistant
 
 rpm -qa | grep "el6" > $RPM_QA 2>/dev/null
 # First we remove all debug-info packages and 32multilib packages automatically
-echo "Remove all debuginfo and 32-bit multilib packages."
+echo "Removing all debuginfo and 32-bit multilib packages."
 for line in `cat $RPM_QA`; do
     NAME=`rpm -q --qf '%{NAME}' $line`
     # Check for debuginfo packages

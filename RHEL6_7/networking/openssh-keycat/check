@@ -18,8 +18,8 @@ To use ssh-keycat, install the openssh-keycat package.
 }
 
 
-log_slight_risk "ssh-keycat is used as a part of the openssh-keycat package in Red Hat Enterprise Linux 7."
-echo "ssh-keycat is moved to its own openssh-keycat package, which
+log_slight_risk "The ssh-keycat files are used as a part of the openssh-keycat package in Red Hat Enterprise Linux 7."
+echo "The ssh-keycat files are moved to their own openssh-keycat package, which
 is automatically installed by the postupgrade script.
 " >> solution.txt
 
