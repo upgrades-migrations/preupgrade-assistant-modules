@@ -16,7 +16,8 @@ echo \
 "Applications developed in the C programming language may use dynamic libraries (.so files) to reuse the
 common functions or symbols in the binary. If the library is missing, the applications
 will not run. Some of the libraries were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7.
-The following libraries were removed from your Red Hat Enterprise Linux 6 packages:
+
+The following libraries from your installed Red Hat Enterprise Linux 6 packages are not present in Red Hat Enterprise Linux 7:
 " >solution.txt
 
 RemovedLibs=$(mktemp .removedpkgsXXX --tmpdir=/tmp)
@@ -46,10 +47,21 @@ while read line; do
     done
     rq_msg="${rq_msg% })"
 
-    [ "$rq_msg" == " (required by packages not signed by Red Hat:)" ] && rq_msg=""
-    [ -n "$rq_msg" ] && $tmp_log_risk "The $soname_lib library from $pkg$rq_msg was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
 
-    echo "$soname_lib from $pkg$rq_msg" >>solution.txt
+    #### form/text of log messages: ####
+    # The <lib> library from the <pkg> package was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7
+    # The <lib> library from the <pkg> package (required by packages not signed by Red Hat: <pkg>[, pkg ...]) was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7
+
+    #### text of items in produced list in solution file ###
+    # <lib> from <pkg>
+    # <lib> from <pkg> (required by packages not signed by Red Hat: <pkg>[, pkg ...])
+
+    [ "$rq_msg" == " (required by packages not signed by Red Hat:)" ] && rq_msg=""
+    [ -n "$rq_msg" ] && $tmp_log_risk "The $soname_lib library from the $pkg package$rq_msg was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
+
+    echo "$soname_lib from the $pkg package$rq_msg" >>solution.txt
+
+    # do not touch the line below
     echo "$soname_lib from $pkg$rq_msg" >>"$removed_tmp"
     found=1
   done
