@@ -59,7 +59,7 @@ grep -v required solution.txt | grep -v " " | grep -v "^$" >> "$KICKSTART_DIR/Re
 grep required "$KICKSTART_DIR/RemovedPkg-required" >/dev/null || rm "$KICKSTART_DIR/RemovedPkg-required"
 grep [a-zA-Z] "$KICKSTART_DIR/RemovedPkg-optional" >/dev/null || rm "$KICKSTART_DIR/RemovedPkg-optional"
 [ -f "$KICKSTART_DIR/RemovedPkg-required" ] && \
-  echo " * RemovedPkg-required - This file contains all Red Hat Enterprise Linux 6 packages that were removed in Red Hat Enterprise Linux 7. There is no known compatible-enough alternative for them. As some of your packages depend on them, check the changes carefully." >>"$KICKSTART_README"
+  echo " * RemovedPkg-required - This file contains all Red Hat Enterprise Linux 6 packages that were removed in Red Hat Enterprise Linux 7. There is no known compatible alternative for them. As some of your packages depend on them, check the changes carefully." >>"$KICKSTART_README"
 [ -f "$KICKSTART_DIR/RemovedPkg-optional" ] && \
   echo " * RemovedPkg-optional - Similar to the RemovedPkg-required file, but in this case, no package not signed by Red Hat requires this. It is more of an informational thing for you, so that you can deal with the unavailability of these packages." >>"$KICKSTART_DIR/README"
 

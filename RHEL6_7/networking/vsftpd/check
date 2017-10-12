@@ -29,7 +29,7 @@ if [[ "$?" -ne 0 ]];then
 else
     if [[ $(echo "$l_key_Y" | wc -w) -gt 1 ]]; then
        if [[ $(echo "$l_val6" | wc -w) -gt 0 ]] && [[ $(echo "$l_val" | wc -w) -gt 0 ]];then
-          log_medium_risk "Your ftp server might not start properly on the upgraded system with both 'listen' and 'listen_ipv6' directives enabled in the $confile file. Comment out one of them in the $confile file before the upgrade."
+          log_medium_risk "Your ftp server might not start properly on the target system with both 'listen' and 'listen_ipv6' directives enabled in the $confile file. Comment out one of them in the $confile file before the upgrade."
           echo "You have both IPv4 and IPv6 listen options enabled in the $confile file. By default, listening on the IPv6 'any' address will accept connections from both IPv6 and IPv4 clients. To listen on specific addresses, run two copies of vsftpd with two configuration files. For more details, see the vsftpd.conf(5) man pages." > $SOLUTION_FILE
        fi
     fi

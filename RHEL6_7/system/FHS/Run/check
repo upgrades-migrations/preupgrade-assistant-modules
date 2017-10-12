@@ -9,7 +9,7 @@ rm -f solution.txt
 if [[ -d /run ]]; then
   log_medium_risk "Conflict with the file structure: the /run/ directory already exists."
   echo \
-"The actual data in the /run/ directory will not be accessible from the upgraded operating system,
+"The actual data in the /run/ directory will not be accessible from the target operating system,
 because tmpfs will be mounted on this directory. Move the data.
 " >> solution.txt
   RESULT=$RESULT_FAIL

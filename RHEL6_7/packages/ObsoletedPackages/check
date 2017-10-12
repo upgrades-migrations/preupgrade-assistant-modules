@@ -29,7 +29,7 @@ grep -Hr "..*" $COMMON_DIR/default-*_obsoleted | sed -r "s|^$COMMON_DIR/([^:]+):
 [ ! -r "$ObsoletedPkgs" ] \
       || [ ! -r "$MoveObsoletedPkgs" ] \
       || [ ! -r "$NotBasePkgs" ] && {
-  log_error "Package content lists missing. Contact the support."
+  log_error "Package content lists are missing. Contact the support."
   rm -f "$ObsoletedPkgs" "$MoveObsoletedPkgs" "$NotBasePkgs"
   exit $RESULT_ERROR
 }

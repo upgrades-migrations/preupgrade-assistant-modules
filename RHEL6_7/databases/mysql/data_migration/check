@@ -35,15 +35,17 @@ including any MySQL databases. You can upgrade the data in two possible ways:
 
 The first one is to store all your data in an SQL file, so that you can restore it after
 migrating to MariaDB 5.5. For backing up the data in this way, use the following commands:
-  # service mysqld start
-  $ mysqldump --all-databases --routines --triggers --events>/your/backup.sql
+  
+# service mysqld start
+$ mysqldump --all-databases --routines --triggers --events>/your/backup.sql
 
 The second one is to use the in-place upgrade, so the files stay untouched when
 upgrading to the MariaDB, and mysql_upgrade is called after the migration.
 To back up the binary files, stop the server and copy the data files to
 a safe location:
-  # service mysqld stop
-  # cp -a $datadir /your/backup/location
+  
+# service mysqld stop
+# cp -a $datadir </your/backup/location/>
 
 The in-place upgrade method is usually faster. However, there are certain risks
 and known problems. For more information, see the MySQL 5.5 Release Notes:

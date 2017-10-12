@@ -41,20 +41,20 @@ echo "Use the following commands to back up your database directories. Notice th
       are not meant for a master server backup.
 
       ldapsearch -b cn=config -x -D '<rootdn>' -W  -H ldap://localhost -LLL '(objectClass=nsBackendInstance)' cn
-      # example : ldapsearch -b cn=config -x -D 'cn=Directory Manager' -W  -H ldap://localhost -LLL '(objectClass=nsBackendInstance)' cn
+      # example: ldapsearch -b cn=config -x -D 'cn=Directory Manager' -W  -H ldap://localhost -LLL '(objectClass=nsBackendInstance)' cn
 
       /usr/lib64/dirsrv/slapd-rl6-ldap/db2bak.pl -D \"<rootdn>\" -w <password> -a <backupfile>
-      # example : /usr/lib64/dirsrv/slapd-rl6-ldap/db2bak.pl -D \"cn=Directory Manager\" -w 12ldap389 -a /var/tmp/rl6-ldap.bak
+      # example: /usr/lib64/dirsrv/slapd-rl6-ldap/db2bak.pl -D \"cn=Directory Manager\" -w 12ldap389 -a /var/tmp/rl6-ldap.bak
 
       /usr/lib64/dirsrv/slapd-rl6-ldap/db2ldif.pl -D \"<rootdn>\" -w <password> -r -n <backend_instance>
-      # example : /usr/lib64/dirsrv/slapd-rl6-ldap/db2ldif.pl -D \"cn=Directory Manager\" -w 12ldap389 -r -n userRoot
+      # example: /usr/lib64/dirsrv/slapd-rl6-ldap/db2ldif.pl -D \"cn=Directory Manager\" -w 12ldap389 -r -n userRoot
 
       If you are using the Preupgrade Assistant for the in-place upgrade of your system, back up the database directories in an
       external location.
 
       Use the following command to upgrade the back-end DB to a new DN format after the upgrade, but before running the setup script:
       upgradednformat -n <backend_instance> -a </path/to_backend/instance/dir>
-      # example : upgradednformat -n userRoot -a /var/lib/dirsrv/slapd-ldapserver/db/userRoot/ 
+      # example: upgradednformat -n userRoot -a /var/lib/dirsrv/slapd-ldapserver/db/userRoot/ 
                                                                                               " >> $SOLUTION_FILE
 
 

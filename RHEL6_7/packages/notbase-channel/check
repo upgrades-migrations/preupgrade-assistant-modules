@@ -108,9 +108,9 @@ while read line; do
 
   echo $line | grep -q " kept "; # is moved or kept?
   if [ $? -ne 0 ]; then
-    log_high_risk "The $pkgname$msg_req package moved to the Optional channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
+    log_high_risk "The $pkgname package$msg_req moved to the Optional channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   else
-    log_high_risk "The $pkgname$msg_req package is available in the Optional channel."
+    log_high_risk "The $pkgname package$msg_req is available in the Optional channel."
   fi
   echo "$pkgname$msg_req (optional channel)" >> solution.txt
   echo "$pkgname|$req_pkgs|$pkgname|$(get_repo_id "optional")" >> "$KICKSTART_DIR/${FILENAME_BASIS}-notbase"
@@ -130,10 +130,10 @@ while read line; do
   echo $line | grep -q " kept "; # is moved or kept?
   if [ $? -ne 0 ]; then
     channel=$(echo "$line" | rev | cut -d "_" -f1 | rev)
-    log_high_risk "The $pkgname$msg_req package moved to the $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
+    log_high_risk "The $pkgname package$msg_req moved to the $channel channel between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
   else
     channel=$(echo "$line" | sed -r "s/^.*default-(.*)_kept-uncommon$/\1/")
-    log_high_risk "The $pkgname$msg_req package is available in the $channel channel."
+    log_high_risk "The $pkgname package$msg_req is available in the $channel channel."
   fi
 
   echo "$pkgname$msg_req ($channel channel)" >> solution.txt

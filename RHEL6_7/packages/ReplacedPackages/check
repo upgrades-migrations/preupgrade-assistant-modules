@@ -38,7 +38,7 @@ grep -Hr "..*" $COMMON_DIR/default-*_replaced | sed -r "s|^$COMMON_DIR/([^:]+):(
        || [ ! -r "$ReplacedPkgs" ] \
        || [ ! -r "$MoveReplacedPkgs" ] \
        || [ ! -r "$NotBasePkgs" ] && {
-  log_error "Package change lists not found. Contact the support."
+  log_error "Package change lists were not found. Contact the support."
   rm -f "$ReplacedPkgs" "$MoveReplacedPkgs" "$NotBasePkgs"
   exit $RESULT_ERROR
 }
@@ -59,13 +59,13 @@ touch "$KICKSTART_DIR/${FILENAME_BASIS}-notbase"
 cp "$_NOAUTO_POSTSCRIPT" "$_DST_NOAUTO_POSTSCRIPT"
 
 echo \
-"Between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7, some packages have either been replaced or
+"Between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7, some packages have been either replaced or
 renamed. The new packages are compatible with their previous versions.
 In some cases, the Preupgrade Assistant will migrate the packages after the
 upgrade is completed.
 
 Note: This tool will not check debug repositories. It is recommended that all debuginfo packages are removed before the upgrade, and
-manually reinstalled as required on the upgraded system.
+manually reinstalled as required on the target system.
 
 The following packages were replaced:" >solution.txt
 
@@ -165,7 +165,7 @@ to redhat-upgrade-tool:
 
     --addrepo rhel-7-optional=<path to the Optional repository>
 
-Alternatively,before you start the system upgrade, you could remove all the packages where the replacement is a 
+Alternatively,before you start the system upgrade, remove all the packages where the replacement is a 
 part of the Red Hat Enterprise Linux 7 Optional repository." >> solution.txt
 # another channels could be added when we support addons
 
@@ -177,13 +177,13 @@ part of the Red Hat Enterprise Linux 7 Optional repository." >> solution.txt
     repos_texts="$(echo "$migrate_repos" | cut -d ";" -f4 )"
 
     echo "
-If you want to migrate, register your machine with subscription-manager
+If you want to migrate, register your machine with Subscription Manager
 after the first boot of your new system, and attach subscriptions that provide:
 $repos_texts
 
 Then, enable any equivalent repositories (if they are disabled), and
 install any needed packages.
-For this purpose (installation), run a prepared script:
+To install the packages, run a prepared script:
 $_DST_NOAUTO_POSTSCRIPT $KICKSTART_DIR/${FILENAME_BASIS}-notbase
 
 The script will install any remaining available packages from these repositories.
@@ -313,7 +313,7 @@ done
 
 echo -n "
  * ${FILENAME_BASIS} - This file contains a list of packages that replace the original Red Hat Enterprise Linux 6 packages on the Red Hat Enterprise Linux 7 system, and that are available in the Base channel. These packages will always be installed.
- * ${FILENAME_BASIS}-notbase - This file is similar to the ${FILENAME_BASIS} file, but the packages are a part of other channels, and they must be installed manually.
+ * ${FILENAME_BASIS}-notbase - This file is similar to the ${FILENAME_BASIS} file, but the packages are a part of other channels. Install them manually.
 " >> "$KICKSTART_README"
 
 [ $notprovided -eq 1 ] && [ -z "$other_repositories" ] && statuscode=$RESULT_FIXED
