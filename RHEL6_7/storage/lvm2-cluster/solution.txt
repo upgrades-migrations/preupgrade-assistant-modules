@@ -1,8 +1,8 @@
 The only supported and official way of running clvmd and cmirrord daemons in
 Red Hat Enterprise Linux 7 is to have these daemons managed by cluster resource manager directly
 (for example by using Pacemaker) instead of running it as a system service defined
-by an initscript or a systemd unit. Therefore, the lvm2-cluster (where clvmd
-daemon is packaged) and the cmirror package (where cmirrord daemon is packaged)
+by an initscript or a systemd unit. Therefore, the lvm2-cluster package (where the clvmd
+daemon is packaged) and the cmirror package (where the cmirrord daemon is packaged)
 now require the resource-agents package which contains a resource named 'clvm'.
 The clvm resource provides both clvmd and cmirrord daemon management.
 The cmirrord is an optional part of the clvm resource, and it can be enabled

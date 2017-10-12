@@ -1,1 +1,1 @@
-We found some Samba shared directories. These should be labeled as samba_shared_t, unless they are system directories, which should carry a different label. Because autorelabel will be performed after the upgrade, check if they are labeled correctly on the upgraded system.
+We found some Samba shared directories. These should be labeled as samba_shared_t, unless they are system directories, which should carry a different label. Because autorelabel will be performed after the upgrade, check if they are labeled correctly on the target system.

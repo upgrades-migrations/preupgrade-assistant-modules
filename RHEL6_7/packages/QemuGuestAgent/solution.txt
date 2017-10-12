@@ -2,8 +2,6 @@ The service name for qemu-guest-agent was modified in Red Hat Enterprise Linux 7
 
 The main hook script location was modified in Red Hat Enterprise Linux 7 from /usr/libexec/qemu-ga/fsfreeze-hook to /etc/qemu-ga/fsfreeze-hook.
 
-The default hook log file location was modified in Red Hat Enterprise Linux 7 from /var/log/qemu-ga/fsfreeze-hook.log to /var/log/qemu-ga/fsfreeze-hook.log.
-
 The app-specific hook script directory location was modified in Red Hat Enterprise Linux 7 from /usr/libexec/qemu-ga/fsfreeze-hook.d to the following three locations listed in the decreasing order of precedence:
 /run/qemu-ga/fsfreeze-hook.d
 /etc/qemu-ga/fsfreeze-hook.d
