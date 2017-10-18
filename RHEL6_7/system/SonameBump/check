@@ -37,7 +37,7 @@ the library might not run.
 Some of the libraries changed their soname version between Red Hat Enterprise
 Linux 6 and Red Hat Enterprise Linux 7.
 
-From your Red Hat Enterprise Linux 6 packages, the following libraries changed their soname:
+The following libraries from your Red Hat Enterprise Linux 6 packages changed their soname in Red Hat Enterprise Linux 7:
 " >solution.txt
 
 
@@ -67,11 +67,25 @@ while read line; do
     done
     rq_msg="${rq_msg% })"
 
+    #### form/text of log messages: ####
+    # The <lib> library from the <pkg> package changed its soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7
+    # The <lib> library from the <pkg> package changed its soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 (in Red Hat Enterprise Linux 7 available in: <pkg>[, pkg ...])
+    # The <lib> library from the <pkg> package (required by packages not signed by Red Hat: <pkg>[, pkg ...]) changed its soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7
+    # The <lib> library from the <pkg> package (required by packages not signed by Red Hat: <pkg>[, pkg ...]) changed its soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 (in Red Hat Enterprise Linux 7 available in: <pkg>[, pkg ...])
+
+    #### text of items in produced list in solution file ###
+    # <lib> from the <pkg> package changed to <lib>
+    # <lib> from the <pkg> package changed to <lib> (in Red Hat Enterprise Linux 7 available in: <pkg>[, pkg ...])
+    # <lib> from the <pkg> package  (required by packages not signed by Red Hat: <pkg>[, pkg ...]) changed to <lib>
+    # <lib> from the <pkg> package  (required by packages not signed by Red Hat: <pkg>[, pkg ...]) changed to <lib> (in Red Hat Enterprise Linux 7 available in: <pkg>[, pkg ...])
+
     [ -n "$npkgs" ] && [[ "$pkg" !=  "$npkgs" ]] \
       && pkgs_msg=" (in Red Hat Enterprise Linux 7 available in: $npkgs)"
     [ "$rq_msg" == " (required by packages not signed by Red Hat:)" ] && rq_msg=""
-    [ -n "$rq_msg" ] && $tmp_log_risk "The $pkg$rq_msg library changed its soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7 ${pkgs_msg}"
-    echo "$old_lib from $pkg$rq_msg changed to $new_lib$pkgs_msg" >>solution.txt
+    [ -n "$rq_msg" ] && $tmp_log_risk "The $old_lib library from the $pkg package$rq_msg changed its soname between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7${pkgs_msg}"
+    echo "$old_lib from the $pkg package$rq_msg changed to $new_lib$pkgs_msg" >>solution.txt
+
+    # do not touch the line below
     echo "$old_lib from $pkg$rq_msg changed to $new_lib$pkgs_msg" >>"$sonamed_tmp"
     found=1
   done
