@@ -4,7 +4,7 @@
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Name:           preupgrade-assistant-el6toel7
-Version:        0.6.71
+Version:        0.7.0
 Release:        1%{?dist}
 Summary:        Set of modules created for upgrade to Red Hat Enterprise Linux 7
 Group:          System Environment/Libraries
@@ -14,14 +14,15 @@ Source0:        %{name}-%{version}.tar.gz
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{pkg_name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires:       preupgrade-assistant >= 2.4.4
-BuildRequires:  preupgrade-assistant-tools >= 2.4.4
+Requires:       preupgrade-assistant >= 2.5.0
+BuildRequires:  preupgrade-assistant-tools >= 2.5.0
 
 # static data are required by our modules & old contents
 # are obsoleted by this package
 Obsoletes:      preupgrade-assistant-contents < 0.6.41-6
 Provides:       preupgrade-assistant-contents = %{version}-%{release}
 Requires:       preupgrade-assistant-el6toel7-data
+
 
 ############################
 # Per module requirements #
