@@ -21,6 +21,7 @@ if grep -q "^[[:space:]]*export[[:space]]" $SYSCONFIG_FILE; then
     sed -i 's/^[[:space:]]*export[[:space:]]//' $CLEAN_SYSCONFIG_FILE && {
         msg="The $CLEAN_SYSCONFIG_FILE file has a fixed configuration already"
         msg+=" and will be applied on the target system automatically."
+        log_info "$msg"
         exit_fixed
     }
 
