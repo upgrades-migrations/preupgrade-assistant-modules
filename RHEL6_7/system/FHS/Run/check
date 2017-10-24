@@ -27,7 +27,7 @@ echo \
 "In Red Hat Enterprise Linux 7, the /run/ directory is the place where tmpfs is mounted for runtime data.
 The original /var/run/ directory is a symbolic link to the /run/ directory, and likewise the /var/lock/ directory points
 to the /run/lock/ directory now. The /run/ directory is emptied on reboot, so all runtime
-files must be created on boot again. See the Red Hat Enterprise Linux 7 Migration Planning Guide." 
+files must be created on boot again. See the Red Hat Enterprise Linux 7 Migration Planning Guide." \
   >> solution.txt
 
 exit $RESULT
