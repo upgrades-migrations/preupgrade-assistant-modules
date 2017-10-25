@@ -4,31 +4,66 @@
 
 #END GENERATED SECTION
 
+back_up_sysconfig() {
+  mkdir -p $(dirname "$2")
+  cp -a "$1" "$2"
+}
 
 SYSCONFIG_FILE="/etc/sysconfig/sshd"
-CLEAN_SYSCONFIG_FILE="$VALUE_TMP_PREUPGRADE/cleanconf/$SYSCONFIG_FILE"
+CLEAN_SYSCONFIG_FILE="$VALUE_TMP_PREUPGRADE/cleanconf$SYSCONFIG_FILE"
+DIRTY_SYSCONFIG_FILE="$VALUE_TMP_PREUPGRADE/dirtyconf$SYSCONFIG_FILE"
 
-mkdir -p $(dirname $CLEAN_SYSCONFIG_FILE)
-cp -a $SYSCONFIG_FILE $CLEAN_SYSCONFIG_FILE
+# put the config file into our dir and possible changes made here. Then it will
+# be moved to expected directory (clean|dirty)conf ...
+SYSCONFIG_TMP="$PWD/sshd.tmp"
+back_up_sysconfig "$SYSCONFIG_FILE" "$SYSCONFIG_TMP"
 
-if grep -q "^[[:space:]]*export[[:space]]" $SYSCONFIG_FILE; then
-    msg="The $SYSCONFIG_FILE file will not be a shell script in Red Hat"
-    msg+=" Enterprise Linux 7 anymore, so all 'export VARIABLE=VALUE' have to"
-    msg+=" be changed to 'VARIABLE=VALUE'."
+# This is checker, whether the $SYSCONFIG_FILE could contains anything, that
+# would cause different output on the upgraded system; Like executable code
+# can't be presented, additional variables, ... e.g.:
+#  var=$(...)
+#  var="String $var2 string"
+#  var=string #comment
+#  ...
+grep -v "^[[:space:]]*#" $SYSCONFIG_FILE | grep -v "^[[:space:]]*$" \
+    | grep -qiEv '^[[:space:]]*(export[[:space:]]*)?[[:alnum:]_]+[[:space:]]*=[^][\$`()!:;#]*$'
+SUSPICIOUS=$?
+
+if grep -q "^[[:space:]]*export[[:space:]]" $SYSCONFIG_FILE || [ $SUSPICIOUS -eq 0 ]; then
+    msg="In Red Hat Enterprise Linux (RHEL) 7, the sshd config file"
+    msg+=" $SYSCONFIG_FILE is no longer a shell script as it was in RHEL 6."
+    msg+=" With the introduction of systemd it has become an environment"
+    msg+=" file for the sshd systemd service, which has a KEY=VALUE syntax."
+    msg+=" Thus, the config file cannot contain any executable code or even"
+    msg+=" lines like 'VARIABLE=VALUE #comment'. Otherwise, unexpected"
+    msg+=" behavior could occur on the target system. The complete file"
+    msg+=" syntax is documented at [link:https://www.freedesktop.org/software/systemd/man/systemd.exec.html#EnvironmentFile=]"
     echo -e "$msg" >> solution.txt
 
-    log_info "The 'export' commands will be removed from the $SYSCONFIG_FILE file."
-    sed -i 's/^[[:space:]]*export[[:space:]]//' $CLEAN_SYSCONFIG_FILE && {
+    log_info "The 'export' commands are removed from the $SYSCONFIG_FILE file."
+    sed -i 's/^[[:space:]]*export[[:space:]]//' $SYSCONFIG_TMP \
+      && [ $SUSPICIOUS -ne 0 ] && {
+        back_up_sysconfig "$SYSCONFIG_TMP" "$CLEAN_SYSCONFIG_FILE"
         msg="The $CLEAN_SYSCONFIG_FILE file has a fixed configuration already"
         msg+=" and will be applied on the target system automatically."
         log_info "$msg"
         exit_fixed
     }
 
-    # imporbably situation, it's here just for completeness
-    log_high_risk "The $CLEAN_SYSCONFIG_FILE has not been fixed. Fix it manually."
+    back_up_sysconfig "$SYSCONFIG_TMP" "$DIRTY_SYSCONFIG_FILE"
+
+    msg="The $SYSCONFIG_FILE file is copied to the $DIRTY_SYSCONFIG_FILE file."
+    msg+=" The modified file copy must follow the rules mentioned above."
+    msg+=" Verify and update the file copy manually to satisfy the systemd"
+    msg+=" environment file syntax. Move the verified file to the"
+    msg+=" $(dirname "$CLEAN_SYSCONFIG_FILE") directory to ensure that it"
+    msg+=" will be applied on the target system automatically."
+    echo -e "\n$msg" >> solution.txt
+
+    log_high_risk "We cannot ensure that the $DIRTY_SYSCONFIG_FILE file copy is correct."
     exit_fail
 else
+    back_up_sysconfig "$SYSCONFIG_TMP" "$CLEAN_SYSCONFIG_FILE"
     exit_pass
 fi
 
