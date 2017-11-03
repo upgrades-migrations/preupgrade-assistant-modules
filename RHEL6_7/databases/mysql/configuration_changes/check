@@ -192,7 +192,7 @@ After the upgrade, manually replace the contents of the default
 MariaDB 5.5 configuration (as is appropriate for your environment) with the
 information provided about the replaced or deprecated options listed in the
 backups. Afterwards, restart MariaDB for these changes to take effect.
-"
+" >> "$SOLUTION_FILE"
 
 rm -f "$tmp_file"
 exit $result
