@@ -1,1 +1,3 @@
 The module detects and lists the services that are disabled by default in Red Hat Enterprise Linux 7.
+
+On the target system, the SysV init system is replaced by the systemd service manager. You can still use your current init scripts on the target system as they are internally wrapped and executed by systemd. However, in case you want to migrate your init scripts to unit files thoroughly, you have to do that manually. See [link:https://access.redhat.com/solutions/912263] for more information.
