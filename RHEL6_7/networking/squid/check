@@ -26,7 +26,7 @@ export PATH=$PATH:/usr/bin
 ret=$RESULT_INFORMATIONAL
 
 grep -q "^[[:space:]]*dns_v4_fallback" $CONFIG_FILE
-if [ $? -ne 0 ]; then
+if [ $? -eq 0 ]; then
     echo "\
 * Squid now uses DNS parallel lookups as a replacement for the 'dns_v4_fallback' option. 
   This option will be therefore removed from your squid.conf file.
@@ -34,6 +34,7 @@ if [ $? -ne 0 ]; then
 
     log_slight_risk "The 'dns_v4_fallback' option will be erased."
     sed -i -e '/^\([[:space:]]*\)dns_v4_fallback/d' $VALUE_TMP_PREUPGRADE/cleanconf/$CONFIG_FILE
+    ret=$RESULT_FAIL
     
 fi
 
@@ -53,24 +54,25 @@ fi
 
 
 grep -q "^[[:space:]]*forward_log" $CONFIG_FILE
-if [ $? -ne 0 ]; then
+if [ $? -eq 0 ]; then
     echo "\
 * The 'forward_log' option is now obsolete and will be removed from your squid.conf file.
 " >> $SOLUTION_FILE
 
     log_slight_risk "The 'forward_log' option will be erased."
     sed -i -e '/^\([[:space:]]*\)forward_log/d' $VALUE_TMP_PREUPGRADE/cleanconf/$CONFIG_FILE
+    ret=$RESULT_FAIL
 fi
 
-K
 grep -q "^[[:space:]]*ftp_list_width" $CONFIG_FILE
-if [ $? -ne 0 ]; then
+if [ $? -eq 0 ]; then
     echo "\
 * The 'ftp_list_width' option is now obsolete and will be removed from your squid.conf file.
 " >> $SOLUTION_FILE
 
     log_slight_risk "The 'ftp_list_width' option will be erased."
     sed -i -e '/^\([[:space:]]*\)ftp_list_width/d' $VALUE_TMP_PREUPGRADE/cleanconf/$CONFIG_FILE
+    ret=$RESULT_FAIL
 fi
 
 
@@ -125,6 +127,7 @@ This option will be therefore modified into the newly introduced 'server_idle_pc
     
     log_slight_risk "The 'pconn_timeout' option will be modified."
     sed -i 's/^\([[:space:]]*\)pconn_timeout/\1server_idle_pconn_timeout/' $VALUE_TMP_PREUPGRADE/cleanconf/$CONFIG_FILE
+    ret=$RESULT_FAIL
 fi 
 
 grep -i "^[[:space:]]*persistent_request_timeout" $CONFIG_FILE
@@ -136,6 +139,7 @@ This option will be therefore modified into the newly introduced 'client_idle_pc
     
     log_slight_risk "The 'persistent_request_timeout' option will be modified."
     sed -i 's/^\([[:space:]]*\)persistent_request_timeout/\1client_idle_pconn_timeout/' $VALUE_TMP_PREUPGRADE/cleanconf/$CONFIG_FILE 
+    ret=$RESULT_FAIL
 fi 
 
 grep -i "^[[:space:]]*referr\?er_log" $CONFIG_FILE
@@ -160,6 +164,7 @@ if [ $? -eq 0 ]; then
     
     log_slight_risk "The 'url_rewrite_concurrency' option will be modified."
     sed -i 's/^\([[:space:]]*\)url_rewrite_concurrency/\1url_rewrite_children concurrency/' $VALUE_TMP_PREUPGRADE/cleanconf/$CONFIG_FILE
+    ret=$RESULT_FAIL
 
 fi 
 
