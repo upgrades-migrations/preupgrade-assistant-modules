@@ -51,6 +51,7 @@ processing interval is now specified by SENDMAIL_OPTS in the $CONFIG_FILE file. 
 To setup queue processing interval to, for example, one hour, use SENDMAIL_OPTS=\"-q1h\"."
 
   if ! grep -q "SENDMAIL_OPTS=.*-q[0-9smhdw]\+.*" "$CONFIG_FILE"; then
+    log_medium_risk "The mail queue processing interval is not set."
     solution "Your $CONFIG_FILE file does not contain SENDMAIL_OPTS=-qTIME. If you do \
 not specify the queue processing interval, the mail queue will be processed only once \
 during the sendmail startup, and further emails will not be processed or \

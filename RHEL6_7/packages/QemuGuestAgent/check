@@ -15,5 +15,5 @@ if test $E_CHK -eq 0 -o $E_SRV -eq 0; then
 	exit "$RESULT_FAIL"
 else
 	log_slight_risk "Several QEMU guest agent files and file names were modified in Red Hat Enterprise Linux 7."
-	exit "$RESULT_INFORMATIONAL"
+	exit "$RESULT_FAIL"
 fi
