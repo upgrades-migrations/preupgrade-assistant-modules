@@ -13,7 +13,7 @@ mkdir -p $VALUE_TMP_PREUPGRADE/postupgrade.d/multipath
 cp -R postupgrade.d/* $VALUE_TMP_PREUPGRADE/postupgrade.d/multipath
 
 if [ -e "$OLD_MULTIPATH_RULES" ]; then
-	log_warning "Multipath's udev rules file has moved in Red Hat Enterprise Linux 7. The old $OLD_MULTIPATH_RULES file must be removed."
+	log_info "Multipath's udev rules file has moved in Red Hat Enterprise Linux 7. The original $OLD_MULTIPATH_RULES file will be removed by the postupgrade script."
 	FIX=1
 fi	
  
@@ -23,7 +23,7 @@ if [ -f "$MULTIPATH_CONF" ]; then
 		ERR=1
 	fi
 	if grep -q "devices[[:space:]]*{" $MULTIPATH_CONF; then
-		log_high_risk "Multipath matches user device configs with built-in device configs differently in Red Hat Enterprise Linux 7."
+		log_info "Multipath matches user device configs with built-in device configs differently in Red Hat Enterprise Linux 7. This will be taken care of by the postupgrade script."
 		FIX=1
 	fi
 fi

@@ -5,14 +5,14 @@
 #END GENERATED SECTION
 
 if service_is_enabled snmpd; then
-    log_slight_risk "Net-SNMP daemon is enabled. See the following knowledge base article for known incompatibilities."
+    log_medium_risk "Net-SNMP daemon is enabled. See the following knowledge base article for known incompatibilities."
     cat <<_EOF_ >solution.txt
 Net-SNMP in Red Hat Enterprise Linux 7 has been updated to version 5.7.2. It includes many fixes and new features.
 In most configurations, no changes to the configuration files are necessary.
 See the following knowledge base article at [link:https://access.redhat.com/site/articles/696163] for any known incompatibilities.
 Retest carefully all applications consuming SNMP data from this system with the updated Net-SNMP package.
 _EOF_
-    exit $RESULT_INFORMATIONAL
+    exit $RESULT_FAIL
 fi
 
 exit $RESULT_PASS

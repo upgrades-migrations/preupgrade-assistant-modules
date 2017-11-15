@@ -146,7 +146,7 @@ def check_dhcp_tags(file_path, buff):
     dhcp_tag_iter = dhcp_tag_pattern.finditer(buff)
 
     for statement in dhcp_tag_iter:
-        log_slight_risk("It looks like you are using DHCP tags ('" + statement.group(0) + "') in \"" + file_path + "\".")
+        log_info("It looks like you are using DHCP tags ('" + statement.group(0) + "') in \"" + file_path + "\".")
         status = EXIT_INFORMATIONAL
 
     if status == EXIT_INFORMATIONAL:
