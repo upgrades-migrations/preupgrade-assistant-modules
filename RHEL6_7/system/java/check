@@ -184,7 +184,7 @@ check_java78() {
 
     echo >> "$SOLUTION_FILE" \
       "* OpenJDK $version is installed. The configuration files"\
-      "will be backed up, and then they will be restored by the post-upgrade script" \
+      "will be backed up, and then they will be restored by the postupgrade script" \
       "automatically."
 
     if bp_jconfs "$jvmdir"; then
