@@ -26,5 +26,5 @@ get_dist_non_native_list > "$KICKSTART_DIR/nonrhpkgs"
 }
 
 #We detected some non-redhat package
-log_high_risk "We detected some packages not signed by Red Hat. You can find the list in the [link:/root/preupgrade/kickstart/nonrhpkgs] file. Handle them yourself."
+log_high_risk "We detected some packages not signed by Red Hat. You can find the list in the /root/preupgrade/kickstart/nonrhpkgs file. Handle them yourself."
 exit $RESULT_FAIL
