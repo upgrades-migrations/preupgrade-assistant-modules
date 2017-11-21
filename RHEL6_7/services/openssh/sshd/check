@@ -65,7 +65,7 @@ If you want to fix the config file yourself, type:
 
 For more information about AuthorizedKeysCommandUser, see the SSHD_CONFIG(5) man page.
 "
-        log_slight_risk "AuthorizedKeysCommandUser will be added into [link:cleanconf/$SSHD_CONFIG_FILE]."
+        log_slight_risk "AuthorizedKeysCommandUser will be added into $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE."
 
 	echo 'AuthorizedKeysCommandUser %u' >> $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE && RESULT=$RESULT_FIXED
     fi
