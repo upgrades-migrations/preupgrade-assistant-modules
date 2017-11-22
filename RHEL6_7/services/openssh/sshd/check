@@ -6,18 +6,17 @@ check_applies_to "openssh-server"
 #END GENERATED SECTION
 
 
-
-
-SSHD_CONFIG_FILE=/etc/ssh/sshd_config
+CLEANCONF_D="$VALUE_TMP_PREUPGRADE/cleanconf"
+SSHD_CONFIG_FILE="/etc/ssh/sshd_config"
+CLEANCONF_SSHD="${CLEANCONF_D}${SSHD_CONFIG_FILE}"
 
 RESULT=$RESULT_PASS
 
-mkdir -p $VALUE_TMP_PREUPGRADE/cleanconf/$(dirname $SSHD_CONFIG_FILE)
-cp $SSHD_CONFIG_FILE $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE
+cp -a --parent $SSHD_CONFIG_FILE $CLEANCONF_D
 
 if grep -q "^[[:space:]]*RequiredAuthentications2" $SSHD_CONFIG_FILE; then
     solution_file "
-RequiredAuthentications2 is replaced by AuthenticationMethods in $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE.
+RequiredAuthentications2 is replaced by AuthenticationMethods in $CLEANCONF_SSHD.
 If you want to fix the config file yourself, type:
 
 # sed -i -e 's/^[[:space:]]*RequiredAuthentications2/AuthenticationMethods/i' $SSHD_CONFIG_FILE
@@ -26,7 +25,7 @@ For more information about AuthenticationMethods, see the SSHD_CONFIG(5) man pag
 "
     log_slight_risk "RequiredAuthentication2 will be replaced by AuthenticationMethods."
 
-    sed -i -e 's/^\([[:space:]]*\)RequiredAuthentications2/\1AuthenticationMethods/i' $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE \
+    sed -i -e 's/^\([[:space:]]*\)RequiredAuthentications2/\1AuthenticationMethods/i' $CLEANCONF_SSHD \
       && RESULT=$RESULT_FIXED || RESULT=$RESULT_FAIL
 fi
 
@@ -39,8 +38,8 @@ RequiredAuthentication1 will not be supported anymore.
     exit $RESULT_FAIL
 fi
 
-if grep -q -i "^[[:space:]]*AuthorizedKeysCommand[[:space:]]" $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE; then
-    if grep -q -i "^[[:space:]]*AuthorizedKeysCommandRunAs[[:space:]]" $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE; then
+if grep -q -i "^[[:space:]]*AuthorizedKeysCommand[[:space:]]" $CLEANCONF_SSHD; then
+    if grep -q -i "^[[:space:]]*AuthorizedKeysCommandRunAs[[:space:]]" $CLEANCONF_SSHD; then
 
         solution_file "
 The AuthorizedKeysCommandRunAs option will not be supported in Red Hat Enterprise Linux 7 anymore and it will be replaced by
@@ -52,7 +51,7 @@ If you want to fix the config file yourself, type:
 For more information about AuthorizedKeysCommand, see the SSHD_CONFIG(5) man page.
 "
         log_slight_risk "AuthorizedKeysCommandRunAs will be replaced by AuthorizedKeysCommandUser."
-	sed -i -e 's/^\([[:space:]]*\)AuthorizedKeysCommandRunAs\([[:space:]]\)/\1AuthorizedKeysCommandUser\2/i' $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE && RESULT=$RESULT_FIXED || RESULT=$RESULT_FAIL
+    sed -i -e 's/^\([[:space:]]*\)AuthorizedKeysCommandRunAs\([[:space:]]\)/\1AuthorizedKeysCommandUser\2/i' $CLEANCONF_SSHD && RESULT=$RESULT_FIXED || RESULT=$RESULT_FAIL
 
     else
         solution_file "
@@ -65,9 +64,9 @@ If you want to fix the config file yourself, type:
 
 For more information about AuthorizedKeysCommandUser, see the SSHD_CONFIG(5) man page.
 "
-        log_slight_risk "AuthorizedKeysCommandUser will be added into $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE."
+        log_slight_risk "AuthorizedKeysCommandUser will be added into $CLEANCONF_SSHD."
 
-	echo 'AuthorizedKeysCommandUser %u' >> $VALUE_TMP_PREUPGRADE/cleanconf/$SSHD_CONFIG_FILE && RESULT=$RESULT_FIXED
+    echo 'AuthorizedKeysCommandUser %u' >> $CLEANCONF_SSHD && RESULT=$RESULT_FIXED
     fi
 fi
 
