@@ -128,10 +128,14 @@ class ModuleInit(object):
 
 if __name__ == "__main__":
 
-    i = ModuleInit(
-        assessment_dir = os.environ['PREUPGM_INIT_ASSESSMENT_DIR'],
-        dst_arch = os.environ['PREUPGM_INIT_DST_ARCH'],
-        contents = os.environ['PREUPGM_INIT_CONTENTS'],
-        scenario = os.environ['PREUPGM_INIT_SCENARIO'],
-    )
+    try:
+        i = ModuleInit(
+            assessment_dir = os.environ['PREUPGM_INIT_ASSESSMENT_DIR'],
+            dst_arch = os.environ['PREUPGM_INIT_DST_ARCH'],
+            contents = os.environ['PREUPGM_INIT_CONTENTS'],
+            scenario = os.environ['PREUPGM_INIT_SCENARIO'],
+        )
+    except KeyError, e:
+        sys.stderr.write("The '%s' environment variable is not set." % str(e))
+        sys.exit(1)
     i.prep_symlinks()
