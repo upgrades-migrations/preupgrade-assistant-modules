@@ -70,7 +70,7 @@ rhds_base_info
 }
 
 
-389_base_info () {
+rhds_base_info_389 () {
 
 echo 'The 389-ds or 389-ds-base packages are not supported as stand-alone packages. Review the scope of the support at:
       https://access.redhat.com/solutions/2440481             
@@ -85,10 +85,10 @@ rhds_base_info
 
 }
 
-389_info () {
+rhds_info_389 () {
 echo 'Note: Only the directory server package is checked. This version does not assist with the admin server or the console upgrade.' >> $SOLUTION_FILE
 
-389_base_info
+rhds_base_info_389 
 
 }
 
@@ -107,9 +107,9 @@ if [ $? -eq 0 ];then
 else
    is_pkg_installed "389-ds"
    if [ $? -eq 0 ];then
-      389_info
+      rhds_info_389 
    else
-      389_base_info
+      rhds_base_info_389 
    fi
    log_extreme_risk "The upgrade of 389-ds or 389-ds-base packages is not supported."
    exit_fail
