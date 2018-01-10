@@ -85,7 +85,6 @@ install -d -m 755 $RPM_BUILD_ROOT%{_datadir}/preupgrade
 mv LICENSE $RPM_BUILD_ROOT%{_datadir}/doc/preupgrade-assistant-el6toel7/
 mv RHEL6_7-results $RPM_BUILD_ROOT%{_datadir}/preupgrade/RHEL6_7
 
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/preupgrade/RHEL6_7/3rdparty
 rm -rf $RPM_BUILD_ROOT/%{_datadir}/preupgrade/common
 
 # General cleanup
