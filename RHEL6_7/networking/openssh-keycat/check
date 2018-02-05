@@ -18,19 +18,20 @@ To use ssh-keycat, install the openssh-keycat package.
 }
 
 
-log_high_risk "ssh-keycat is used as a part of the openssh-keycat package in Red Hat Enterprise Linux 7."
-msg="ssh-keycat is moved to its own openssh-keycat package, which is"
-msg+=" automatically installed by the post-upgrade script in case the"
-msg+=" repository with the package is available during downloading of the"
-msg+=" packages by the redhat-upgrade-tool. However, the repository is usualy"
-msg+=" available only for subscribed Red Hat Enterprise Linux 7 system. You"
-msg+=" need to create your own repository with the ssh-keycat package or"
-msg+=" change settings of your system so you will be able to connect using ssh"
-msg+=" without the ssh-keycat and change the settings back manually after"
-msg+=" upgrade will be finished and ssh-keycat will be installed on the target"
+log_high_risk "The ssh-keycat utility is a part of the openssh-keycat package in Red Hat Enterprise Linux 7."
+msg="The ssh-keycat utility is moved to its own openssh-keycat package, which is"
+msg+=" installed automatically by the postupgrade script if the"
+msg+=" repository with the openssh-keycat package is available during the downloading of the"
+msg+=" packages by the Red Hat Upgrade Tool. However, the repository is usually"
+msg+=" available only for subscribed Red Hat Enterprise Linux 7 systems. Create"
+msg+=" your own repository with the ssh-keycat package, or"
+msg+=" change your system settings to be able to connect by using ssh"
+msg+=" without the ssh-keycat package. Change the settings back manually after"
+msg+=" the upgrade is finished, and after ssh-keycat is installed on the target"
 msg+=" system."
 echo "$msg" >> solution.txt
 
 cp install-openssh-keycat.sh $POSTUPGRADE_DIR/install-openssh-keycat.sh
 exit $RESULT_FAIL
+
 
