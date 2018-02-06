@@ -11,7 +11,7 @@ back_up_config() {
     #
     mkdir -p $(dirname "$2")
     cp -a "$1" "$2" || {
-        log_error "Cannot store the '$1' file as '$2'."
+        log_error "Cannot store the $1 file as $2."
         return 1
     }
 
@@ -45,7 +45,7 @@ back_up_config "$SSHD_CONFIG_FILE" "$SSHD_CONFIG_TMP" || exit_error
 
 if grep -q "^[[:space:]]*RequiredAuthentications2" $SSHD_CONFIG_FILE; then
     msg="* RequiredAuthentications2 is replaced by AuthenticationMethods"
-    msg+=" in the Red Hat Enterprise Linux 7 system. For more information"
+    msg+=" on the Red Hat Enterprise Linux 7 system. For more information"
     msg+=" about AuthenticationMethods, see the SSHD_CONFIG(5) man page."
     echo -e "$msg\n" >> solution.txt
 
@@ -53,7 +53,7 @@ if grep -q "^[[:space:]]*RequiredAuthentications2" $SSHD_CONFIG_FILE; then
     set_result $RESULT_FIXED
 
     sed -i -e 's/^\([[:space:]]*\)RequiredAuthentications2/\1AuthenticationMethods/i' $SSHD_CONFIG_TMP \
-      || log_and_fail "Replacing of RequiredAuthentication2 failed."
+      || log_and_fail "Replacing RequiredAuthentication2 failed."
 fi
 
 if grep -q "^[[:space:]]*RequiredAuthentications1" $SSHD_CONFIG_FILE; then
@@ -64,9 +64,9 @@ if grep -q "^[[:space:]]*RequiredAuthentications1" $SSHD_CONFIG_FILE; then
     # comment out completely the line with RequiredAuthentications1. We expect
     # it could be used rarely only as it is too unsafe protocol for a long
     # time.
-    msg="* RequiredAuthentications1 is not supported in the Red Hat Enterprise"
-    msg+=" Linux 7 system and will be automatically commented out in the"
-    msg+=" configuration file. In case you want to specify authentication"
+    msg="* RequiredAuthentications1 is not supported on the Red Hat Enterprise"
+    msg+=" Linux 7 system, and it will be commented out automatically in the"
+    msg+=" configuration file. To specify the authentication"
     msg+=" methods that have to be used, use AuthenticationMethods. For more"
     msg+=" information about AuthenticationMethods, see the SSHD_CONFIG(5)"
     msg+=" man page."
@@ -76,13 +76,13 @@ if grep -q "^[[:space:]]*RequiredAuthentications1" $SSHD_CONFIG_FILE; then
     set_result $RESULT_FAIL
 
     sed -i -e '/^\([[:space:]]*RequiredAuthentications1\)/# \1/i' $SSHD_CONFIG_TMP \
-      || log_and_fail "The RequiredAuthentications1 has not been commented out."
+      || log_and_fail "RequiredAuthentications1 has not been commented out."
 fi
 
 if grep -q -i "^[[:space:]]*AuthorizedKeysCommand[[:space:]]" $SSHD_CONFIG_FILE; then
     if grep -q -i "^[[:space:]]*AuthorizedKeysCommandRunAs[[:space:]]" $SSHD_CONFIG_FILE; then
         msg="* The AuthorizedKeysCommandRunAs option is not supported in"
-        msg+=" Red Hat Enterprise Linux 7 anymore and it will be replaced by"
+        msg+=" Red Hat Enterprise Linux 7, and it will be replaced by"
         msg+=" AuthorizedKeysCommandUser. For more information about"
         msg+=" AuthorizedKeysCommandUser, see the SSHD_CONFIG(5) man page."
         echo -e "$msg\n" >> solution.txt
@@ -91,17 +91,17 @@ if grep -q -i "^[[:space:]]*AuthorizedKeysCommand[[:space:]]" $SSHD_CONFIG_FILE;
         set_result $RESULT_FIXED
 
         sed -i -e 's/^\([[:space:]]*\)AuthorizedKeysCommandRunAs\([[:space:]]\)/\1AuthorizedKeysCommandUser\2/i' $SSHD_CONFIG_TMP \
-          || log_and_fail "Replacing of AuthorizedKeysCommandRunAs failed."
+          || log_and_fail "Replacing AuthorizedKeysCommandRunAs failed."
     else
         msg="* The AuthorizedKeysCommand option requires the AuthorizedKeysCommandUser"
-        msg+=" option, see the SSHD_CONFIG(5) man page. The option will be"
-        msg+=" added automatically."
+        msg+=" option, which will be added automatically."
+        msg+=" For more information, see the SSHD_CONFIG(5) man page."
         echo -e "$msg\n" >> solution.txt
 
-        log_info "AuthorizedKeysCommandUser will be added into sshd_config file."
+        log_info "AuthorizedKeysCommandUser will be added into the sshd_config file."
         set_result $RESULT_FIXED
         echo 'AuthorizedKeysCommandUser %u' >> $SSHD_CONFIG_TMP \
-          || log_and_fail "Adding of the 'AuthorizedKeysCommandUser %u' line failed."
+          || log_and_fail "Adding the 'AuthorizedKeysCommandUser %u' line failed."
     fi
 fi
 
@@ -111,21 +111,21 @@ fi
 if [ "$manual_action" == "no" ]; then
     if [ $ret -eq $RESULT_FIXED ]; then
         back_up_config "$SSHD_CONFIG_TMP" "$CLEANCONF_SSHD" || exit_error
-        msg="Modified $SSHD_CONFIG has been stored as $CLEANCONF_SSHD"
-        msg+=" and will be applied automatically on the target system."
+        msg="The modified $SSHD_CONFIG file has been stored as $CLEANCONF_SSHD,"
+        msg+=" and it will be applied automatically on the target system."
         log_info "$msg"
     else
         back_up_config "$SSHD_CONFIG_TMP" "$DIRTYCONF_SSHD" || exit_error
     fi
 else
     back_up_config "$SSHD_CONFIG_TMP" "$DIRTYCONF_SSHD" || exit_error
-    msg="Some troubles occur and the $SSHD_CONFIG config file was not prepared"
-    msg+=" for in-place upgrade automatically. You can find partially prepared"
-    msg+=" configurtion file in $DIRTYCONF_SSHD. Modify it manually according"
-    msg+=" to information above and move it to $CLEANCONF_SSHD before upgrade."
+    msg="The $SSHD_CONFIG config file was not prepared"
+    msg+=" for the in-place upgrade automatically. A partially prepared"
+    msg+=" configurtion file is located in the $DIRTYCONF_SSHD directory. Modify the file manually according"
+    msg+=" to the information above, and move it to the $CLEANCONF_SSHD directory before upgrade."
     echo -e "\n$msg" >> solution.txt
 
-    log_high_risk "The $SSHD_CONFIG has to be prepared for upgrade manually."
+    log_high_risk "The $SSHD_CONFIG file has to be prepared for upgrade manually."
 fi
 
 
