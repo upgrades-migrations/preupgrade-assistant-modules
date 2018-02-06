@@ -13,19 +13,19 @@ DIRTY_CONFIG_FILE=/root/preupgrade/dirtyconf/etc/ssh/sshd_config
 CLEAN_CONFIG_FILE=/root/preupgrade/cleanconf/etc/ssh/sshd_config
 
 if [ -f "$CLEAN_CONFIG_FILE" ]; then
-    log_info "The $CLEAN_CONFIG_FILE file detected. Nothing to do."
+    log_info "The $CLEAN_CONFIG_FILE file was detected. No activity needed."
     exit 0
 fi
 
-log_info "Back up the $CONFIG_FILE file as the ${CONFIG_FILE}.preupg_bp"
+log_info "Back up the $CONFIG_FILE file as the ${CONFIG_FILE}.preupg_bp."
 cp -a "${CONFIG_FILE}" "${CONFIG_FILE}.preupg_bp"
 
 if [ ! -f "$DIRTY_CONFIG_FILE" ]; then
-    msg="The $DIRTY_CONFIG_FILE file neither $CLEAN_CONFIG_FILE have not been"
-    msg+=" detected. Try to fix current the $CONFIG_FILE config file."
+    msg="Neither the $DIRTY_CONFIG_FILE file or the $CLEAN_CONFIG_FILE file have been"
+    msg+=" detected. Try to fix the current $CONFIG_FILE config file."
     log_error "$msg"
 else
-    log_info "Copy $DIRTY_CONFIG_FILE to $CONFIG_FILE"
+    log_info "Copy the $DIRTY_CONFIG_FILE file to the $CONFIG_FILE file."
     cp -a "$DIRTY_CONFIG_FILE" "${CONFIG_FILE}"
 fi
 
