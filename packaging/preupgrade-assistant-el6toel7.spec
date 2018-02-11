@@ -91,6 +91,7 @@ rm -rf $RPM_BUILD_ROOT/%{_datadir}/preupgrade/common
 find $RPM_BUILD_ROOT%{_datadir}/preupgrade/RHEL6_7 -regex ".*/\(module\|group\)\.ini$" -regextype grep -delete
 find $RPM_BUILD_ROOT%{_datadir}/preupgrade/ -name "READY" -delete
 find $RPM_BUILD_ROOT -name '.gitignore' -delete
+find $RPM_BUILD_ROOT -name 'module_spec' -delete
 
 
 %clean
