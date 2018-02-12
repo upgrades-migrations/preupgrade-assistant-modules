@@ -103,7 +103,15 @@ get_free_size() {
 }
 
 get_memory_size() {
-  MEMSIZE=$(dmidecode -t 17 | awk '( /Size/ && $2 ~ /^[0-9]+$/ ) { x+=$2 } END{ print x}')
+  # MEMSIZE is in MB
+  MEMSIZE=$(dmidecode -t 17 \
+    | awk '( /Size/ && $2 ~ /^[0-9]+.B$/ ) {match($2, /^([0-9]+)(.B)$/, arr); $2=arr[1]; $3=arr[2]}
+           ( /Size/ && $3 ~ /^[kK]B$/ ) { unit=1.0/1024 }
+           ( /Size/ && $3 ~ /^MB$/ ) { unit=1 }
+           ( /Size/ && $3 ~ /^GB$/ ) { unit=2**10 }
+           ( /Size/ && $3 ~ /^TB$/ ) { unit=2**20 }
+           ( /Size/ && $2 ~ /^[0-9]+$/ ) { x+=int($2*unit) }
+           END{ print x}')
   [ -n "$MEMSIZE" ] && return 0
 
   #maybe virtual machine, so we can get only aroximation of real RAM size
