@@ -60,7 +60,7 @@ if [ -e "$DEFAULT_FILE" ]; then
     msg+=" of the file is as expected."
 
     log_msg="The $DEFAULT_FILE file has been found on the system already. Check"
-    log_msg+=" the content of the file for the correct settings before upgrade."
+    log_msg+=" the content of the file for the correct settings before the upgrade."
 else
     ./cmdline-to-default-grub > "$GENERATED_FILE"
 

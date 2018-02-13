@@ -140,7 +140,7 @@ EOF
     chmod +x "$POSTUPGRADE_SCRIPT"
 
     solution_file "$BACKGROUND
-The browsing configuration using the CUPS Browsing protocol has been migrated to the [link:cleanconf/etc/cups/cups-browsed.conf] file, and the cups-browsed service will be enabled after upgrade.
+The browsing configuration using the CUPS Browsing protocol has been migrated to the [link:cleanconf/etc/cups/cups-browsed.conf] file, and the cups-browsed service will be enabled after the upgrade.
 "
 
 else

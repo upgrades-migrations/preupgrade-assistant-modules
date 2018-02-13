@@ -200,13 +200,13 @@ fi
 grep -qi "CookieLog" $CONFIG_FILE $CONFIG_PATH/conf.d/*.conf
 if [ $? -eq 0 ]; then
     echo "\
-* Deprecated CookieLog directive has been removed. There is no direct
+* The deprecated CookieLog directive has been removed. There is no direct
   replacement for this directive in the new httpd version.
   Consider using CustomLog or LogFormat described at
   <http://httpd.apache.org/docs/2.4/mod/mod_log_config.html>.
 " >> $SOLUTION_FILE
     ret=$RESULT_FAIL
-    log_medium_risk "CookieLog directive has been deprecated."
+    log_medium_risk "The CookieLog directive has been deprecated."
 fi
 
 grep -qi "^[ \t]*HTTPD=.*worker.*" /etc/sysconfig/httpd

@@ -55,7 +55,7 @@ functionality.
 
 Note: All packages from the debug repositories
 are skipped, and Red Hat recommends that you remove
-them before upgrade.
+them before the upgrade.
 
 The following packages are obsolete, and they are replaced by
 new ones:" >solution.txt

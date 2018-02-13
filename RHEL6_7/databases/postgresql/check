@@ -196,7 +196,7 @@ check_different_usage() {
 
     # check that the init file exists
     if test ! -f "$INITFILE"; then
-        log_error "The initfile $INITFILE not found."
+        log_error "The $INITFILE initfile not found."
         SKIP_TESTING=yes
         return $RESULT_FAIL
     fi
@@ -367,7 +367,7 @@ check_options() {
 * The 'unix_socket_directory' option is not supported in Red Hat Enterprise Linux 7. Instead, we
   use the 'unix_socket_directories' option, which is able to specify multiple
   directories separated by commas. See the documentation of that option at
-  [link:http://www.postgresql.org/docs/9.3/static/runtime-config-connection.html]
+  [link:http://www.postgresql.org/docs/9.3/static/runtime-config-connection.html].
   Do not remove this option from the configuration file, just be prepared that you will
   need to fix the option in Red Hat Enterprise Linux 7.
 EOF

@@ -95,7 +95,7 @@ do
     if [ $NOT_FOUND_SYSTEMD -eq 0 ]; then
         grep "enable $i." $PRESET_FILE > /dev/null 2>/dev/null
         if [ $? -ne 0 ]; then
-            log_high_risk "The $i service is disabled by default in Red Hat Enterprise Linux 7. Enable it by typing: systemctl enable $i && systemctl start $i.service ."
+            log_high_risk "The $i service is disabled by default in Red Hat Enterprise Linux 7. Enable it by typing: systemctl enable $i && systemctl start $i.service."
         fi
     fi
     echo "$i" >> $ENABLED_SERVICES
@@ -128,7 +128,7 @@ do
     if [ $NOT_FOUND_SYSTEMD -eq 0 ]; then
         grep "enable $i." $PRESET_FILE > /dev/null 2>/dev/null
         if [ $? -ne 0 ]; then
-            log_high_risk "The $i service is disabled by default in Red Hat Enterprise Linux 7. Enable it by typing the following commands: systemctl enable $i && systemctl start $i.service ."
+            log_high_risk "The $i service is disabled by default in Red Hat Enterprise Linux 7. Enable it by typing the following commands: systemctl enable $i && systemctl start $i.service."
         fi
     fi
     echo "$i" >> $ENABLED_SERVICES
