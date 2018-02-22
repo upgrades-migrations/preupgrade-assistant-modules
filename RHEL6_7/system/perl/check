@@ -23,6 +23,15 @@ EOM
 
 PERL_DIRS=$(perl -MConfig -e '$,=q{ }; print @Config{installarchlib,installprivlib,installvendorarch,installvendorlib}') \
     || exit_error
+#Limiting the lookup to local directories only
+for dir in ${PERL_DIRS[@]};
+do 
+    fs_type=$(stat -f -L -c %T "$dir")
+    if  echo "$fs_type" | egrep -q 'nfs|nfs4|autofs|cifs|sshfs|fuseblk'; then
+        PERL_DIRS=( "${PERL_DIRS[@]/$dir}")
+        log_info "Directory $dir is not on the local filesystem and it will be skipped in the analysis"
+    fi
+done
 for file in $(find -P $PERL_DIRS -type f -name '*.pm'); do
     RPM=$(rpm -qf "$file")
     if [ $? -ne 0 ]; then
