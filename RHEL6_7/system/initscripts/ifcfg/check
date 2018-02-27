@@ -35,7 +35,7 @@ else:
 def ifcfg_error():
     """https://bugzilla.redhat.com/show_bug.cgi?id=1111174
 1) kernel names (eth0, eth1, ...)
-a) DEVICE + HWADDR specified in ifcfg files = not safe, udev in rhel7 is not able to swap names (onlky exception here are machines with only one network interface, they should be fine) <- this is only thing which is covered by content which I wrote
+a) DEVICE + HWADDR specified in ifcfg files = not safe, udev in rhel7 is not able to swap names (only exception here are machines with only one network interface, they should be fine)
 b) only DEVICE specified in ifcfg files = not safe, udev will probably name the interface differently in rhel7
 c) only HWADRR specified in ifcfg files = uh, device will be set up correctly according to ifcfg file but name could be different
 2) biosdevname names (em1, p3p4, p3p4_1, ...)
@@ -43,8 +43,7 @@ On dell machines you should be fine in all cases, for others biosdevname was not
 3) custom names (my_little_network_card, ...)
 both HWADDR and DEVICE are specified in this case or you have written your own udev rules.
 This is safe in the case that you use truly unique names, they should not match any other naming methods (kernel, biosdevname or udev in rhel7).
-1a is covered ()
-We should refuse to update also in the 1b case.
+1a and 1b are covered ()
 If you are using 1c case you are used to some level of pain, so it would be enough just to write a warning.
 2 is fine.
 I case 3, to be completely correct you could check that user is not using rhel7 udev naming scheme [1] in rhel6, but I would bet that nobody uses that.
@@ -102,8 +101,18 @@ I case 3, to be completely correct you could check that user is not using rhel7 
                 return True
         return False
 
+    def fix_ifnames():
+        script_result = subprocess.Popen("./preupg_network.sh", shell=True)
+        script_result.communicate()
+        exit_code = script_result.returncode
+        if exit_code == 1:
+            log_extreme_risk("The network interface names on the source system are in an inconsistent state, so the upgrade is not possible")
+        elif exit_code == 2:
+            log_extreme_risk("Comment out the MACADDR directive in the ifcfg files and run the Preupgrade Assistant again to enable the upgrade.")
 
     ethx_with_addr_count = 0
+    ethx_without_addr_count = 0
+    ifnames_to_fix = 0
     warning = False
     for script in ls_scripts():
         full_path = ifcfg_path + script
@@ -124,18 +133,23 @@ I case 3, to be completely correct you could check that user is not using rhel7 
                 if addr:
                     ethx_with_addr_count +=1
                 else:
+                    ethx_without_addr_count +=1
                     log_slight_risk(full_path + " is old style ethX name without HWADDR, its name can change after the upgrade.")
                     warning = True
             elif is_udev(name):
                 log_slight_risk(full_path + " variable DEVICE is similar to udev predictable network naming scheme. It might cause conflicts.")
                 warning = True
 
-        if ethx_with_addr_count > 1:
-            log_medium_risk("You use multiple network devices with old style 'ethX' names.")
+        if ethx_with_addr_count > 1 or ethx_without_addr_count > 1:
+            ifnames_to_fix +=1
             warning = True
-        if ethx_with_addr_count == 1:
-            log_slight_risk("You use one network device with an old style 'ethX' name. This will work as long as you only have one, but it will break with multiple such devices.")
+        elif ethx_with_addr_count == 1:
+            log_slight_risk("You use one network device with an old style 'ethX' name.")
             warning = True
+
+    if ifnames_to_fix > 0:
+        fix_ifnames()
+        log_high_risk("You use multiple network devices with old style 'ethX' names.")
     return warning
 
 if __name__ == "__main__":
