@@ -13,3 +13,5 @@ if ! egrep -q '^full_refresh_on_yum ?=' /etc/rhsm/rhsm.conf; then
     fi
 fi
 
+# unset the release, so after the upgrade the subscription-manager downloads updates for the latest minor RHEL 7 version
+subscription-manager release --unset
