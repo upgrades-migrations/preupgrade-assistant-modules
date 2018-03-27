@@ -11,13 +11,13 @@ declare -A drivers
 declare -A modules
 
 for i in /sys/bus/*/devices/*/driver; do
-	_driver=$(readlink -f $i | cut -d '/' -f 6)
+	_driver=$(readlink -f "$i" | cut -d '/' -f 6)
 	_bus=$(echo $i | cut -d '/' -f 4)
 	_id=$(echo $i | cut -d '/' -f 6)
 	drivers[$_driver]="${drivers[$_driver]} $_bus|$_id"
 done
 for i in /sys/bus/*/devices/*/driver/module; do
-	_module=$(readlink -f $i | cut -d '/' -f 4)
+	_module=$(readlink -f "$i" | cut -d '/' -f 4)
 	_bus=$(echo $i | cut -d '/' -f 4)
 	_id=$(echo $i | cut -d '/' -f 6)
 	modules[$_module]="${modules[$_module]} $_bus|$_id"
