@@ -17,13 +17,24 @@ cat "$COMMON_DIR"/default*_removed* | grep -v "\.so" | cut -f1 -d' ' | sort | un
   exit $RESULT_ERROR
 
 SCRIPT_NAME="postupgrade_cleanup.sh"
+NOAUTO_SCRIPT_NAME="native_rpm_dep_fix.sh"
 POSTUPGRADE_DIR="$VALUE_TMP_PREUPGRADE/postupgrade.d/clean_rhel6_pkgs"
+NOAUTO_POST_DIR="$VALUE_TMP_PREUPGRADE/noauto_postupgrade.d/rpmfix"
 POST_SCRIPT="postupgrade.d/$SCRIPT_NAME"
+NOAUTO_POST_SCRIPT="noauto_postupgrade.d/$NOAUTO_SCRIPT_NAME"
+
 if [ ! -d "$POSTUPGRADE_DIR" ]; then
     mkdir -p "$VALUE_TMP_PREUPGRADE/postupgrade.d/clean_rhel6_pkgs"
 fi
+
+if [ ! -d "$NOAUTO_POST_DIR" ]; then
+    mkdir -p "$NOAUTO_POST_DIR"
+fi
+
 cp $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
+cp $NOAUTO_POST_SCRIPT $NOAUTO_POST_DIR/$SCRIPT_NAME
 get_dist_native_list > $POSTUPGRADE_DIR/$(basename $VALUE_RPM_RHSIGNED)
+cp "$POSTUPGRADE_DIR/$(basename $VALUE_RPM_RHSIGNED)" "$NOAUTO_POST_DIR"
 
 found=0
 rm -f solution.txt
@@ -31,6 +42,12 @@ echo \
 "Some packages were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break
 the upgrade for some of your packages. We are not aware of any compatible
 replacement for these packages.
+
+Use the '--cleanup-post' option of redhat-upgrade-tool to remove them
+automatically during upgrade. You can also run manually the $sssscript script
+after the upgrade to remove only the original native packages with broken
+dependencies. The script also fixes possible broken dependencies of the newly
+installed packages.
 
 The following packages are no longer available:" >solution.txt
 
@@ -68,8 +85,9 @@ echo \
 If a package not signed by Red Hat requires these packages, you may need to ask your
 vendor to provide an alternative solution, or you may get the missing package from
 other sources than Red Hat Enterprise Linux.
+
 " >>solution.txt
-[ $found -eq 1 ] && log_high_risk "After upgrading to Red Hat Enterprise Linux 7, there are still some el6 packages left. Add the '--cleanup-post' option to redhat-upgrade-tool to remove them automatically."
+[ $found -eq 1 ] && log_high_risk "After upgrading to Red Hat Enterprise Linux 7, there are still some el6 packages left. Add the '--cleanup-post' option to redhat-upgrade-tool to remove them automatically. You can also run manually the $sssscript script after the upgrade to remove only old native packages with broken dependencies."
 
 [ $found -eq 1 ] && log_medium_risk "\
 Some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of the packages that depend on the removed packages." && exit $RESULT_FAIL
