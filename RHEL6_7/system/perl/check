@@ -6,9 +6,28 @@
 #END GENERATED SECTION
 
 FOREIGN_FOUND=0
-function log_file() {
-        printf '%s\n' "$@" >> "$SOLUTION_FILE" || exit_error
-        FOREIGN_FOUND=1
+log_file() {
+    printf '%s\n' "$@" >> "$SOLUTION_FILE" || exit_error
+    FOREIGN_FOUND=1
+}
+is_module_rh() {
+    
+    if [ $# -ne 1 ]; then
+         return 1
+    fi
+    
+    RPM_NAME=$(rpm -qf --qf '%{NAME}\n' "$1")
+    
+    if [ $? -eq 1 ]; then
+        log_slight_risk "The $1 Perl module is not handled by any package."
+        log_file "$1"
+    else
+        is_dist_native $RPM_NAME
+        if [ $? -ne 0 ]; then
+            log_slight_risk "The $1 Perl module was not installed by any package signed by Red Hat."
+            log_file "$1"
+        fi
+    fi
 }
 
 cat > "$SOLUTION_FILE" <<'EOM'
@@ -33,18 +52,7 @@ do
     fi
 done
 for file in $(find -P $PERL_DIRS -type f -name '*.pm'); do
-    RPM=$(rpm -qf "$file")
-    if [ $? -ne 0 ]; then
-        log_slight_risk "The $file perl module is not handled by any package."
-        log_file "$file"
-        continue
-    fi
-    RPM_NAME=$(rpm -q --qf '%{NAME}' "$RPM")
-    is_dist_native "$RPM_NAME"
-    if [ $? -ne 0 ]; then
-        log_slight_risk "The $file perl module was not installed by any package signed by Red Hat."
-        log_file "$file"
-    fi
+    is_module_rh "$file"
 done
 
 test "$FOREIGN_FOUND" = 0 && exit_informational || exit_fail
