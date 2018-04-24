@@ -1,14 +1,33 @@
 #!/bin/bash
 
 . /usr/share/preupgrade/common.sh
-
 #END GENERATED SECTION
 
-if efibootmgr >/dev/null 2>&1; then
-    log_extreme_risk "The EFI boot loader was detected. An in-place upgrade is not possible."
-    echo "Systems using the EFI boot loader cannot be in-place upgraded now." >solution.txt
-    exit_fail
-fi
+is_uefi() {
+  [ -d /sys/firmware/efi ] && return 0
+  return 1
+}
 
-echo "This system does not use the EFI boot loader. The Preupgrade Assistant will not replace your current boot loader automatically as it is too dangerous. If you want to use GRUB 2, do it manually after the upgrade by using 'grub2-install' and 'grub2-mkconfig'." > solution.txt
-exit_informational
+
+is_uefi || exit_not_applicable
+
+# I do not remember the exact reason, but we want to rather check the
+# executable exists instead of the rpm in this case
+command -v efibootmgr >/dev/null || {
+  log_extreme_risk "The EFI has been detected but efibootmgr is missing"
+  msg="The EFI firmware has been detected but the efibootmgr utility"
+  msg+=" is missing. Without the utility it is not possible to proceed with"
+  msg+=" the in-place upgrade. Install the efibootmgr rpm and run"
+  msg+=" the preupg command again."
+  echo "$msg" > solution.txt
+  exit_fail
+}
+
+# create pre-upgrade and post-upgrade scripts
+cp -a "efibootorder_fix.sh" "$PREUPGRADE_SCRIPT_DIR/"
+cp -a "efibootorder_fix.sh" "$POSTUPGRADE_DIR/"
+chmod +x "$PREUPGRADE_SCRIPT_DIR/efibootorder_fix.sh"
+chmod +x "$POSTUPGRADE_DIR/efibootorder_fix.sh"
+
+log_medium_risk "The Legacy GRUB has to be migrated to GRUB 2 after the upgrade manually"
+exit_fail
