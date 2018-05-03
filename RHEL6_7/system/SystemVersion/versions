@@ -1,8 +1,8 @@
-#release: 6.9
+#release: 6.10
 
 # format: pkgname = N-V-R
 # epoch is not supported now!
 # glibc = glibc-2.17-1.132.el6
 
-glibc = glibc-2.12-1.208.el6
-kernel = kernel-2.6.32-671.el6
+glibc = glibc-2.12-1.212.el6
+kernel = kernel-2.6.32-751.el6
