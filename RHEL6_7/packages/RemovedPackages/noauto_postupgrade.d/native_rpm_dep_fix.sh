@@ -28,21 +28,25 @@ is_dist_native() {
     grep -qE "^$1([[:space:]]|$)" "$RHSIGNED_PKGS"
 }
 
-rm_native_broken_old_rpms() {
+rm_broken_old_rpms() {
     #
-    # Remove native RPMs with broken dependencies.
+    # Remove old RPMs with broken dependencies.
     #
-    # The function can be affected by the $RM_CUSTOM_RPM variable to remove
-    # even non-native RPMs.
+    # Accepts one parameter, which says whether will be removed only native
+    # old RPMs with broken dependencies (default) or should be removed even
+    # non-native old RPMs with broken dependencies (when param=1)
     #
-    # Return 0 when no RPM has been removed. Otherwise returns 1.
+    # Returns 0 when no RPM has been removed. Otherwise returns 1.
     #
+    local rm_custom_enabled=0
+    [ "$1" -eq 1 ] && rm_custom_enabled=1
+
     get_broken_deps_list | grep "\.el6" > rpms_broken
     local REMOVED_FLAG=0
     local line=""
     while IFS= read -r line || [ -n "$line" ]; do
         NAME=$(rpm -q --qf '%{NAME}' $line)
-        is_dist_native "$NAME" || [ $RM_CUSTOM_RPM -eq 1 ] || {
+        is_dist_native "$NAME" || [ $rm_custom_enabled -eq 1 ] || {
             # it's not dist native package -> skip it
             echo "    $NAME" >> "$kept_broken_rpms"
             log_info_verbose "Skip the non-native $line RPM."
@@ -99,7 +103,7 @@ for counter in {0..10}; do
     # try just limited number of loops in most to be sure that scripts ends
     # always (in reasonable time)
     # .. in case that nothing is removed (returned 0) break the loop
-    rm_native_broken_old_rpms && break
+    rm_broken_old_rpms "$RM_CUSTOM_RPM" && break
     [ $counter -eq 10 ] && {
         [ -z "$(get_broken_deps_list)" ] && {
             log_warning "Reached iteration limit but some RPMs are still broken."
