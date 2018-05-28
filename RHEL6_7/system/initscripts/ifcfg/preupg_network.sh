@@ -13,12 +13,12 @@ index=0
 declare -a netX_indices
 declare -a ethX_ifaces
 
-for net_index in $(ip a | awk -F': ' '/^[[:digit:]]: net[[:digit:]]+/ {print $2  }' | sed -e "s/net//g"| sort )
+for net_index in $(ip a | awk -F': ' '/^[[:digit:]]+: net[[:digit:]]+/ {print $2  }' | sed -e "s/net//g"| sort )
 do
     netX_indices+=( "$net_index" )
 done
 
-for eth_iface in $(ip a | awk -F': ' '/^[[:digit:]]: eth[[:digit:]]+/ {print $2  }')
+for eth_iface in $(ip a | awk -F': ' '/^[[:digit:]]+: eth[[:digit:]]+/ {print $2  }')
 do
     ethX_ifaces+=( "$eth_iface" )
 done
