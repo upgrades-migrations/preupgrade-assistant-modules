@@ -33,7 +33,7 @@ cat /dev/null > "$preupg_script"
 echo '#!/bin/bash' >> "$preupg_script"
 echo 'service network stop'  >> "$preupg_script"
 
-if ls "$dev_path" | grep -q "rename[0-9]+$";then
+if ls "$dev_path" | grep -q -E "rename[0-9]+$";then
     exit 1
 fi
 
