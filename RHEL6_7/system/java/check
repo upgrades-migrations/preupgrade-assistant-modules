@@ -55,6 +55,17 @@ get_jvm_dir() {
   name_ver=$(echo "$rpm_name" | rev | cut -d "-" -f 2- | rev)
   aarch=$(echo "$rpm_name" | rev | cut -d "." -f 1 | rev)
 
+  [ "$aarch" == "i686" ] && {
+    [ -e "/usr/lib/jvm/${name_ver}.${aarch}" ] || {
+      # BUGFIX: in case of i686 arch java rpms there is some building magic
+      #         and arch of the files of the rpms has different "arch" than
+      #         the one used for name of the rpm itself. Probably the check of
+      #         existence of the file is not needed in current state, but
+      #         rather do that just in case it would be modified in future.
+      aarch="i386"
+    }
+  }
+
   echo "/usr/lib/jvm/${name_ver}.${aarch}"
 }
 
