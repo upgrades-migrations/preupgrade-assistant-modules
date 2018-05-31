@@ -7,6 +7,7 @@ ARCH="$(arch)"
 
 # grub is not supported on s390x machines
 [ "$ARCH" == "s390x" ] && exit_not_applicable
+[ "$ARCH" == "ppc64" ] && exit_not_applicable
 
 DIR=grubby_workaround
 FILE=postupgrade.sh
