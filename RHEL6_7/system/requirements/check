@@ -104,26 +104,30 @@ get_free_size() {
 
 get_memory_size() {
   # MEMSIZE is in MB
-  MEMSIZE=$(dmidecode -t 17 \
-    | awk '( /Size/ && $2 ~ /^[0-9]+.B$/ ) {match($2, /^([0-9]+)(.B)$/, arr); $2=arr[1]; $3=arr[2]}
-           ( /Size/ && $3 ~ /^[kK]B$/ ) { unit=1.0/1024 }
-           ( /Size/ && $3 ~ /^MB$/ ) { unit=1 }
-           ( /Size/ && $3 ~ /^GB$/ ) { unit=2**10 }
-           ( /Size/ && $3 ~ /^TB$/ ) { unit=2**20 }
-           ( /Size/ && $2 ~ /^[0-9]+$/ ) { x+=int($2*unit) }
-           END{ print x}')
-  [ -n "$MEMSIZE" ] && return 0
-
-  #maybe virtual machine, so we can get only aroximation of real RAM size
-  log_warning "Can't get memory size with 'dmidecode'! Try 'dmesg' with 1% tolerance."
-  oo=$(dmesg | grep -ioE "System RAM:\s[0-9]+MB")
-  [ $? -eq 0 ] && {
-    MEMSIZE=$( echo "$oo" | cut -d " " -f 3 | cut -d " " -f 3 | sed s/..$// )
-    return 1
+  which dmidecode >/dev/null 2>&1 && {
+    # some archs don't contain dmidecode at all, so use it only when it exists
+    MEMSIZE=$(dmidecode -t 17 \
+      | awk '( /Size/ && $2 ~ /^[0-9]+.B$/ ) {match($2, /^([0-9]+)(.B)$/, arr); $2=arr[1]; $3=arr[2]}
+             ( /Size/ && $3 ~ /^[kK]B$/ ) { unit=1.0/1024 }
+             ( /Size/ && $3 ~ /^MB$/ ) { unit=1 }
+             ( /Size/ && $3 ~ /^GB$/ ) { unit=2**10 }
+             ( /Size/ && $3 ~ /^TB$/ ) { unit=2**20 }
+             ( /Size/ && $2 ~ /^[0-9]+$/ ) { x+=int($2*unit) }
+             END{ print x}')
+    [ -n "$MEMSIZE" ] && return 0
   }
 
-  # the worst situation, really only rough estimation of real memory
-  log_error "Memory size will be get from /proc/meminfo. Tolerance is 10%. For better estimation of RAM size, reboot system and immadiately run preupg again."
+  # this will not give us exact result, but still ok (~ 1% tolerance usually)
+  which dmesg >/dev/null 2>&1 && {
+    oo=$(dmesg | grep -ioE "System RAM:\s[0-9]+MB")
+    [ $? -eq 0 ] && {
+      MEMSIZE=$( echo "$oo" | cut -d " " -f 3 | cut -d " " -f 3 | sed s/..$// )
+      return 1
+    }
+  }
+
+  # the worst situation, really only rough estimate of real memory
+  log_warning "The installed memory size will be obtained from the /proc/meminfo file with a 10% tolerance. For a better estimation of the RAM size, reboot the system and run 'preupg' again."
   MEMSIZE=$[ $(cat /proc/meminfo | grep MemTotal | grep -oE "[0-9]+")/1024 ]
   return 2
 }
