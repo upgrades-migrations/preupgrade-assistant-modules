@@ -44,10 +44,10 @@ the upgrade for some of your packages. We are not aware of any compatible
 replacement for these packages.
 
 Use the '--cleanup-post' option of redhat-upgrade-tool to remove them
-automatically during upgrade. You can also run manually the $NOAUTO_POST_DIR/$NOAUTO_SCRIPT_NAME script
-after the upgrade to remove only the original native packages with broken
-dependencies. The script also fixes possible broken dependencies of the newly
-installed packages.
+automatically during upgrade. You can also run the $NOAUTO_POST_DIR/$NOAUTO_SCRIPT_NAME script
+manually after the upgrade to remove only those Red Hat-signed (RHEL) 6 packages
+that have broken dependencies. The script also fixes possible broken
+dependencies of the newly installed packages.
 
 The following packages are no longer available:" >solution.txt
 
@@ -87,7 +87,7 @@ vendor to provide an alternative solution, or you may get the missing package fr
 other sources than Red Hat Enterprise Linux.
 
 " >>solution.txt
-[ $found -eq 1 ] && log_high_risk "After upgrading to Red Hat Enterprise Linux 7, there are still some el6 packages left. Add the '--cleanup-post' option to redhat-upgrade-tool to remove them automatically. You can also run manually the $NOAUTO_POST_DIR/$NOAUTO_SCRIPT_NAME script after the upgrade to remove only old native packages with broken dependencies."
+[ $found -eq 1 ] && log_high_risk "After upgrading to Red Hat Enterprise Linux (RHEL) 7, there are still some RHEL 6 packages left. Add the '--cleanup-post' option to redhat-upgrade-tool to remove them automatically. You can also run the $NOAUTO_POST_DIR/$NOAUTO_SCRIPT_NAME script manually after the upgrade to remove only those Red Hat-signed RHEL 6 packages that have broken dependencies."
 
 [ $found -eq 1 ] && log_medium_risk "\
 Some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of the packages that depend on the removed packages." && exit $RESULT_FAIL

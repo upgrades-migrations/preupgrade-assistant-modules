@@ -49,7 +49,7 @@ rm_broken_old_rpms() {
         is_dist_native "$NAME" || [ $rm_custom_enabled -eq 1 ] || {
             # it's not dist native package -> skip it
             echo "    $NAME" >> "$kept_broken_rpms"
-            log_info_verbose "Skip the non-native $line RPM."
+            log_info_verbose "Skip the 3rd party of custom $line RPM."
             continue
         }
 
@@ -81,7 +81,7 @@ while [[ -n "$1" ]]; do
             ;;
         -h | --help)
             echo "USAGE: native_rpm_dep_fix [-a|--rm-all] [-v|--verbose] [-h|--help]"
-            echo "    -a | --rm-all   Enable remove of non-native RPMs"
+            echo "    -a | --rm-all   Enable removal of 3rd party or custom RPMs"
             echo "    -v | --verbose  Activate verbose mode"
             echo "    -h | --help     Print this help"
             echo
@@ -97,7 +97,7 @@ rm -f "$kept_broken_rpms"
 touch "$kept_broken_rpms"
 
 [ $RM_CUSTOM_RPM -eq 1 ] \
-    && log_info_verbose "Remove of non-native conflicting RPMs has been enabled."
+    && log_info_verbose "Removal of 3rd party or custom RPMs with broken dependencies has been enabled."
 
 for counter in {0..10}; do
     # try just limited number of loops in most to be sure that scripts ends
@@ -116,9 +116,9 @@ done
 broken_nonnative_rpms=$(wc -l <"$kept_broken_rpms")
 [ $broken_nonnative_rpms -gt 0 ] && {
     # this is obviously irrelevant in case of use the -a option
-    log_warning "Detected several non-native RPMs with broken dependencies:"
+    log_warning "Detected several 3rd party or custom RHEL 6 RPMs with broken dependencies:"
     cat "$kept_broken_rpms" | sort | uniq >&2
-    log_info "You can use the '-a' option to enable remove of non-native RPMs."
+    log_info "You can use the '-a' option to enable removal of 3rd party or custom RPMs."
 }
 
 # check RHEL 7 packages for broken dependencies and try to install all missing
