@@ -76,7 +76,7 @@ do
         fi
     fi
 
-    echo -e "SUBSYSTEM==\"net\", ACTION==\"add\", DRIVERS==\"?*\", $mac_rule, $dev_type_rule, KERNEL==\"${orig_name_base}*\", NAME=\"$new_full_name\"\n" >> udev_temp
+    echo -e "SUBSYSTEM==\"net\", ACTION==\"add\", DRIVERS==\"?*\", $mac_rule, $dev_type_rule, NAME=\"$new_full_name\"\n" >> udev_temp
 
 done
 
