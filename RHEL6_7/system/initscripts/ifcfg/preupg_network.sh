@@ -4,8 +4,9 @@
 orig_name_base="eth"
 new_name_base="net"
 conf_dir='/etc/sysconfig/network-scripts'
-temp_conf_dir='/root/preupgrade/dirtyconf/etc/sysconfig/network-configuration_fixed/'
-preupg_script='/root/preupgrade/preupgrade-scripts/rename_network.sh'
+temp_conf_dir="$VALUE_TMP_PREUPGRADE/dirtyconf/etc/sysconfig/network-configuration_fixed/"
+preupg_dir="$VALUE_TMP_PREUPGRADE/preupgrade-scripts"
+preupg_script="$preupg_dir/rename_network.sh"
 udev_command='/sbin/udevadm info -a  -p'
 dev_path='/sys/class/net'
 index=0
@@ -33,11 +34,19 @@ cat /dev/null > "$preupg_script"
 echo '#!/bin/bash' >> "$preupg_script"
 echo 'service network stop'  >> "$preupg_script"
 
+echo '#!/bin/bash
+echo "Invalid network configuration detected, stopping upgrade" >&2
+exit 1' > invalid_config_check.sh
+
+chmod u+x invalid_config_check.sh
+
 if ls "$dev_path" | grep -q -E "rename[0-9]+$";then
+    cp -p invalid_config_check.sh "$preupg_dir"
     exit 1
 fi
 
 if grep -q "^MACADDR=" "$conf_dir"/ifcfg-*;then
+    cp -p invalid_config_check.sh "$preupg_dir"
     exit 2
 fi
 
@@ -87,6 +96,6 @@ echo 'service network start'  >> "$preupg_script"
 chmod u+x "$preupg_script"
 
 
-echo "The interfaces with \"$orig_name_base\" prefix will be renamed to use \"$new_name_base\" prefix by $preupg_script script executed by redhat-upgrade-tool before the upgrade.
+echo "If there are multiple interfaces with \"$orig_name_base\" prefix on the system, they will be renamed to use \"$new_name_base\" prefix by $preupg_script script executed by redhat-upgrade-tool before the upgrade.You can edit the $preupg_script as well as the associated udev rules for a custom configuration
       This process includes the restart of the network" >> solution.txt
 
