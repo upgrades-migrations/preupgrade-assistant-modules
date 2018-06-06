@@ -106,9 +106,9 @@ I case 3, to be completely correct you could check that user is not using rhel7 
         script_result.communicate()
         exit_code = script_result.returncode
         if exit_code == 1:
-            log_extreme_risk("The network interface names on the source system are in an inconsistent state, so the upgrade is not possible")
+            log_high_risk("The network interface names on the source system are in an inconsistent state, so the upgrade is not possible")
         elif exit_code == 2:
-            log_extreme_risk("Comment out the MACADDR directive in the ifcfg files and run the Preupgrade Assistant again to enable the upgrade.")
+            log_high_risk("Comment out the MACADDR directive in the ifcfg files and run the Preupgrade Assistant again to enable the upgrade.")
 
     ethx_with_addr_count = 0
     ethx_without_addr_count = 0
