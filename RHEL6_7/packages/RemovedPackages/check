@@ -39,13 +39,13 @@ cp "$POSTUPGRADE_DIR/$(basename $VALUE_RPM_RHSIGNED)" "$NOAUTO_POST_DIR"
 found=0
 rm -f solution.txt
 echo \
-"Some packages were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break
+"Some packages were removed between Red Hat Enterprise Linux (RHEL) 6 and RHEL 7. This might break
 the upgrade for some of your packages. We are not aware of any compatible
 replacement for these packages.
 
 Use the '--cleanup-post' option of redhat-upgrade-tool to remove them
 automatically during upgrade. You can also run the $NOAUTO_POST_DIR/$NOAUTO_SCRIPT_NAME script
-manually after the upgrade to remove only those Red Hat-signed (RHEL) 6 packages
+manually after the upgrade to remove only those RHEL 6 packages signed by Red Hat
 that have broken dependencies. The script also fixes possible broken
 dependencies of the newly installed packages.
 
@@ -56,7 +56,7 @@ while read pkg
 do
   #skip non-rh and unavailable packages
   is_pkg_installed "$pkg" && is_dist_native $pkg || continue
-  j=" (required by NonRH signed package(s):"
+  j=" (required by packages not signed by Red Hat:"
   for k in $(rpm -q --whatrequires $pkg | grep -v "^no package requires" | \
    rev | cut -d'-' -f3- | rev)
   do
@@ -64,8 +64,8 @@ do
     is_dist_native $k ||  j="$j$k "
   done
   j="${j% })"
-  [ "$j" == " (required by NonRH signed package(s):)" ] && j=""
-  [ -n "$j" ] && log_high_risk "The $pkg $j package was removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7."
+  [ "$j" == " (required by packages not signed by Red Hat:)" ] && j=""
+  [ -n "$j" ] && log_high_risk "The $pkg $j package was removed between RHEL 6 and RHEL 7."
   echo "$pkg$j" >>solution.txt
   found=1
 done < "$RemovedPkgs"
@@ -76,21 +76,21 @@ grep -v required solution.txt | grep -v " " | grep -v "^$" >> "$KICKSTART_DIR/Re
 grep required "$KICKSTART_DIR/RemovedPkg-required" >/dev/null || rm "$KICKSTART_DIR/RemovedPkg-required"
 grep [a-zA-Z] "$KICKSTART_DIR/RemovedPkg-optional" >/dev/null || rm "$KICKSTART_DIR/RemovedPkg-optional"
 [ -f "$KICKSTART_DIR/RemovedPkg-required" ] && \
-  echo " * RemovedPkg-required - This file contains all Red Hat Enterprise Linux 6 packages that were removed in Red Hat Enterprise Linux 7. There is no known compatible-enough alternative for them. As some of your packages depend on them, check the changes carefully." >>"$KICKSTART_README"
+  echo " * RemovedPkg-required - This file contains all RHEL 6 packages that were removed in RHEL 7. There is no known compatible alternative for them. As some of your packages depend on them, check the changes carefully." >>"$KICKSTART_README"
 [ -f "$KICKSTART_DIR/RemovedPkg-optional" ] && \
   echo " * RemovedPkg-optional - Similar to the RemovedPkg-required file, but in this case, no package not signed by Red Hat requires this. It is more of an informational thing for you, so that you can deal with the unavailability of these packages." >>"$KICKSTART_DIR/README"
 
 echo \
 "
-If a package not signed by Red Hat requires these packages, you may need to ask your
-vendor to provide an alternative solution, or you may get the missing package from
-other sources than Red Hat Enterprise Linux.
+If a package not signed by Red Hat requires these packages, ask your
+vendor to provide an alternative solution, or get the missing package from
+other sources than RHEL.
 
 " >>solution.txt
-[ $found -eq 1 ] && log_high_risk "After upgrading to Red Hat Enterprise Linux (RHEL) 7, there are still some RHEL 6 packages left. Add the '--cleanup-post' option to redhat-upgrade-tool to remove them automatically. You can also run the $NOAUTO_POST_DIR/$NOAUTO_SCRIPT_NAME script manually after the upgrade to remove only those Red Hat-signed RHEL 6 packages that have broken dependencies."
+[ $found -eq 1 ] && log_high_risk "After upgrading to RHEL 7, there are still some RHEL 6 packages left. Add the '--cleanup-post' option to redhat-upgrade-tool to remove them automatically. You can also run the $NOAUTO_POST_DIR/$NOAUTO_SCRIPT_NAME script manually after the upgrade to remove only those Red Hat-signed RHEL 6 packages that have broken dependencies."
 
 [ $found -eq 1 ] && log_medium_risk "\
-Some packages installed on the system were removed between Red Hat Enterprise Linux 6 and Red Hat Enterprise Linux 7. This might break the functionality of the packages that depend on the removed packages." && exit $RESULT_FAIL
+Some packages installed on the system were removed between RHEL 6 and RHEL 7. This might break the functionality of the packages that depend on the removed packages." && exit $RESULT_FAIL
 
 rm -f solution.txt && touch solution.txt
 
