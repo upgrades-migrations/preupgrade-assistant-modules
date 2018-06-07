@@ -15,7 +15,14 @@ semanage_syntax_update() {
 
     for ftype_opt in "${ftype_opts[@]}"
     do
-        sed -i -r 's/'"$ftype_opt"'\s+directory/'"$ftype_opt"' d/g' "$file"
+        sed -i -r "s/$ftype_opt\s+(\x27|\x22)?directory(\x27|\x22)?/$ftype_opt d/g" "$file"
+        sed -i -r "s/$ftype_opt\s+(\x27|\x22)all\s+files(\x27|\x22)/$ftype_opt a/g" "$file"
+        sed -i -r "s/$ftype_opt\s+(\x27|\x22)character\s+device(\x27|\x22)/$ftype_opt c/g" "$file"
+        sed -i -r "s/$ftype_opt\s+(\x27|\x22)block\s+device(\x27|\x22)/$ftype_opt b/g" "$file"
+        sed -i -r "s/$ftype_opt\s+(\x27|\x22)regular\s+file(\x27|\x22)/$ftype_opt f/g" "$file"
+        sed -i -r "s/$ftype_opt\s+(\x27|\x22)?socket(\x27|\x22)?/$ftype_opt s/g" "$file"
+        sed -i -r "s/$ftype_opt\s+(\x27|\x22)symbolic\s+link(\x27|\x22)/$ftype_opt l/g" "$file"
+        sed -i -r "s/$ftype_opt\s+(\x27|\x22)named\s+pipe(\x27|\x22)/$ftype_opt p/g" "$file"
     done
 }
 
