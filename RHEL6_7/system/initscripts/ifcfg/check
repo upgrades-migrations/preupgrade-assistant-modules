@@ -140,10 +140,10 @@ I case 3, to be completely correct you could check that user is not using rhel7 
                 log_slight_risk(full_path + " variable DEVICE is similar to udev predictable network naming scheme. It might cause conflicts.")
                 warning = True
 
-        if ethx_with_addr_count > 1 or ethx_without_addr_count > 1:
+        if ( ethx_with_addr_count  + ethx_without_addr_count) > 1:
             ifnames_to_fix +=1
             warning = True
-        elif ethx_with_addr_count == 1:
+        elif( ethx_with_addr_count + ethx_without_addr_count) == 1:
             log_slight_risk("You use one network device with an old style 'ethX' name.")
             warning = True
 
