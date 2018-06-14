@@ -62,7 +62,7 @@ while read line; do
     is_pkg_installed "$pkg" && is_dist_native "$pkg" || continue
     [ -n "$npkgs" ] && [[ "$pkg" !=  "$npkgs" ]] \
       && pkgs_msg=" (in Red Hat Enterprise Linux 7 available in: $npkgs)"
-    echo "$(echo "$line" | cut -d':' -f1) from $pkg kept$pkgs_msg " >>"$results"
+    echo "$(echo "$line" | cut -d':' -f1) from $pkg kept$pkgs_msg" >>"$results"
   done
 done < "$MovedReplacedLibs"
 
