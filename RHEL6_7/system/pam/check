@@ -4,22 +4,57 @@
 
 #END GENERATED SECTION
 
-POSTUPGRADE_DIR="$VALUE_TMP_PREUPGRADE/postupgrade.d/pam"
+POSTUPGRADE_DIR="$POSTUPGRADE_DIR/pam"
+CLEANCONF_DIR="$VALUE_TMP_PREUPGRADE/cleanconf/etc/pam.d"
+
 if [[ ! -d "$POSTUPGRADE_DIR" ]]; then
     mkdir -p "$POSTUPGRADE_DIR"
 fi
+if [[ ! -d "$CLEANCONF_DIR" ]]; then
+    mkdir -p "$CLEANCONF_DIR"
+fi
+
 SCRIPT_NAME="postupgrade-pam.sh"
 POST_SCRIPT="postupgrade.d/$SCRIPT_NAME"
+
 cp -f $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
+
 fail=0
 
+comment_invalid () {
+    perl -p -i -e 's/^/#/g if /^(?!.*#)(?=.*(pam_passwdqc|pam_ecryptfs))/;' "$1"
+}
+check_deprec_dirctv () {
+
+    deprec_dirctv="$1"
+    input_file="$2"
+    export deprec_dirctv
+    export input_file
+    perl -ne '$deprec_dirctv = $ENV{deprec_dirctv};$input_file = $ENV{input_file};
+    print "PAM: The $input_file file contains the $deprec_dirctv module, which is no longer supported.\n"
+    if /^(?!.*#)(?=.*$deprec_dirctv)/' "$input_file"
+
+}
+copy_clean () {
+    cp -p "$1" "$2"
+}
+
 #pam_passwdqc and pam_ecryptfs were removed
-for file in /etc/pam.d/*;
+for file in $(find -P /etc/pam.d/ -maxdepth 1 -type f)
 do
-  grep pam_passwdqc "$file" | grep -q -v ^# && sed -e '/pam_passwdqc/s/^/#/g' >"$VALUE_TMP_PREUPGRADE/cleanconf/$file" && log_medium_risk "PAM: The $file file contains the pam_passwdqc module, which is no longer supported." && fail=1
-  grep pam_ecryptfs "$file" | grep -q -v ^# && sed -e '/pam_ecryptfs/s/^/#/g' >"$VALUE_TMP_PREUPGRADE/cleanconf/$file" && log_high_risk "PAM: The $file file contains the pam_ecryptfs module, which is no longer supported. Your ecryptfs encrypted files will not work after the upgrade. Decrypt the files before the upgrade and possibly switch to a different encryption." && fail=1
+    clean_file="$CLEANCONF_DIR"/$(basename "$file")
+
+    deprec_status=$(check_deprec_dirctv "pam_passwdqc" "$file")
+    [ -n "$deprec_status" ] && log_medium_risk "$deprec_status" && \
+    copy_clean "$file" "$clean_file" && comment_invalid "$clean_file" && fail=1
+
+    deprec_status=$(check_deprec_dirctv "pam_ecryptfs" "$file")
+    [ -n "$deprec_status" ] && log_high_risk "$deprec_status" && \
+    copy_clean "$file" "$clean_file" && comment_invalid "$clean_file" && fail=1
+
+
 done
 
-test $fail = 1 && exit_fail
+test $fail = 1 && exit $RESULT_FAIL
 
-exit_pass
+rm -rf "$CLEANCONF_DIR" && exit $RESULT_PASS
