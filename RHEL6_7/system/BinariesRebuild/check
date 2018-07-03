@@ -23,6 +23,7 @@ get_blacklist_file() {
 gen_blacklist() {
   local blacklist_cfg=$(get_blacklist_file)
   [ $? -ne 0 ] && return 1
+  [ -z "$blacklist_cfg" ] && return 1
   [ ! -f "$blacklist_cfg" ] && {
     log_warning "The $blacklist_cfg file mentioned in the configuration file does not exist."
     return 1
