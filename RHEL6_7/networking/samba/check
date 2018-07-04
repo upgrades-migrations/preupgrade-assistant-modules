@@ -2,9 +2,28 @@
 . /usr/share/preupgrade/common.sh
 
 #END GENERATED SECTION
+rpm -q samba > /dev/null
+if [ $? -ne 0 ];then
+    exit $RESULT_NOT_APPLICABLE
+fi
+POSTUPGRADE_DIR="$POSTUPGRADE_DIR/smb"
 
+if [[ ! -d "$POSTUPGRADE_DIR" ]]; then
+    mkdir -p "$POSTUPGRADE_DIR"
+fi
 
+SCRIPT_NAME="postupgrade_smb.sh"
+POST_SCRIPT="postupgrade.d/$SCRIPT_NAME"
+SMB_CFG=$(smbstatus -v | awk -F' = ' '$1 == "using configfile" { print $2 }')
 
+cp -f $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
+sed -i "s;PLACEHOLDER;$SMB_CFG;" $POSTUPGRADE_DIR/$SCRIPT_NAME
 
-log_slight_risk "SMB1 protocol is deprecated and it is replaced by SMB2."
+log_slight_risk "The SMB1 protocol is deprecated and it is replaced by SMB2."
+log_medium_risk "Certain samba configuration settings from the source system might be deprecated on the target system service."
+
+echo "The post upgrade script will test the validity of your current configuration options on the Red Hat Enterprise Linux 7 system.
+For more detailed information including new default configuration values, run the following command after the upgrade:
+# testparm -s -v -d 3 $SMB_CFG" >> "$SOLUTION_FILE"
+
 exit $RESULT_FAIL
