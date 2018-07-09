@@ -66,8 +66,8 @@ my_backup_config_file() {
         return 1
     fi
 
-    mkdir -p "${VALUE_TMP_PREUPGRADE}/$(dirname $CONFIG_FILE)"
-    cp -f "${CONFIG_FILE}" "${VALUE_TMP_PREUPGRADE}${CONFIG_FILE}"
+    mkdir -p "${VALUE_TMP_PREUPGRADE}/dirtyconf/$(dirname $CONFIG_FILE)"
+    cp -f "${CONFIG_FILE}" "${VALUE_TMP_PREUPGRADE}/dirtyconf/${CONFIG_FILE}"
     return $?
 }
 
