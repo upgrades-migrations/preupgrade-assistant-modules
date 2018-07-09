@@ -35,7 +35,7 @@ check_options() {
     CONFIG_FILE=$1
     log_debug  "checking the $CONFIG_FILE config file"
     backup_config "$CONFIG_FILE"
-    BACKUPED_CONFIG_FILE="${VALUE_TMP_PREUPGRADE}/$CONFIG_FILE"
+    BACKUPED_CONFIG_FILE="${VALUE_TMP_PREUPGRADE}/dirtyconf/$CONFIG_FILE"
 
     # remove comments and empty lines
     filtered_conf="$(cat "$CONFIG_FILE" | filter_comments)"
