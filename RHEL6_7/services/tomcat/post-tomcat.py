@@ -213,14 +213,14 @@ def mv_webapps():
             )
         return False
     if (os.system("/bin/mv %s %s-preupg-backup"
-                  % (APP_WEB_HOME_NEW, APP_WEB_HOME_NEW))):
+                  % (APP_WEB_HOME_NEW, APP_WEB_HOME_NEW))) != 0:
         log_error(
             "The %s directory has not been backed up and the"
             " web apps from tomcat6 cannot be moved. Migrate your web"
             " applications manually." % APP_WEB_HOME_NEW
             )
         return False
-    if os.system("/bin/mv %s %s" % (APP_WEB_HOME, APP_WEB_HOME_NEW)):
+    if os.system("/bin/mv %s %s" % (APP_WEB_HOME, APP_WEB_HOME_NEW)) != 0:
         log_error(
             "Original web applications inside the %s directory have not been moved to the new"
             " %s directory, so tomcat cannot be used with them as it was before."
@@ -243,13 +243,15 @@ def mv_configs():
     Copy modified configuration files of tomcat6 to new destinations.
     """
     # ok, this generate "//" in logs but doesn't matter
-    if os.system("/bin/mv -vf %s/* %s" % (CONFIG_DIR, "/etc/tomcat")):
+    if os.system("/bin/cp -avr %s/* %s" % (CONFIG_DIR, "/etc/tomcat")) != 0:
         log_error(
             "The tomcat6 configuration files have not been moved to the new tomcat"
             "directory. Move the files manually.")
         return False
-
-    return True
+    else:
+        if os.path.isdir(CONFIG_DIR):
+            os.system("/usr/bin/rm -rf %s" % CONFIG_DIR)
+        return True
 
 ##############################################################################
 ##### MAIN #####
@@ -356,7 +358,7 @@ status |= mv_configs()
 # remove old packages
 for pkg in old_packages:
     if os.system("rpm -q %s >/dev/null" % pkg) == 0:
-        if os.system("rpm -e --nodeps %s" % old_packages):
+        if os.system("rpm -e --nodeps %s" % pkg) != 0:
             log_error(
                 "The %s package has not been removed from the system."
                 " Remove the package manually." % pkg
