@@ -15,9 +15,9 @@ SMB_CFG=$(smbstatus -v | awk -F' = ' '$1 == "using configfile" { print $2 }')
 cp -f $POST_SCRIPT $POSTUPGRADE_DIR/$SCRIPT_NAME
 sed -i "s;PLACEHOLDER;$SMB_CFG;" $POSTUPGRADE_DIR/$SCRIPT_NAME
 
-log_slight_risk "The SMB1 protocol is deprecated and it is replaced by SMB2."
-log_medium_risk "Certain samba configurations from the source system might be deprecated on the target system service."
+log_slight_risk "SMB1 protocol is deprecated and it is replaced by SMB2."
+log_medium_risk "Some of the samba configuration from the source system may be deprecated on the target system service."
 
-echo "The post upgrade script will test the validity of your current configuration options on the Red Hat Enterprise Linux 7 system. For more detailed information including new default configuration values, run the testparm -s -v -d 3 $SMB_CFG command after the upgrade." >> "$SOLUTION_FILE"
+echo "Post-upgrade script will test the validity of your current configuration options on the Red Hat Enterprise Linux 7 system. For more detailed information including new default configuration values run testparm -s -v -d 3 $SMB_CFG after the upgrade." >> "$SOLUTION_FILE"
 
 exit $RESULT_FAIL
