@@ -1,0 +1,30 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+from preupg.script_api import *
+
+#END GENERATED SECTION
+
+import os
+from shutil import copy2
+
+# This script will be used during pre-upgrade section of redhat-upgrade-tool
+# when 'java-1.8.0-ibm' is found.
+PRE_UPGRADE_SCRIPT = "remove-java-1.8.0-ibm-pre-upgrade.sh"
+PRE_UPGRADE_DIR    = os.path.join(VALUE_TMP_PREUPGRADE, "preupgrade-scripts")
+
+##############################################################################
+##### MAIN #####
+##############################################################################
+
+log_high_risk("The java-1.8.0-ibm package is installed."
+              " Remove it before the in-place upgrade.")
+solution_file("The java-1.8.0-ibm package is installed and conflicts with"
+              " the upgrade. Remove the package before the upgrade.\n")
+
+# add pre-upgrade check script, which check, that package was really
+# removed before upgrade - otherwise user can't continue in upgrade.
+copy2(PRE_UPGRADE_SCRIPT, PRE_UPGRADE_DIR)
+os.chmod(os.path.join(PRE_UPGRADE_DIR, PRE_UPGRADE_SCRIPT), 775)
+
+exit_fail()
