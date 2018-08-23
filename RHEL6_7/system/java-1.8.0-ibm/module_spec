@@ -1,0 +1,18 @@
+==============================================================================
+The module specification:
+==============================================================================
+
+Root cause
+----------
+java-1.8.0-ibm on RHEL 6 is not compatible with RHEL 7. The package must be
+removed otherwise 'alternatives' symlinks will be broken upon package update,
+preventing to run java properly.
+Also, reinstalling or updating the package once upgraded to RHEL 7 will
+continuously fail, unless instructions in KCS
+https://access.redhat.com/site/solutions/3556401 are followed.
+
+
+short story long:
+-----------------
+The module is applied when java-1.8.0-ibm is installed. It always returns FAIL
+(high risk + exit fail).
