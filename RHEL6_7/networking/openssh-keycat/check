@@ -3,7 +3,7 @@
 
 #END GENERATED SECTION
 
-grep -E "^\s*AuthorizedKeysCommand\s+/usr/libexec/openssh/ssh-keycat" /etc/ssh/sshd_config
+grep -qE "^\s*AuthorizedKeysCommand\s+/usr/libexec/openssh/ssh-keycat" /etc/ssh/sshd_config
 
 [[ $? -ne 0 ]] && {
   log_medium_risk "The ssh-keycat files are moved to the openssh-keycat package."
