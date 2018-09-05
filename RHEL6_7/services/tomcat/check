@@ -528,7 +528,7 @@ if is_pkg_installed("tomcat"):
     # add pre-upgrade check script, which check, that package was really
     # removed before upgrade - otherwise user can't continue in upgrade.
     copy2(PRE_UPGRADE_SCRIPT, PRE_UPGRADE_DIR)
-    os.chmod(os.path.join(PRE_UPGRADE_DIR, PRE_UPGRADE_SCRIPT), 0775)
+    os.chmod(os.path.join(PRE_UPGRADE_DIR, PRE_UPGRADE_SCRIPT), 0o775)
 
 
 ##### now apply all checks implemented above #####
@@ -566,7 +566,7 @@ try:
     copy2("xml/ElementTree.py", os.path.join(PRIVATE_POST_DIR, "xml"))
     copy2("xml/__init__.py", os.path.join(PRIVATE_POST_DIR, "xml"))
     copy2(POST_SCRIPT, PRIVATE_POST_DIR)
-    os.chmod(os.path.join(PRIVATE_POST_DIR, POST_SCRIPT), 0755)
+    os.chmod(os.path.join(PRIVATE_POST_DIR, POST_SCRIPT), 0o755)
 except IOError as e:
     log_error("IOError: %s %s" % (e.strerror, e.filename))
     _set_exit_func(exit_error)

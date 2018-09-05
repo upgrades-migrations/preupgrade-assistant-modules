@@ -25,6 +25,6 @@ solution_file("The java-1.8.0-ibm package is installed and conflicts with"
 # add pre-upgrade check script, which check, that package was really
 # removed before upgrade - otherwise user can't continue in upgrade.
 copy2(PRE_UPGRADE_SCRIPT, PRE_UPGRADE_DIR)
-os.chmod(os.path.join(PRE_UPGRADE_DIR, PRE_UPGRADE_SCRIPT), 775)
+os.chmod(os.path.join(PRE_UPGRADE_DIR, PRE_UPGRADE_SCRIPT), 0o775)
 
 exit_fail()
