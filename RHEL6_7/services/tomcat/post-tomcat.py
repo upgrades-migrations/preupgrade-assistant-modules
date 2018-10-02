@@ -38,6 +38,9 @@ def get_lines(fname):
         lines = map(lambda x: x.strip(), handle.readlines())
     return lines
 
+def log_info(msg):
+    sys.stderr.write("Info: %s\n" % msg)
+
 def log_error(msg):
     sys.stderr.write("Error: %s\n" % msg)
 
@@ -243,6 +246,13 @@ def mv_configs():
     Copy modified configuration files of tomcat6 to new destinations.
     """
     # ok, this generate "//" in logs but doesn't matter
+    if not os.path.isdir(CONFIG_DIR):
+        log_info(
+            "Original system used the default tomcat6 configuration."
+            " Using the default configuration of the tomcat of the target"
+            " system."
+            )
+        return True
     if os.system("/bin/cp -avr %s/* %s" % (CONFIG_DIR, "/etc/tomcat")) != 0:
         log_error(
             "The tomcat6 configuration files have not been moved to the new tomcat"
