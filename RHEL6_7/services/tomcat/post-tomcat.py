@@ -7,8 +7,16 @@ import xml.ElementTree as ET
 from shutil import copy2
 
 ##### FUNC + CONST / GLOBVARS #####
-APP_WEB_HOME="/usr/share/tomcat6/webapps"
-APP_WEB_HOME_NEW="/usr/share/tomcat/webapps"
+#TODO: Original APP_WEB_HOME* paths contains symlinks to the paths that are
+#      used below now. However, this is hardcoded solution which does not have
+#      to be correct. The original symlink of tomcat6 is removed before the
+#      post-upgrade script is processed now. So this is temporary solution that
+#      will resolve the migrating issue for now and better solution should be
+#      delivered in future.
+#APP_WEB_HOME="/usr/share/tomcat6/webapps"
+#APP_WEB_HOME_NEW="/usr/share/tomcat/webapps"
+APP_WEB_HOME="/var/lib/tomcat6/webapps"
+APP_WEB_HOME_NEW="/var/lib/tomcat/webapps"
 CONFIG_DIR="/etc/tomcat6/"
 
 GLOBAL_CONFIG_FILE = os.path.join(CONFIG_DIR, "server.xml")
