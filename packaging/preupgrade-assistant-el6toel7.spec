@@ -4,7 +4,7 @@
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Name:           preupgrade-assistant-el6toel7
-Version:        0.7.6
+Version:        0.7.7
 Release:        1%{?dist}
 Summary:        Set of modules created for upgrade to Red Hat Enterprise Linux 7
 Group:          System Environment/Libraries
