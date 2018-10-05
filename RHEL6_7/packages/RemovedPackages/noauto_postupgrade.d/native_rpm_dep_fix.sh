@@ -7,12 +7,12 @@ VERBOSE=0
 RM_CUSTOM_RPM=0
 FAIL=0
 
-log_error()   { echo >&2 "Error:   $@"; }
-log_warning() { echo >&2 "Warning: $@"; }
-log_info()    { echo >&2 "Info:    $@"; }
+log_error()   { echo >&2 "Error:   $1"; }
+log_warning() { echo >&2 "Warning: $1"; }
+log_info()    { echo >&2 "Info:    $1"; }
 
 log_info_verbose() {
-    [ 0"$VERBOSE" -eq 1 ] && log_info "$@"
+    [ 0"$VERBOSE" -eq 1 ] && log_info "$1"
 }
 
 get_broken_deps_list() {
@@ -80,7 +80,7 @@ while [[ -n "$1" ]]; do
             VERBOSE=1
             ;;
         -h | --help)
-            echo "USAGE: native_rpm_dep_fix [-a|--rm-all] [-v|--verbose] [-h|--help]"
+            echo "USAGE: ${0##*/} [-a|--rm-all] [-v|--verbose] [-h|--help]"
             echo "    -a | --rm-all   Enable removal of 3rd party or custom RPMs"
             echo "    -v | --verbose  Activate verbose mode"
             echo "    -h | --help     Print this help"
