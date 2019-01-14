@@ -1,0 +1,84 @@
+#!/bin/bash
+. /usr/share/preupgrade/common.sh
+#END GENERATED SECTION
+
+ARCH="$(arch)"
+
+STR_IFS=$IFS
+IFS=" $(echo -n -e '\t')"
+
+wrap_exit()
+{
+	IFS=$STR_IFS
+
+	exit $1
+}
+
+[ "$ARCH" == "s390x" ] || wrap_exit $RESULT_NOT_APPLICABLE
+
+detect_linux_disk_layout()
+{
+	log_debug "Checking Linux Disk Layout for a device $1"
+
+	local format
+	format=$(dasdview -x $1 2>/dev/null | grep "^[[:space:]]*format[[:space:]]*:")
+
+	test -n "$format" || {
+		return 1
+	}
+
+	log_debug "Scanning Direct Access Storage Device format: $format"
+	echo "$format" | grep -q "[[:space:]]LDL[[:space:]]"
+}
+
+uuid_to_dev()
+{
+	blkid -l -o device -t $1 2>/dev/null
+}
+
+check_device()
+{
+	local dev
+
+	dev=$1
+
+	if [ "${dev%%=*}" = "UUID" ]; then
+		log_debug "Translating $dev to device path"
+		dev=$(uuid_to_dev $dev)
+		test -n $dev || {
+			log_error "UUID translation to device path failed."
+			wrap_exit $RESULT_ERROR 
+		}
+	fi
+
+	test -b $dev || return 0
+	detect_linux_disk_layout "$dev" && return 1
+	return 0
+}
+
+list_devices()
+{
+	lsblk -ndo "NAME" | sed 's,^,/dev/,' 2> /dev/null
+}
+
+check_devices()
+{
+	local dev
+
+	log_info "Check system devices for Linux Disk Layout use."
+
+	IFS=$'\n'
+
+	for dev in $(list_devices) ; do
+		log_debug "Checking device '$dev'"
+		check_device "$dev"
+		if [ $? -ne 0 ]; then
+			log_extreme_risk "A Direct Access Storage Device (DASD) was detected using Linux Disk Layout (LDL) format: $dev. Upgrade is not possible."
+			wrap_exit $RESULT_FAIL
+		fi
+	done
+}
+
+check_devices
+
+wrap_exit $RESULT_PASS

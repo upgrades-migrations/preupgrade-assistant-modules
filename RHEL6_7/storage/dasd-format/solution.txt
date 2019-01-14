@@ -1,0 +1,4 @@
+The Direct Access Storage Device (DASD) Linux Disk Layout (LDL) format is unsupported on Red Hat
+Enterprise Linux 7. Consequently, on the s390x architecture, if a partition is formatted with LDL
+on one or more DASDs, the upgrade process fails and causes a data loss on such a partition. To
+work around this problem, please, consider migrating to the Common Disk Layout (CDL) format.
