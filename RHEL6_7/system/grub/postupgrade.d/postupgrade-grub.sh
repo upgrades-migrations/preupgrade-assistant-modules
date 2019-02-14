@@ -8,6 +8,11 @@ fi
 # exit when grub2 rpm is installed
 rpm -q grub2 >/dev/null 2>&1 && exit 0
 
+rpm -q grub >/dev/null 2>&1 && {
+  echo >&2 "Info: Remove legacy grub to make possible installation of grub2"
+  yum -y remove grub
+}
+
 echo >&2 "Info: Install the grub2 package."
 yum -y install grub2 || {
   echo >&2 "Warning: The grub2 has not been installed. Install it manually."
