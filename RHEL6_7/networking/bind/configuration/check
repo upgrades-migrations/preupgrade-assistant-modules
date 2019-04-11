@@ -58,7 +58,7 @@ section of the Red Hat Enterprise Linux 7 Networking Guide."""
 # object used for creating solution text
 sol_text = SolutionText()
 
-log_error = print
+# this does not work on python2
 log_info = print
 log_slight_risk = print
 log_medium_risk = print
@@ -67,7 +67,7 @@ def exit_error():
     raise Exception("Error exit")
 
 def return_with_code(code):
-    print("Code: ", code)
+    print("Exit code: ", code)
 
 
 #######################################################
@@ -77,6 +77,28 @@ def return_with_code(code):
 
 CONFIG_CHECKS = []
 
+class ConfigParseError(Exception):
+
+    def __init__(self, message, error = None):
+        super(self.__class__, self).__init__(message)
+        self.error = error
+    pass
+
+class ConfigFile(object):
+    def __init__(self, path):
+        self.path = path
+        self.load(path)
+
+    def __str__(self):
+        return self.buff
+
+    def load(self, path):
+        with open(path, 'r') as f:
+            self.buffer = self.original = f.read()
+            f.close()
+
+    def is_modified(self):
+        return (self.origina == self.buff)
 
 def register_check(check):
     """
@@ -94,9 +116,9 @@ def run_checks(parser):
 
     for check in CONFIG_CHECKS:
         log_info("Running check: \"" + check.__name__ + "\"")
-        for fpath, buff in parser.FILES_TO_CHECK:
-            log_info("checking: \"" + fpath + "\"")
-            result = check(fpath, buff)
+        for cfg in parser.FILES_TO_CHECK:
+            log_info("checking: \"" + cfg.path + "\"")
+            result = check(cfg.path, cfg.buffer)
             if result > gl_result:
                 gl_result = result
 
@@ -134,8 +156,8 @@ def check_tcp_listen_queue(file_path, buff):
     for match in match_iter:
         try:
             number = int(match.group(1))
-        except ValueError:
-            log_error("Value \"" + match.group(1) + "\" cannot be converted")
+        except ValueError as e:
+            raise(ConfigParseError("Value \"" + match.group(1) + "\" cannot be converted"), e)
             return EXIT_ERROR
         # the new default and minimum value is "10"
         if number > 0 and number < 10:
@@ -317,8 +339,8 @@ def check_empty_zones_complex(parser):
 
     # Create a global config
     configuration = ""
-    for fpath, buff in parser.FILES_TO_CHECK:
-        configuration += buff + "\n"
+    for cfg in parser.FILES_TO_CHECK:
+        configuration += cfg.buffer + "\n"
 
     ez_disable_pattern = re.compile("empty-zones-enable\s+no")
     # Check if empty zones are not disabled globally
@@ -365,7 +387,9 @@ def check_default_runtime_dir(parser):
     # find configuration file with the options section
     config_file = config_content = ""
     opt_sec_start = opt_sec_end = -1
-    for fpath, fcontent in parser.FILES_TO_CHECK:
+    for cfg in parser.FILES_TO_CHECK:
+        fpath = cfg.path
+        fcontent = cfg.buffer
         opt_sec_start, opt_sec_end = parser.find_val_bounds_of_key(fcontent, "options")
         log_info("Parsing file %s, start at %d" % (fpath, opt_sec_start))
         if opt_sec_start >= 0:
@@ -375,16 +399,15 @@ def check_default_runtime_dir(parser):
 
     if -1 in [opt_sec_start, opt_sec_end]:
         # unexpected error when BIND is used and works correctly
-        log_error("The options statement has not been found or the configuration "
-                  "is broken.")
-        return EXIT_ERROR
+        raise(ConfigParseError("The options statement has not been found or the configuration "
+                  "is broken."))
 
     for (key, val) in [("pid-file", '"/run/named/named.pid"'),
                        ("session-keyfile", '"/run/named/session.key"')]:
         val_start, val_end = parser.find_val_bounds_of_key(config_content, key,
                 opt_sec_start +1, opt_sec_end)
         if -1 in [val_start, val_end] or val != config_content[val_start:val_end+1]:
-            ret = fix_statement(config_file, "options", key, val)
+            ret = parser.fix_statement(config_file, "options", key, val)
             if ret is False:
                 log_slight_risk("The \"%s\" statement cannot be fixed in the "
                                 "BIND9 configuration automatically." % key)
@@ -422,11 +445,14 @@ These locations need to be specified by statements in the options section.\n""")
     return status
 
 
-class BindParser:
+class BindParser(object):
     CONFIG_FILE = "/etc/named.conf"
     FILES_TO_CHECK = []
 
     FIXED_CONFIGS = {}
+
+    # FIXME: Not sure what should be changed
+    OUTPUT_DIR = '/tmp'
 
     ###########################################################
     ### function for parsing of config files
@@ -467,6 +493,43 @@ class BindParser:
 
     def is_opening_char(self, c):
          return c in "\"'{(["
+
+    def remove_comments(self, istr):
+        """
+        Removes all comments from the given string.
+
+        :param istr: input string
+        :return: return
+        """
+
+        isCommented = False
+        isBlockComment = False
+        str_open = "\""
+        ostr = ""
+
+        length = len(istr)
+        index = 0
+
+        while index < length:
+            if self.is_comment_start(istr, index):
+                index = self.find_end_of_comment(istr,index)
+                if index == -1:
+                    # comment till EOF
+                    break
+                if istr[index] == "\n":
+                    ostr += "\n"
+            elif istr[index] in str_open:
+                end_str = self.find_closing_char(istr, index)
+                if end_str == -1:
+                    ostr += istr[index:]
+                    break
+                ostr += istr[index:end_str+1]
+                index = end_str
+            else:
+                ostr += istr[index]
+            index += 1
+
+        return ostr
 
     def find_next_token(self, istr,index=0, end_index=-1):
         """
@@ -589,43 +652,6 @@ class BindParser:
 
         return -1
 
-    def remove_comments(self, istr):
-        """
-        Removes all comments from the given string.
-
-        :param istr: input string
-        :return: return
-        """
-
-        isCommented = False
-        isBlockComment = False
-        str_open = "\""
-        ostr = ""
-
-        length = len(istr)
-        index = 0
-
-        while index < length:
-            if self.is_comment_start(istr, index):
-                index = self.find_end_of_comment(istr,index)
-                if index == -1:
-                    # comment till EOF
-                    break
-                if istr[index] == "\n":
-                    ostr += "\n"
-            elif istr[index] in str_open:
-                end_str = self.find_closing_char(istr, index)
-                if end_str == -1:
-                    ostr += istr[index:]
-                    break
-                ostr += istr[index:end_str+1]
-                index = end_str
-            else:
-                ostr += istr[index]
-            index += 1
-
-        return ostr
-
     def find_key(self, istr, key, index=0, end_index=-1):
         """
         Return index of the key or -1.
@@ -743,7 +769,7 @@ class BindParser:
         new_config = "%s\n\t%s %s;\n%s" % (config[:index], key, val, config[index:])
         return new_config
 
-    def fix_statement(confile, section, key, val):
+    def fix_statement(self, confile, section, key, val):
         """Add or change statement into the section of the config file."""
         try:
             config = self.FIXED_CONFIGS[confile]
@@ -769,13 +795,11 @@ class BindParser:
         """
         Writes fixed configs in the respective directories.
         """
-        # FIXME: Not sure what should be changed
-        VALUE_TMP_PREUPGRADE = '.'
         if result > EXIT_FIXED:
-            output_dir = os.path.join(VALUE_TMP_PREUPGRADE, "dirtyconf")
+            output_dir = os.path.join(self.OUTPUT_DIR, "dirtyconf")
             sol_text.add_solution("The configuration files could not be fixed completely as there are still some issues that need a review.")
         else:
-            output_dir = os.path.join(VALUE_TMP_PREUPGRADE, "cleanconf")
+            output_dir = os.path.join(self.OUTPUT_DIR, "cleanconf")
             sol_text.add_solution("The configuration files have been completely fixed.")
 
         for path, buff in self.FIXED_CONFIGS:
@@ -822,6 +846,11 @@ class BindParser:
                 return True
         return False
 
+    def new_config(self, path):
+        config = ConfigFile(path)
+        config.buffer = self.remove_comments(config.original)
+        self.FILES_TO_CHECK.append(config)
+        return config
 
     def load_included_files(self):
         """
@@ -838,18 +867,14 @@ class BindParser:
                 if self.is_file_loaded(include):
                     continue
                 try:
-                    f = open(include, 'r')
-                except IOError:
-                    log_error("Cannot open the configuration file: \"" + include +
-                              "\"" + "included by \"" + ch_file.path + "\"")
-                    exit_error()
-                else:
-                    log_info("Include statement found in \"" + ch_file.path + "\": " +
-                             "loading file \"" + include + "\"")
-                    filtered_string = self.remove_comments(f.read())
-                    f.close()
-                    self.FILES_TO_CHECK.append(ConfFile(buffer=filtered_string,
-                                                   path=include))
+                    self.new_config(include)
+                    log_info("Include statement found in \"{parent_path}\": "
+                             "loading file \"{path}\"".format(
+                             parent_path=ch_file.path, path=include))
+                except IOError as e:
+                    raise(ConfigParseError(
+                            "Cannot open the configuration file: \"{path}\" included by \"{parent_path}\"".format(parent_path=ch_file.path, path=include), e)
+                         )
 
 
     def load_main_config(self):
@@ -857,17 +882,11 @@ class BindParser:
         Loads main CONFIG_FILE.
         """
         try:
-            f = open(self.CONFIG_FILE, 'r')
-        except IOError:
-            log_error(
-                "Cannot open the configuration file: \"" + self.CONFIG_FILE + "\"")
-            exit_error()
-        else:
-            log_info("Loading the configuration file: \"" + self.CONFIG_FILE + "\"")
-            filtered_string = self.remove_comments(f.read())
-            f.close()
-            self.FILES_TO_CHECK.append(ConfFile(buffer=filtered_string,
-                                           path=self.CONFIG_FILE))
+            self.new_config(self.CONFIG_FILE)
+            log_info("Loading the configuration file: \"{path}\"".format(path=self.CONFIG_FILE))
+        except IOError as e:
+            raise(ConfigParseError(
+                "Cannot open the configuration file: \"{path}\"".format(path=self.CONFIG_FILE)), e)
 
 
 def check_user(uid=0):
@@ -875,27 +894,27 @@ def check_user(uid=0):
     Checks if the effective user ID is the one passed as an argument.
     """
     if os.geteuid() != uid:
-        sys.stdout.write("Needs to be root.\n")
-        log_error("The script needs to be run under root.")
-        exit_error()
+        raise(ConfigParseError("The script needs to be run under root."))
 
 def main():
     #check_user()
-    parser = BindParser()
-    parser.load_main_config()
-    parser.load_included_files()
-    # need to check also paths of included files
-    if not parser.is_config_changed():
-        return_with_code(EXIT_PASS)
-    result = run_checks(parser)
-    # write the config into the respective dir
-    parser.write_fixed_configs_to_disk(result)
-    # if there was some issue, write a solution text
-    if result > EXIT_PASS:
-        #solution_file(sol_text.get_text())
-        pass
-    return_with_code(result)
-
+    try:
+        parser = BindParser()
+        parser.load_main_config()
+        parser.load_included_files()
+        # need to check also paths of included files
+        if not parser.is_config_changed():
+            return_with_code(EXIT_PASS)
+        result = run_checks(parser)
+        # write the config into the respective dir
+        parser.write_fixed_configs_to_disk(result)
+        # if there was some issue, write a solution text
+        if result > EXIT_PASS:
+            #solution_file(sol_text.get_text())
+            pass
+        return_with_code(result)
+    except ConfigParseError as e:
+        print(e)
 
 if __name__ == "__main__":
     main()
