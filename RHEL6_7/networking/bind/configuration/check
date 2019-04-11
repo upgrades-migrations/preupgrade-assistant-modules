@@ -16,11 +16,6 @@ from collections import namedtuple
 # exit functions are exit_{pass,not_applicable, fixed, fail, etc.}
 # logging functions are log_{error, warning, info, etc.}
 # for logging in-place risk use functions log_{extreme, high, medium, slight}_risk
-ConfFile = namedtuple("ConfFile", ["path", "buffer"])
-#CONFIG_FILE = "/etc/named.conf"
-#FILES_TO_CHECK = []
-
-#FIXED_CONFIGS = {}
 
 # Exit codes
 EXIT_NOT_APPLICABLE = 0
@@ -62,6 +57,11 @@ sol_text = SolutionText()
 def log_info(msg):
     print(msg)
 
+def log_debug(msg):
+    log_info(msg)
+    pass
+    
+
 log_slight_risk = log_info
 log_medium_risk = log_info
 
@@ -88,6 +88,7 @@ class ConfigFile(object):
     def __init__(self, path):
         self.path = path
         self.load(path)
+        self.status = None
 
     def __str__(self):
         return self.buff
@@ -383,10 +384,16 @@ def check_default_runtime_dir(parser):
     Check if there are any statements needed for the /var/run -> /run move in 'options'.
     """
     status = EXIT_PASS
+    FIX_STATEMENTS = [
+        ("pid-file", '"/run/named/named.pid"'),
+        ("session-keyfile", '"/run/named/session.key"'),
+        ('dnssec-lookaside', 'no'),
+    ]
 
     # find configuration file with the options section
-    config_file = config_content = ""
+    config_file = ""
     opt_sec_start = opt_sec_end = -1
+    opt = None
     for cfg in parser.FILES_TO_CHECK:
         fpath = cfg.path
         fcontent = cfg.buffer
@@ -394,29 +401,29 @@ def check_default_runtime_dir(parser):
         log_info("Parsing file %s, start at %d" % (fpath, opt_sec_start))
         if opt_sec_start >= 0:
             config_file = fpath
-            config_content = cfg
-            break
+            opt = ("options", opt_sec_start, opt_sec_end)
+            for (key, val) in FIX_STATEMENTS:
+                ret = parser.fix_statement2(cfg, opt, key, val)
+                if ret is False:
+                    log_slight_risk("The \"%s\" statement cannot be fixed in the "
+                                    "BIND9 configuration automatically." % key)
+                    status = EXIT_FAIL
+                    break
+                else:
+                    if cfg.status == EXIT_PASS:
+                        log_info("The %s statement does not require change" % (key,))
+                    else:
+                        
+                        log_info("The %s statement has been set to the expected value: %s"
+                             % (key, val))
+                    if status < EXIT_FIXED:
+                        status = EXIT_FIXED
 
-    if -1 in [opt_sec_start, opt_sec_end]:
+    if not opt:
         # unexpected error when BIND is used and works correctly
         raise(ConfigParseError("The options statement has not been found "
                                "or the configuration is broken."))
 
-    for (key, val) in [("pid-file", '"/run/named/named.pid"'),
-                       ("session-keyfile", '"/run/named/session.key"')]:
-        val_start, val_end = parser.find_val_bounds_of_key(config_content, key,
-                opt_sec_start +1, opt_sec_end)
-        if -1 in [val_start, val_end] or val != config_content[val_start:val_end+1]:
-            ret = parser.fix_statement(config_file, "options", key, val)
-            if ret is False:
-                log_slight_risk("The \"%s\" statement cannot be fixed in the "
-                                "BIND9 configuration automatically." % key)
-                status = EXIT_FAIL
-            else:
-                log_info("The %s statement has been set to the expected value: %s"
-                         % (key, val))
-                if status < EXIT_FIXED:
-                    status = EXIT_FIXED
     if status == EXIT_PASS:
         return status
 
@@ -717,7 +724,7 @@ class BindParser(object):
     #######################################################
     ### CONFIGURATION fixes PART - BEGIN
     #######################################################
-    def change_val(config, section, key, val):
+    def change_val(self, config, section, key, val):
         """
         Change value of key inside the section.
 
@@ -745,7 +752,7 @@ class BindParser(object):
 
         return config[:index] + val + config[end_index+1:]
 
-    def add_keyval(config, section, key, val):
+    def add_keyval(self, config, section, key, val):
         """
         Add key with value to the section.
 
@@ -786,10 +793,55 @@ class BindParser(object):
         self.FIXED_CONFIGS[confile] = fixed_config
         return True
 
+    def fix_statement2(self, cfg, section, key, val):
+        """Add or change statement into the section of the config file.
+       
+        :param cfg: ConfigFile object 
+        :param section: (sectionname, start, end) tuple with name and start and stop indexes, returned by find_val_bounds_of_key
+        :param key: option name to replace value
+        :param val: new value for option key
+        """
+        if not isinstance(cfg, ConfigFile):
+            raise(TypeError("cfg must be ConfigFile parameter"))
 
-#######################################################
-### CONFIGURATION fixes PART - END
-#######################################################
+        if cfg.path in self.FIXED_CONFIGS:
+            config = self.FIXED_CONFIGS[cfg.path]
+        else:
+            for c in self.FILES_TO_CHECK:
+                if cfg.path == c.path:
+                    config = c
+                    break
+
+        fixed_config = None
+        val_start, val_end = self.find_val_bounds_of_key(config.buffer, key,
+                section[1] +1, section[2])
+        log_debug('Statement {stm} bounds {start}-{end}: {text}'.format(
+                stm=key, start=val_start, end=val_end, text=config.buffer[val_start:val_end+1]
+                ))
+        val_missing = -1 in [val_start, val_end]
+        val_correct = (val == config.buffer[val_start:val_end+1])
+        if val_missing or not val_correct:
+            fixed_config = self.change_val(config.buffer, section[0], key, val)
+            if fixed_config is None:
+                fixed_config = self.add_keyval(config.buffer, section[0], key, val)
+                
+        if val_correct:
+            # value is already correct one
+            config.status = EXIT_PASS
+            return True
+        if fixed_config is None:
+            # value could not be changed or added
+            config.status = EXIT_FAIL
+            return False
+        else:
+            config.buffer = fixed_config
+            config.status = EXIT_FIXED
+            self.FIXED_CONFIGS[config.path] = config
+            return True
+
+    #######################################################
+    ### CONFIGURATION fixes PART - END
+    #######################################################
 
     def write_fixed_configs_to_disk(self, result):
         """
@@ -802,7 +854,8 @@ class BindParser(object):
             output_dir = os.path.join(self.OUTPUT_DIR, "cleanconf")
             sol_text.add_solution("The configuration files have been completely fixed.")
 
-        for path, buff in self.FIXED_CONFIGS:
+        for path in self.FIXED_CONFIGS:
+            config = self.FIXED_CONFIGS[path]
             curr_path = os.path.join(output_dir, path[1:])
 
             # create dirs to make sure they exist
@@ -816,7 +869,7 @@ class BindParser(object):
                     raise e
 
             with open(curr_path, "w") as f:
-                f.write(buff)
+                f.write(config.buffer)
             msg = "Written the fixed config file to '" + curr_path + "'"
             log_info(msg)
             sol_text.add_solution(msg)
@@ -829,8 +882,8 @@ class BindParser(object):
         return False
         with open(VALUE_ALLCHANGED, "r") as f:
             files = f.read()
-            for fpath, buff in self.FILES_TO_CHECK:
-                found = re.findall(fpath, files)
+            for f in self.FILES_TO_CHECK:
+                found = re.findall(f.path, files)
                 if found:
                     return True
         return False
