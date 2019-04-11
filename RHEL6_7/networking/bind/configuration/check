@@ -59,15 +59,15 @@ section of the Red Hat Enterprise Linux 7 Networking Guide."""
 sol_text = SolutionText()
 
 # this does not work on python2
-log_info = print
-log_slight_risk = print
-log_medium_risk = print
+def log_info(msg):
+    print(msg)
 
-def exit_error():
-    raise Exception("Error exit")
+log_slight_risk = log_info
+log_medium_risk = log_info
 
 def return_with_code(code):
     print("Exit code: ", code)
+    return code
 
 
 #######################################################
@@ -394,13 +394,13 @@ def check_default_runtime_dir(parser):
         log_info("Parsing file %s, start at %d" % (fpath, opt_sec_start))
         if opt_sec_start >= 0:
             config_file = fpath
-            config_content = fcontent
+            config_content = cfg
             break
 
     if -1 in [opt_sec_start, opt_sec_end]:
         # unexpected error when BIND is used and works correctly
-        raise(ConfigParseError("The options statement has not been found or the configuration "
-                  "is broken."))
+        raise(ConfigParseError("The options statement has not been found "
+                               "or the configuration is broken."))
 
     for (key, val) in [("pid-file", '"/run/named/named.pid"'),
                        ("session-keyfile", '"/run/named/session.key"')]:
@@ -915,6 +915,7 @@ def main():
         return_with_code(result)
     except ConfigParseError as e:
         print(e)
+        return_with_code(EXIT_FAIL)
 
 if __name__ == "__main__":
     main()
