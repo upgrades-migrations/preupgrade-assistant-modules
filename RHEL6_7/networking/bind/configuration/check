@@ -91,7 +91,11 @@ class ConfigFile(object):
         self.status = None
 
     def __str__(self):
-        return self.buff
+        return self.buffer
+
+    def __repr__(self):
+        return 'ConfigFile {0} ({1})'.format(
+                self.path, self.buffer)
 
     def load(self, path):
         with open(path, 'r') as f:
@@ -574,7 +578,11 @@ class BindParser(object):
             return -1
 
         #skip to the end of the current token
-        if self.is_opening_char(istr[index]):
+        if istr[index] == '\\':
+            index += 2
+            if index > length:
+                return -1
+        elif self.is_opening_char(istr[index]):
             index2 = self.find_closing_char(istr, index)
             if index2 == -1:
                 return -1
@@ -598,7 +606,10 @@ class BindParser(object):
 
         # find next token (can be already under the current index)
         while index < end_index:
-            if self.is_comment_start(istr, index):
+            if istr[index] == '\\':
+                index += 2
+                continue
+            elif self.is_comment_start(istr, index):
                 index = self.find_end_of_comment(istr, index)
                 if index == -1:
                     break
@@ -644,7 +655,9 @@ class BindParser(object):
         curr_c = ""
         while index < length:
             curr_c = istr[index]
-            if self.is_comment_start(istr, index) and not isString:
+            if curr_c == '//':
+                index += 2
+            elif self.is_comment_start(istr, index) and not isString:
                 index = self.find_end_of_comment(istr, index)
                 if index == -1:
                     return -1
@@ -901,7 +914,7 @@ class BindParser(object):
 
     def new_config(self, path):
         config = ConfigFile(path)
-        config.buffer = self.remove_comments(config.original)
+        #config.buffer = self.remove_comments(config.original)
         self.FILES_TO_CHECK.append(config)
         return config
 
@@ -914,7 +927,8 @@ class BindParser(object):
         pattern = re.compile("include\s*\"(.+?)\"\s*;")
         # find includes in all files
         for ch_file in self.FILES_TO_CHECK:
-            includes = re.findall(pattern, ch_file.buffer)
+            nocomments = self.remove_comments(ch_file.buffer)
+            includes = re.findall(pattern, nocomments)
             for include in includes:
                 # don't include already loaded files -> prevent loops
                 if self.is_file_loaded(include):
@@ -941,6 +955,15 @@ class BindParser(object):
             raise(ConfigParseError(
                 "Cannot open the configuration file: \"{path}\"".format(path=self.CONFIG_FILE)), e)
 
+    def load_config(self, path=None):
+        """
+        Loads main config file with all included files.
+        """
+        if path != None:
+            self.CONFIG_FILE = path
+        self.load_main_config()
+        self.load_included_files()
+    pass
 
 def check_user(uid=0):
     """
@@ -953,8 +976,10 @@ def main():
     #check_user()
     try:
         parser = BindParser()
-        parser.load_main_config()
-        parser.load_included_files()
+        if len(sys.argv)>1:
+            parser.load_config(sys.argv[1])
+        else:
+            parser.load_config()
         # need to check also paths of included files
         if not parser.is_config_changed():
             return_with_code(EXIT_PASS)
