@@ -85,6 +85,7 @@ class ConfigParseError(Exception):
     pass
 
 class ConfigFile(object):
+    """ Representation of single configuration file and its contents """
     def __init__(self, path):
         self.path = path
         self.load(path)
@@ -104,6 +105,17 @@ class ConfigFile(object):
 
     def is_modified(self):
         return (self.origina == self.buff)
+
+class ConfigSection(object):
+    """ Representation of section or key inside single configuration file """
+    def __init__(self, config, name=None, start=None, end=None):
+        self.config = config
+        self.name = name
+        self.start = start
+        self.end = end
+
+    def value(self):
+        return self.config.buffer[self.start:self.end+1]
 
 def register_check(check):
     """
@@ -400,12 +412,10 @@ def check_default_runtime_dir(parser):
     opt = None
     for cfg in parser.FILES_TO_CHECK:
         fpath = cfg.path
-        fcontent = cfg.buffer
-        opt_sec_start, opt_sec_end = parser.find_val_bounds_of_key(fcontent, "options")
-        log_info("Parsing file %s, start at %d" % (fpath, opt_sec_start))
-        if opt_sec_start >= 0:
+        opt = parser.find_val(cfg, "options")
+        if opt != None:
+            log_info("Parsing file %s, start at %d" % (fpath, opt.start))
             config_file = fpath
-            opt = ("options", opt_sec_start, opt_sec_end)
             for (key, val) in FIX_STATEMENTS:
                 ret = parser.fix_statement2(cfg, opt, key, val)
                 if ret is False:
@@ -732,6 +742,19 @@ class BindParser(object):
             return -1, -1
         return index, close_index
 
+    def find_val(self, cfg, key, index=0, end_index=-1):
+        """ :param cfg: ConfigFile
+            :param key: name of searched key (str)
+            returns ConfigSection object or None
+        """
+        if not isinstance(cfg, ConfigFile):
+            raise(TypeError("cfg must be ConfigFile parameter"))
+        start, end = self.find_val_bounds_of_key(cfg.buffer, key, index, end_index)
+        if start != -1 and end != -1:
+            return ConfigSection(cfg, key, start, end)
+        else:
+            return None
+
     #######################################################
     ### CONFIGURATION CHECKS PART - END
     #######################################################
@@ -826,19 +849,21 @@ class BindParser(object):
                     break
 
         fixed_config = None
-        val_start, val_end = self.find_val_bounds_of_key(config.buffer, key,
-                section[1] +1, section[2])
-        log_debug('Statement {stm} bounds {start}-{end}: {text}'.format(
-                stm=key, start=val_start, end=val_end, text=config.buffer[val_start:val_end+1]
-                ))
-        val_missing = -1 in [val_start, val_end]
-        val_correct = (val == config.buffer[val_start:val_end+1])
-        if val_missing or not val_correct:
-            fixed_config = self.change_val(config.buffer, section[0], key, val)
+        v = self.find_val(config, key,
+                section.start+1, section.end)
+        if v != None:
+            val_correct = (val == v.value())
+            log_debug('Statement {stm} bounds {start}-{end}: {text}'.format(
+                    stm=key, start=v.start, end=v.end, text=v.value()
+                    ))
+            if not val_correct:
+                fixed_config = self.change_val(config.buffer, section.name, key, val)
             if fixed_config is None:
-                fixed_config = self.add_keyval(config.buffer, section[0], key, val)
+                fixed_config = self.add_keyval(config.buffer, section.name, key, val)
+        else:
+            log_debug('Statement {stm} not found'.format(stm=key))
                 
-        if val_correct:
+        if v != None and val_correct:
             # value is already correct one
             config.status = EXIT_PASS
             return True
@@ -985,6 +1010,7 @@ def main():
             return_with_code(EXIT_PASS)
         result = run_checks(parser)
         # write the config into the respective dir
+        # FIXME: this should copy original permissions from source file!
         parser.write_fixed_configs_to_disk(result)
         # if there was some issue, write a solution text
         if result > EXIT_PASS:
