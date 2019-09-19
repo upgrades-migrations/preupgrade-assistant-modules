@@ -6,7 +6,7 @@
 import sys
 import os
 import re
-from collections import namedtuple
+#from collections import namedtuple
 #from preupg.script_api import *
 
 #check_applies_to (check_applies="bind")
@@ -134,7 +134,7 @@ def run_checks(parser):
     for check in CONFIG_CHECKS:
         log_info("Running check: \"" + check.__name__ + "\"")
         for cfg in parser.FILES_TO_CHECK:
-            log_info("checking: \"" + cfg.path + "\"")
+            #log_info("checking: \"{path}\"".format(path=cfg.path))
             result = check(cfg.path, cfg.buffer)
             if result > gl_result:
                 gl_result = result
@@ -407,17 +407,15 @@ def check_default_runtime_dir(parser):
     ]
 
     # find configuration file with the options section
-    config_file = ""
-    opt_sec_start = opt_sec_end = -1
     opt = None
     for cfg in parser.FILES_TO_CHECK:
         fpath = cfg.path
-        opt = parser.find_val(cfg, "options")
-        if opt != None:
-            log_info("Parsing file %s, start at %d" % (fpath, opt.start))
-            config_file = fpath
+        opt_find = parser.find_val(cfg, "options")
+        if opt_find != None:
+            opt = opt_find
+            log_info("Parsing file {path}, start {name} at {start}".format(path=fpath, name=opt.name, start=opt.start))
             for (key, val) in FIX_STATEMENTS:
-                ret = parser.fix_statement2(cfg, opt, key, val)
+                ret = parser.fix_statement(cfg, opt, key, val)
                 if ret is False:
                     log_slight_risk("The \"%s\" statement cannot be fixed in the "
                                     "BIND9 configuration automatically." % key)
@@ -656,9 +654,7 @@ class BindParser(object):
         if index >= length or index < 0:
             return -1
 
-        closing_char = important_chars.get(istr[index], None)
-        if closing_char is None:
-            return -1
+        closing_char = important_chars.get(istr[index], ';')
 
         isString = istr[index] in "\""
         index += 1
@@ -677,6 +673,8 @@ class BindParser(object):
                     break
                 index += deep_close
             elif curr_c == closing_char:
+                if curr_c == ';':
+                    index -= 1
                 return index
             index += 1
 
@@ -717,6 +715,7 @@ class BindParser(object):
             return -1
 
         while index != -1:
+            remains = istr[index:]
             if istr.startswith(key, index):
                 if index+keylen < end_index and istr[index+keylen] in "\n\t {;":
                     # key has been found
@@ -735,8 +734,8 @@ class BindParser(object):
         Otherwise return pair -1, -1.
         """
         index = self.find_next_token(config, self.find_key(config, key, index, end_index))
-        if index == -1 or config[index] not in "\"{":
-            return -1, -1
+        #if index == -1 or config[index] not in "\"{":
+        #    return -1, -1
         close_index = self.find_closing_char(config, index)
         if close_index == -1 or (close_index > end_index and end_index > 0):
             return -1, -1
@@ -812,24 +811,7 @@ class BindParser(object):
         new_config = "%s\n\t%s %s;\n%s" % (config[:index], key, val, config[index:])
         return new_config
 
-    def fix_statement(self, confile, section, key, val):
-        """Add or change statement into the section of the config file."""
-        try:
-            config = self.FIXED_CONFIGS[confile]
-        except KeyError:
-            with open(confile, "r") as f:
-                config = f.read()
-
-        fixed_config = self.change_val(config, section, key, val)
-        if fixed_config is None:
-            fixed_config = self.add_keyval(config, section, key, val)
-        if fixed_config is None:
-            return False
-
-        self.FIXED_CONFIGS[confile] = fixed_config
-        return True
-
-    def fix_statement2(self, cfg, section, key, val):
+    def fix_statement(self, cfg, section, key, val, add_missing=False):
         """Add or change statement into the section of the config file.
        
         :param cfg: ConfigFile object 
@@ -858,10 +840,11 @@ class BindParser(object):
                     ))
             if not val_correct:
                 fixed_config = self.change_val(config.buffer, section.name, key, val)
-            if fixed_config is None:
-                fixed_config = self.add_keyval(config.buffer, section.name, key, val)
         else:
             log_debug('Statement {stm} not found'.format(stm=key))
+
+        if fixed_config is None:
+            fixed_config = self.add_keyval(config.buffer, section.name, key, val)
                 
         if v != None and val_correct:
             # value is already correct one
