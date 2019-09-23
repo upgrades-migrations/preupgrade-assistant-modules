@@ -428,7 +428,7 @@ These locations need to be specified by statements in the options section.\n""")
 
 def main():
     try:
-        parser = BindParser()
+        parser = BindLegacyParser()
         if len(sys.argv)>1:
             parser.load_config(sys.argv[1])
         else:

@@ -5,16 +5,8 @@
 import re
 import os.path
 
-# Exit codes
-# TODO: Remove from here
-EXIT_NOT_APPLICABLE = 0
-EXIT_PASS = 1
-EXIT_INFORMATIONAL = 2
-EXIT_FIXED = 3
-EXIT_FAIL = 4
-EXIT_ERROR = 5
-
 class ConfigParseError(Exception):
+    """ Generic error when parsing config file """
 
     def __init__(self, message, error = None):
         super(self.__class__, self).__init__(message)
@@ -70,12 +62,6 @@ class BindParser(object):
 
     CONFIG_FILE = "/etc/named.conf"
     FILES_TO_CHECK = []
-
-    FIXED_CONFIGS = {}
-
-    # FIXME: Not sure what should be changed
-    OUTPUT_DIR = '/tmp'
-    FIRST_KEY_ONLY = True
 
     ###########################################################
     ### function for parsing of config files
@@ -287,7 +273,7 @@ class BindParser(object):
 
         return -1
 
-    def find_key(self, istr, key, index=0, end_index=-1):
+    def find_key(self, istr, key, index=0, end_index=-1, only_first=True):
         """
         Return index of the key or -1.
 
@@ -327,7 +313,7 @@ class BindParser(object):
                     # key has been found
                     return index
 
-            while self.FIRST_KEY_ONLY and index != -1 and istr[index] != ";":
+            while not only_first and index != -1 and istr[index] != ";":
                 index = self.find_next_token(istr, index)
             index = self.find_next_token(istr, index)
 
@@ -370,6 +356,152 @@ class BindParser(object):
 
 
     #######################################################
+    ### CONFIGURATION fixes PART - END
+    #######################################################
+
+    def is_config_changed(self):
+        """
+        Checks if the configuration files changed.
+        """
+        # FIXME: not sure what this should do
+        return False
+        with open(VALUE_ALLCHANGED, "r") as f:
+            files = f.read()
+            for f in self.FILES_TO_CHECK:
+                found = re.findall(f.path, files)
+                if found:
+                    return True
+        return False
+
+    def is_file_loaded(self, path=""):
+        """
+        Checks if the file with a given 'path' is already loaded in FILES_TO_CHECK.
+        """
+        for f in self.FILES_TO_CHECK:
+            if f.path == path:
+                return True
+        return False
+
+    def new_config(self, path, parent=None):
+        config = ConfigFile(path)
+        self.FILES_TO_CHECK.append(config)
+        return config
+
+    def load_included_files(self):
+        """
+        Finds the configuration files that are included in some configuration
+        file, reads it, closes and adds into the FILES_TO_CHECK list.
+        """
+        #TODO: use parser instead of regexp
+        pattern = re.compile("include\s*\"(.+?)\"\s*;")
+        # find includes in all files
+        for ch_file in self.FILES_TO_CHECK:
+            nocomments = self.remove_comments(ch_file.buffer)
+            includes = re.findall(pattern, nocomments)
+            for include in includes:
+                # don't include already loaded files -> prevent loops
+                if self.is_file_loaded(include):
+                    continue
+                try:
+                    self.new_config(include)
+                except IOError as e:
+                    raise(ConfigParseError(
+                            "Cannot open the configuration file: \"{path}\" included by \"{parent_path}\"".format(parent_path=ch_file.path, path=include), e)
+                         )
+
+
+    def load_main_config(self):
+        """
+        Loads main CONFIG_FILE.
+        """
+        try:
+            self.new_config(self.CONFIG_FILE)
+        except IOError as e:
+            raise(ConfigParseError(
+                "Cannot open the configuration file: \"{path}\"".format(path=self.CONFIG_FILE)), e)
+
+    def load_config(self, path=None):
+        """
+        Loads main config file with all included files.
+        """
+        if path != None:
+            self.CONFIG_FILE = path
+        self.load_main_config()
+        self.load_included_files()
+    pass
+
+class BindLegacyParser(BindParser):
+    """ ISC BIND parser with unrelated pieces.
+
+        Contains methods that should have separate methods or classes.
+    """
+
+    # FIXME: Not sure what should be changed
+    OUTPUT_DIR = '/tmp'
+
+    FIXED_CONFIGS = {}
+    # Exit codes
+    # TODO: Remove from here
+    EXIT_NOT_APPLICABLE = 0
+    EXIT_PASS = 1
+    EXIT_INFORMATIONAL = 2
+    EXIT_FIXED = 3
+    EXIT_FAIL = 4
+    EXIT_ERROR = 5
+
+
+    def log_info(self, msg):
+        print(msg)
+
+    def fixed_config(self, cfg):
+        if cfg.path in self.FIXED_CONFIGS:
+            return self.FIXED_CONFIGS[cfg.path]
+        else:
+            for c in self.FILES_TO_CHECK:
+                if cfg.path == c.path:
+                    return c
+
+    def write_fixed_configs_to_disk(self, result, sol_text):
+        """
+        Writes fixed configs in the respective directories.
+        """
+        if result > self.EXIT_FIXED:
+            output_dir = os.path.join(self.OUTPUT_DIR, "dirtyconf")
+            sol_text.add_solution("The configuration files could not be fixed completely as there are still some issues that need a review.")
+        else:
+            output_dir = os.path.join(self.OUTPUT_DIR, "cleanconf")
+            sol_text.add_solution("The configuration files have been completely fixed.")
+
+        for path in self.FIXED_CONFIGS:
+            config = self.FIXED_CONFIGS[path]
+            curr_path = os.path.join(output_dir, path[1:])
+
+            # create dirs to make sure they exist
+            try:
+                os.makedirs(os.path.dirname(curr_path))
+            except OSError as e:
+                # if the dir already exist (errno 17), pass
+                if e.errno == 17:
+                    pass
+                else:
+                    raise e
+
+            with open(curr_path, "w") as f:
+                f.write(config.buffer)
+            msg = "Written the fixed config file to '" + curr_path + "'"
+            self.log_info(msg)
+            sol_text.add_solution(msg)
+
+    def new_config(self, path, parent=None):
+        if not parent is None:
+            self.log_info("Include statement found in \"{parent_path}\": "
+                     "loading file \"{path}\"".format(
+                             parent_path=parent.path, path=include))
+        else:
+            self.log_info("Loading the configuration file: \"{path}\"".format(path=path))
+        super(self.__class__, self).new_config(path, parent)
+
+    #######################################################
     ### CONFIGURATION CHECKS PART - END
     #######################################################
     ### CONFIGURATION fixes PART - BEGIN
@@ -402,6 +534,54 @@ class BindParser(object):
 
         return config[:index] + val + config[end_index+1:]
 
+    def log_statement(self, key, v):
+        if v is None:
+            self.log_info('Statement {stm} not found'.format(stm=key))
+        else:
+            self.log_info('Statement {stm} bounds {start}-{end}: {text}'.format(
+                    stm=key, start=v.start, end=v.end, text=v.value()
+                    ))
+
+    def fix_statement(self, cfg, section, key, val, add_missing=False):
+        """Add or change statement into the section of the config file.
+       
+        :param cfg: ConfigFile object 
+        :param section: (sectionname, start, end) tuple with name and start and stop indexes, returned by find_val_bounds_of_key
+        :param key: option name to replace value
+        :param val: new value for option key
+        """
+        if not isinstance(cfg, ConfigFile):
+            raise(TypeError("cfg must be ConfigFile parameter"))
+
+        fixed_config = None
+        config = self.fixed_config(cfg)
+        v = self.find_val(config, key,
+                section.start+1, section.end)
+        if v is not None:
+            val_correct = (val == v.value())
+            self.log_statement(key, v)
+            if not val_correct:
+                fixed_config = self.change_val(config.buffer, section.name, key, val)
+        else:
+            self.log_statement(key, v)
+
+        if fixed_config is None and add_missing:
+            fixed_config = self.add_keyval(config.buffer, section.name, key, val)
+                
+        if v != None and val_correct:
+            # value is already correct one
+            config.status = self.EXIT_PASS
+            return True
+        if fixed_config is None:
+            # value could not be changed or added
+            config.status = self.EXIT_FAIL
+            return False
+        else:
+            config.buffer = fixed_config
+            config.status = self.EXIT_FIXED
+            self.FIXED_CONFIGS[config.path] = config
+            return True
+
     def add_keyval(self, config, section, key, val):
         """
         Add key with value to the section.
@@ -425,171 +605,4 @@ class BindParser(object):
 
         new_config = "%s\n\t%s %s;\n%s" % (config[:index], key, val, config[index:])
         return new_config
-
-    def fixed_config(self, cfg):
-        if cfg.path in self.FIXED_CONFIGS:
-            return self.FIXED_CONFIGS[cfg.path]
-        else:
-            for c in self.FILES_TO_CHECK:
-                if cfg.path == c.path:
-                    return c
-
-    def fix_statement(self, cfg, section, key, val, add_missing=False):
-        """Add or change statement into the section of the config file.
-       
-        :param cfg: ConfigFile object 
-        :param section: (sectionname, start, end) tuple with name and start and stop indexes, returned by find_val_bounds_of_key
-        :param key: option name to replace value
-        :param val: new value for option key
-        """
-        if not isinstance(cfg, ConfigFile):
-            raise(TypeError("cfg must be ConfigFile parameter"))
-
-        fixed_config = None
-        config = self.fixed_config(cfg)
-        v = self.find_val(config, key,
-                section.start+1, section.end)
-        if v != None:
-            val_correct = (val == v.value())
-            log_debug('Statement {stm} bounds {start}-{end}: {text}'.format(
-                    stm=key, start=v.start, end=v.end, text=v.value()
-                    ))
-            v = self.find_next_val(config, key, v.end+1, section.end)
-            if v != None:
-                log_debug('Statement {stm} bounds {start}-{end}: {text}'.format(
-                        stm=key, start=v.start, end=v.end, text=v.value()
-                        ))
-            if not val_correct:
-                fixed_config = self.change_val(config.buffer, section.name, key, val)
-        else:
-            log_debug('Statement {stm} not found'.format(stm=key))
-
-        if fixed_config is None and add_missing:
-            fixed_config = self.add_keyval(config.buffer, section.name, key, val)
-                
-        if v != None and val_correct:
-            # value is already correct one
-            config.status = EXIT_PASS
-            return True
-        if fixed_config is None:
-            # value could not be changed or added
-            config.status = EXIT_FAIL
-            return False
-        else:
-            config.buffer = fixed_config
-            config.status = EXIT_FIXED
-            self.FIXED_CONFIGS[config.path] = config
-            return True
-
-    #######################################################
-    ### CONFIGURATION fixes PART - END
-    #######################################################
-
-    def write_fixed_configs_to_disk(self, result, sol_text):
-        """
-        Writes fixed configs in the respective directories.
-        """
-        if result > EXIT_FIXED:
-            output_dir = os.path.join(self.OUTPUT_DIR, "dirtyconf")
-            sol_text.add_solution("The configuration files could not be fixed completely as there are still some issues that need a review.")
-        else:
-            output_dir = os.path.join(self.OUTPUT_DIR, "cleanconf")
-            sol_text.add_solution("The configuration files have been completely fixed.")
-
-        for path in self.FIXED_CONFIGS:
-            config = self.FIXED_CONFIGS[path]
-            curr_path = os.path.join(output_dir, path[1:])
-
-            # create dirs to make sure they exist
-            try:
-                os.makedirs(os.path.dirname(curr_path))
-            except OSError as e:
-                # if the dir already exist (errno 17), pass
-                if e.errno == 17:
-                    pass
-                else:
-                    raise e
-
-            with open(curr_path, "w") as f:
-                f.write(config.buffer)
-            msg = "Written the fixed config file to '" + curr_path + "'"
-            log_info(msg)
-            sol_text.add_solution(msg)
-
-    def is_config_changed(self):
-        """
-        Checks if the configuration files changed.
-        """
-        # FIXME: not sure what this should do
-        return False
-        with open(VALUE_ALLCHANGED, "r") as f:
-            files = f.read()
-            for f in self.FILES_TO_CHECK:
-                found = re.findall(f.path, files)
-                if found:
-                    return True
-        return False
-
-
-
-    def is_file_loaded(self, path=""):
-        """
-        Checks if the file with a given 'path' is already loaded in FILES_TO_CHECK.
-        """
-        for f in self.FILES_TO_CHECK:
-            if f.path == path:
-                return True
-        return False
-
-    def new_config(self, path):
-        config = ConfigFile(path)
-        self.FILES_TO_CHECK.append(config)
-        return config
-
-    def load_included_files(self):
-        """
-        Finds the configuration files that are included in some configuration
-        file, reads it, closes and adds into the FILES_TO_CHECK list.
-        """
-        #TODO: use parser instead of regexp
-        pattern = re.compile("include\s*\"(.+?)\"\s*;")
-        # find includes in all files
-        for ch_file in self.FILES_TO_CHECK:
-            nocomments = self.remove_comments(ch_file.buffer)
-            includes = re.findall(pattern, nocomments)
-            for include in includes:
-                # don't include already loaded files -> prevent loops
-                if self.is_file_loaded(include):
-                    continue
-                try:
-                    self.new_config(include)
-                    log_info("Include statement found in \"{parent_path}\": "
-                             "loading file \"{path}\"".format(
-                             parent_path=ch_file.path, path=include))
-                except IOError as e:
-                    raise(ConfigParseError(
-                            "Cannot open the configuration file: \"{path}\" included by \"{parent_path}\"".format(parent_path=ch_file.path, path=include), e)
-                         )
-
-
-    def load_main_config(self):
-        """
-        Loads main CONFIG_FILE.
-        """
-        try:
-            self.new_config(self.CONFIG_FILE)
-            log_info("Loading the configuration file: \"{path}\"".format(path=self.CONFIG_FILE))
-        except IOError as e:
-            raise(ConfigParseError(
-                "Cannot open the configuration file: \"{path}\"".format(path=self.CONFIG_FILE)), e)
-
-    def load_config(self, path=None):
-        """
-        Loads main config file with all included files.
-        """
-        if path != None:
-            self.CONFIG_FILE = path
-        self.load_main_config()
-        self.load_included_files()
-    pass
 
