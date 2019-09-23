@@ -4,6 +4,7 @@
 
 import re
 import os.path
+import string
 
 class ConfigParseError(Exception):
     """ Generic error when parsing config file """
@@ -62,6 +63,10 @@ class BindParser(object):
 
     CONFIG_FILE = "/etc/named.conf"
     FILES_TO_CHECK = []
+
+    CHAR_CLOSING = ";})]"
+    CHAR_CLOSING_WHITESPACE = CHAR_CLOSING + string.whitespace
+    CHAR_KEYEND = "{;" + string.whitespace
 
     ###########################################################
     ### function for parsing of config files
@@ -190,16 +195,16 @@ class BindParser(object):
             if index2 == -1:
                 return -1
             index = index2 +1
-        elif istr[index] not in "\n\t ;})]":
+        elif istr[index] not in self.CHAR_CLOSING_WHITESPACE:
             # so we have to skip to the end of the current token
             index += 1
             while index < end_index:
-                if (istr[index] in "\n\t ;})]"
+                if (istr[index] in self.CHAR_CLOSING_WHITESPACE
                         or self.is_comment_start(istr, index)
                         or self.is_opening_char(istr[index])):
                     break
                 index += 1
-        elif istr[index] in ";)]}":
+        elif istr[index] in self.CHAR_CLOSING:
             index += 1
 
         # find next token (can be already under the current index)
@@ -211,13 +216,13 @@ class BindParser(object):
                 index = self.find_end_of_comment(istr, index)
                 if index == -1:
                     break
-            elif self.is_opening_char(istr[index]) or istr[index] not in "\t\n ":
+            elif self.is_opening_char(istr[index]) or istr[index] not in string.whitespace:
                 return index
             index += 1
         return -1
 
 
-    def find_closing_char(self, istr, index=0):
+    def find_closing_char(self, istr, index=0, end_index=-1):
         """
         Returns index of equivalent closing character.
 
@@ -309,7 +314,7 @@ class BindParser(object):
         while index != -1:
             remains = istr[index:]
             if istr.startswith(key, index):
-                if index+keylen < end_index and istr[index+keylen] in "\n\t {;":
+                if index+keylen < end_index and istr[index+keylen] in self.CHAR_KEYEND:
                     # key has been found
                     return index
 
