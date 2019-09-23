@@ -47,13 +47,6 @@ class ConfigSection(object):
     def value(self):
         return self.config.buffer[self.start:self.end+1]
 
-def log_info(msg):
-    print(msg)
-
-def log_debug(msg):
-    log_info(msg)
-    pass
-
 # Main parser class
 class BindParser(object):
     """ Parser file with support of included files.
@@ -186,7 +179,7 @@ class BindParser(object):
             if index > length:
                 return -1
         elif self.is_opening_char(istr[index]):
-            index2 = self.find_closing_char(istr, index)
+            index2 = self.find_closing_char(istr, index, end_index)
             if index2 == -1:
                 return -1
             index = index2 +1;
@@ -243,6 +236,8 @@ class BindParser(object):
             ";" : None,
             }
         length = len(istr)
+        if end_index >= 0 and end_index < length:
+            length = end_index
 
         if length < 2:
             return -1
@@ -331,7 +326,7 @@ class BindParser(object):
         Otherwise return pair -1, -1.
         """
         index = self.find_next_token(config, self.find_key(config, key, index, end_index))
-        close_index = self.find_closing_char(config, index)
+        close_index = self.find_closing_char(config, index, end_index)
         if close_index == -1 or (close_index > end_index and end_index > 0):
             return -1, -1
         return index, close_index
@@ -342,7 +337,7 @@ class BindParser(object):
             returns ConfigSection object or None
         """
         start = self.find_next_token(cfg.buffer, index)
-        end = self.find_closing_char(cfg.buffer, start)
+        end = self.find_closing_char(cfg.buffer, start, end_index)
         if end == -1 or (end > end_index and end_index > 0):
             return None
         else:
