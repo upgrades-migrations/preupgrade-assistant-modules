@@ -52,6 +52,7 @@ class BindParser(object):
     """ Parser file with support of included files.
 
     Reads ISC BIND configuration file and tries to skip commented blocks, nested sections and similar stuff.
+    Imitates what isccfg does in native code, but without any use of native code.
     """
 
     CONFIG_FILE = "/etc/named.conf"
@@ -59,7 +60,19 @@ class BindParser(object):
 
     CHAR_CLOSING = ";})]"
     CHAR_CLOSING_WHITESPACE = CHAR_CLOSING + string.whitespace
-    CHAR_KEYEND = "{;" + string.whitespace
+    CHAR_KEYWORD = string.ascii_letters + string.digits + '-_'
+
+    def __init__(self, config=None):
+        """ Construct parser
+
+            :param config: path to file or already loaded ConfigFile instance
+            Initialize contents from path to real config or already loaded ConfigFile class.
+        """
+        if isinstance(config, ConfigFile):
+            self.FILES_TO_CHECK = [ config ]
+            self.load_included_files()
+        elif config is not None:
+            self.load_config(config)
 
     ###########################################################
     ### function for parsing of config files
@@ -309,7 +322,7 @@ class BindParser(object):
         while index != -1:
             remains = istr[index:]
             if istr.startswith(key, index):
-                if index+keylen < end_index and istr[index+keylen] in self.CHAR_KEYEND:
+                if index+keylen < end_index and istr[index+keylen] not in self.CHAR_KEYWORD:
                     # key has been found
                     return index
 
@@ -319,40 +332,84 @@ class BindParser(object):
 
         return -1
 
-    def find_val_bounds_of_key(self, config, key, index=0, end_index=-1):
-        """
-        Return indexes of beginning and end of the value of the key.
+    def find_next_key(self, cfg, index=0, end_index=-1, only_first=True):
+        """ Modernized variant of find_key
+            :type cfg: ConfigFile
+            :param index: Where to start search
 
-        Otherwise return pair -1, -1.
+            Searches for first place of bare keyword, without quotes or block.
         """
-        index = self.find_next_token(config, self.find_key(config, key, index, end_index))
-        close_index = self.find_closing_char(config, index, end_index)
-        if close_index == -1 or (close_index > end_index and end_index > 0):
-            return -1, -1
-        return index, close_index
+        istr = cfg.buffer
+        length = len(istr)
+
+        if length < end_index or end_index < 0:
+            end_index = length
+
+        if index >= end_index or index < 0:
+            raise(IndexError("Invalid size passed"))
+
+        while index != -1:
+            keystart = index
+            while istr[index] in self.CHAR_KEYWORD and index < end_index:
+                index += 1
+
+            if index <= end_index and keystart<index and istr[index] not in self.CHAR_KEYWORD:
+                    # key has been found
+                    return ConfigSection(cfg, istr[keystart:index], keystart, index-1)
+
+            while not only_first and index != -1 and istr[index] != ";":
+                index = self.find_next_token(istr, index, end_index)
+            index = self.find_next_token(istr, index, end_index)
+
+        return None
 
     def find_next_val(self, cfg, key=None, index=0, end_index=-1):
-        """ Find following token
-            :param cfg: ConfigFile
-            returns ConfigSection object or None
+        """ Find following token.
+
+            :param cfg: input token
+            :type cfg: ConfigFile
+            :returns: ConfigSection object or None
+            :rtype: ConfigSection
         """
         start = self.find_next_token(cfg.buffer, index)
-        end = self.find_closing_char(cfg.buffer, start, end_index)
-        if end == -1 or (end > end_index and end_index > 0):
-            return None
+        if False and start >= 0 and not self.is_opening_char(cfg.buffer[start]):
+            return self.find_next_key(cfg, index, end_index)
         else:
-            return ConfigSection(cfg, key, start, end)
+            end = self.find_closing_char(cfg.buffer, start, end_index)
+            if end == -1 or (end > end_index and end_index > 0):
+                return None
+            else:
+                return ConfigSection(cfg, key, start, end)
 
     def find_val(self, cfg, key, index=0, end_index=-1):
-        """ :param cfg: ConfigFile
+        """ Find value of keyword specified by key
+
+            :param cfg: ConfigFile
             :param key: name of searched key (str)
-            returns ConfigSection object or None
+            :param index: start of search in cfg (int)
+            :param end_index: end of search in cfg (int)
+            :returns: ConfigSection object or None
+            :rtype: ConfigSection
         """
         if not isinstance(cfg, ConfigFile):
             raise(TypeError("cfg must be ConfigFile parameter"))
 
+        if end_index < 0:
+            end_index = len(cfg.buffer)
         key_start = self.find_key(cfg.buffer, key, index, end_index)
-        return self.find_next_val(cfg, key, key_start, end_index)
+        if key_start < 0 or key_start+len(key) >= end_index:
+            return None
+        return self.find_next_val(cfg, key, key_start+len(key), end_index)
+
+    def find_val_section(self, section, key):
+        """ Find value of keyword in section
+            :param section: section object returned from find_val
+
+            Section is object found by previous find_val call.
+        """
+        if not isinstance(section, ConfigSection):
+            raise(TypeError("section must be ConfigSection"))
+        return self.find_val(section.config, key, section.start+1, section.end)
 
 
     #######################################################
@@ -430,6 +487,10 @@ class BindParser(object):
         self.load_included_files()
     pass
 
+
+#
+# Legacy preupgrade parts that should be removed.
+#
 class BindLegacyParser(BindParser):
     """ ISC BIND parser with unrelated pieces.
 
@@ -448,7 +509,6 @@ class BindLegacyParser(BindParser):
     EXIT_FIXED = 3
     EXIT_FAIL = 4
     EXIT_ERROR = 5
-
 
     def log_info(self, msg):
         print(msg)
@@ -502,6 +562,18 @@ class BindLegacyParser(BindParser):
         super(self.__class__, self).new_config(path, parent)
 
     #######################################################
+    def find_val_bounds_of_key(self, config, key, index=0, end_index=-1):
+        """
+        Return indexes of beginning and end of the value of the key.
+
+        Otherwise return pair -1, -1.
+        """
+        index = self.find_next_token(config, self.find_key(config, key, index, end_index))
+        close_index = self.find_closing_char(config, index, end_index)
+        if close_index == -1 or (close_index > end_index and end_index > 0):
+            return -1, -1
+        return index, close_index
+
     ### CONFIGURATION CHECKS PART - END
     #######################################################
     ### CONFIGURATION fixes PART - BEGIN

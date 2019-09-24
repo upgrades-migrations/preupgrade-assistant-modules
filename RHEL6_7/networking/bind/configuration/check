@@ -428,11 +428,10 @@ These locations need to be specified by statements in the options section.\n""")
 
 def main():
     try:
-        parser = BindLegacyParser()
         if len(sys.argv)>1:
-            parser.load_config(sys.argv[1])
+            parser = BindLegacyParser(sys.argv[1])
         else:
-            parser.load_config()
+            parser = BindLegacyParser()
         # need to check also paths of included files
         if not parser.is_config_changed():
             return_with_code(EXIT_PASS)
