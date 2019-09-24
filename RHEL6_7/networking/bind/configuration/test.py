@@ -16,6 +16,15 @@ class MockConfigFile(bind.ConfigFile):
 # Sample configuration stubs
 #
 named_conf_default = MockConfigFile("""
+//
+// named.conf
+//
+// Provided by Red Hat bind package to configure the ISC BIND named(8) DNS
+// server as a caching only nameserver (as a localhost DNS resolver only).
+//
+// See /usr/share/doc/bind*/sample/ for example named configuration files.
+//
+
 options {
 	listen-on port 53 { 127.0.0.1; };
 	listen-on-v6 port 53 { ::1; };
@@ -50,6 +59,21 @@ options {
 	/* https://fedoraproject.org/wiki/Changes/CryptoPolicy */
 	include "/etc/crypto-policies/back-ends/bind.config";
 };
+
+logging {
+        channel default_debug {
+                file "data/named.run";
+                severity dynamic;
+        };
+};
+
+zone "." IN {
+	type hint;
+	file "named.ca";
+};
+
+include "/etc/named.rfc1912.zones";
+include "/etc/named.root.key";
 """)
 
 options_lookaside_no = MockConfigFile("""
@@ -60,13 +84,14 @@ options {
 
 options_lookaside_auto = MockConfigFile("""
 options {
-    dnssec-lookaside auto;
+    dnssec-lookaside /* no */ auto;
 };
 """)
 
 options_lookaside_manual = MockConfigFile("""
 options {
-    dnssec-lookaside "." trust-anchor "dlv.isc.org";
+    # make sure parser handles comments
+    dnssec-lookaside "." /* comment to confuse parser */trust-anchor "dlv.isc.org";
 };
 """)
 
@@ -81,11 +106,7 @@ def find_options(parser):
     """ Helper to find options section in parser files
         :type parser: BindParser
     """
-    for cfg in parser.FILES_TO_CHECK:
-        v = parser.find_val(cfg, "options")
-        if v is not None:
-            return v
-    return None
+    return parser.find_options()
 
 def check_in_section(parser, section, key, value):
     """ Helper to check some section was found
@@ -121,7 +142,7 @@ def test_lookaside_commented():
 
 def test_default():
     parser = bind.BindParser(named_conf_default)
-    assert len(parser.FILES_TO_CHECK) == 2
+    assert len(parser.FILES_TO_CHECK) == 4
     opt = find_options(parser)
     assert isinstance(opt, bind.ConfigSection)
     check_in_section(parser, opt, "directory", '"/var/named"')
@@ -138,7 +159,11 @@ def test_key_lookaside():
     key = parser.find_next_key(opt.config, opt.start+1, opt.end)
     assert isinstance(key, bind.ConfigSection)
     assert key.value() == 'dnssec-lookaside'
-    value = parser.find_next_val(opt.config, key.start+1, opt.end)
+    value = parser.find_next_val(opt.config, None, key.end+1, opt.end)
     assert value.value() == '"."'
     key2 = parser.find_next_key(opt.config, value.end+1, opt.end)
     assert key2.value() == 'trust-anchor'
+    value2a = parser.find_next_val(opt.config, None, key2.end+1, opt.end)
+    value2b = parser.find_val(opt.config, 'trust-anchor', value.end+1, opt.end)
+    assert value2b.value() == '"dlv.isc.org"'
+    assert value2a.value() == value2b.value()

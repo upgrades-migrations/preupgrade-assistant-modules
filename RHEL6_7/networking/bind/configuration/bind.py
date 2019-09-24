@@ -372,8 +372,11 @@ class BindParser(object):
             :rtype: ConfigSection
         """
         start = self.find_next_token(cfg.buffer, index)
-        if False and start >= 0 and not self.is_opening_char(cfg.buffer[start]):
-            return self.find_next_key(cfg, index, end_index)
+        if start < 0:
+            return None
+        remains = cfg.buffer[start:]
+        if start >= 0 and not self.is_opening_char(cfg.buffer[start]):
+            return self.find_next_key(cfg, start, end_index)
         else:
             end = self.find_closing_char(cfg.buffer, start, end_index)
             if end == -1 or (end > end_index and end_index > 0):
@@ -411,6 +414,17 @@ class BindParser(object):
             raise(TypeError("section must be ConfigSection"))
         return self.find_val(section.config, key, section.start+1, section.end)
 
+    def find_options(self):
+        """ Helper to find options section in current files
+
+            :rtype ConfigSection:
+            There has to be only one options in all included files.
+        """
+        for cfg in self.FILES_TO_CHECK:
+            v = self.find_val(cfg, "options")
+            if v is not None:
+                return v
+        return None
 
     #######################################################
     ### CONFIGURATION fixes PART - END
