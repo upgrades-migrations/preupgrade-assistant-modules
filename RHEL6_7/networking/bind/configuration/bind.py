@@ -17,6 +17,11 @@ class ConfigParseError(Exception):
 class ConfigFile(object):
     """ Representation of single configuration file and its contents """
     def __init__(self, path):
+        """
+        Load config file contents from path
+
+        :param path: Path to file
+        """
         self.path = path
         self.load(path)
         self.status = None
@@ -38,7 +43,12 @@ class ConfigFile(object):
 
 class ConfigSection(object):
     """ Representation of section or key inside single configuration file """
+
     def __init__(self, config, name=None, start=None, end=None):
+        """
+        :param config: config file inside which is this section
+        :type config: ConfigFile
+        """
         self.config = config
         self.name = name
         self.start = start
@@ -58,7 +68,8 @@ class BindParser(object):
     CONFIG_FILE = "/etc/named.conf"
     FILES_TO_CHECK = []
 
-    CHAR_CLOSING = ";})]"
+    CHAR_DELIM = ";"
+    CHAR_CLOSING = CHAR_DELIM + "})]"
     CHAR_CLOSING_WHITESPACE = CHAR_CLOSING + string.whitespace
     CHAR_KEYWORD = string.ascii_letters + string.digits + '-_'
 
@@ -151,7 +162,7 @@ class BindParser(object):
 
         return ostr
 
-    def find_next_token(self, istr,index=0, end_index=-1):
+    def find_next_token(self, istr,index=0, end_index=-1, end_report=False):
         """
         Return index of another interesting token or -1 when there is not next.
 
@@ -210,6 +221,9 @@ class BindParser(object):
                         or self.is_opening_char(istr[index])):
                     break
                 index += 1
+        elif end_report and istr[index] in self.CHAR_DELIM:
+            # Found end of statement. Report delimiter
+            return index
         elif istr[index] in self.CHAR_CLOSING:
             index += 1
 
@@ -332,7 +346,7 @@ class BindParser(object):
 
         return -1
 
-    def find_next_key(self, cfg, index=0, end_index=-1, only_first=True):
+    def find_next_key(self, cfg, index=0, end_index=-1, end_report=False):
         """ Modernized variant of find_key
             :type cfg: ConfigFile
             :param index: Where to start search
@@ -345,8 +359,8 @@ class BindParser(object):
         if length < end_index or end_index < 0:
             end_index = length
 
-        if index >= end_index or index < 0:
-            raise(IndexError("Invalid size passed"))
+        if index > end_index or index < 0:
+            raise(IndexError("Invalid cfg index"))
 
         while index != -1:
             keystart = index
@@ -356,10 +370,10 @@ class BindParser(object):
             if index <= end_index and keystart<index and istr[index] not in self.CHAR_KEYWORD:
                     # key has been found
                     return ConfigSection(cfg, istr[keystart:index], keystart, index-1)
+            elif istr[index] in self.CHAR_DELIM:
+                return ConfigSection(cfg, istr[index], index, index)
 
-            while not only_first and index != -1 and istr[index] != ";":
-                index = self.find_next_token(istr, index, end_index)
-            index = self.find_next_token(istr, index, end_index)
+            index = self.find_next_token(istr, index, end_index, end_report)
 
         return None
 

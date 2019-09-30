@@ -167,3 +167,5 @@ def test_key_lookaside():
     value2b = parser.find_val(opt.config, 'trust-anchor', value.end+1, opt.end)
     assert value2b.value() == '"dlv.isc.org"'
     assert value2a.value() == value2b.value()
+    value3 = parser.find_next_key(opt.config, value2b.end+1, opt.end, end_report=True)
+    assert value3.value() == ';'
