@@ -68,7 +68,7 @@ class BindParser(object):
     CONFIG_FILE = "/etc/named.conf"
     FILES_TO_CHECK = []
 
-    CHAR_DELIM = ";"
+    CHAR_DELIM = ";" # Must be single character
     CHAR_CLOSING = CHAR_DELIM + "})]"
     CHAR_CLOSING_WHITESPACE = CHAR_CLOSING + string.whitespace
     CHAR_KEYWORD = string.ascii_letters + string.digits + '-_'
@@ -260,7 +260,7 @@ class BindParser(object):
             "(" : ")",
             "[" : "]",
             "\"" : "\"",
-            ";" : None,
+            self.CHAR_DELIM : None,
             }
         length = len(istr)
         if end_index >= 0 and end_index < length:
@@ -272,7 +272,7 @@ class BindParser(object):
         if index >= length or index < 0:
             return -1
 
-        closing_char = important_chars.get(istr[index], ';')
+        closing_char = important_chars.get(istr[index], self.CHAR_DELIM)
         if closing_char is None:
             return -1;
 
@@ -293,7 +293,7 @@ class BindParser(object):
                     break
                 index += deep_close
             elif curr_c == closing_char:
-                if curr_c == ';':
+                if curr_c == self.CHAR_DELIM:
                     index -= 1
                 return index
             index += 1
@@ -340,7 +340,7 @@ class BindParser(object):
                     # key has been found
                     return index
 
-            while not only_first and index != -1 and istr[index] != ";":
+            while not only_first and index != -1 and istr[index] != self.CHAR_DELIM:
                 index = self.find_next_token(istr, index)
             index = self.find_next_token(istr, index)
 
@@ -455,7 +455,7 @@ class BindParser(object):
         values = []
         while isinstance(v, ConfigSection):
             values.append(v)
-            if v.value() == ';':
+            if v.value() == self.CHAR_DELIM:
                 break
             v = self.find_next_val(cfg, key, v.end+1, section.end, end_report=True)
         return values
