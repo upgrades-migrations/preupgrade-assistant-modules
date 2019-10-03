@@ -169,3 +169,20 @@ def test_key_lookaside():
     assert value2a.value() == value2b.value()
     value3 = parser.find_next_key(opt.config, value2b.end+1, opt.end, end_report=True)
     assert value3.value() == ';'
+
+def test_key_lookaside_all():
+    """ Test getting variable arguments after keyword """
+    parser = bind.BindParser(options_lookaside_manual)
+    assert len(parser.FILES_TO_CHECK) == 1
+    opt = parser.find_options()
+    assert isinstance(opt, bind.ConfigSection)
+    values = parser.find_values(opt, "dnssec-lookaside")
+    assert values is not None
+    assert len(values) >= 4
+    key = values[0].value()
+    assert key == 'dnssec-lookaside'
+    assert values[1].value() == '"."'
+    assert values[2].value() == 'trust-anchor'
+    assert values[3].value() == '"dlv.isc.org"'
+    assert values[4].value() == ';'
+

@@ -377,7 +377,7 @@ class BindParser(object):
 
         return None
 
-    def find_next_val(self, cfg, key=None, index=0, end_index=-1):
+    def find_next_val(self, cfg, key=None, index=0, end_index=-1, end_report=False):
         """ Find following token.
 
             :param cfg: input token
@@ -385,12 +385,14 @@ class BindParser(object):
             :returns: ConfigSection object or None
             :rtype: ConfigSection
         """
-        start = self.find_next_token(cfg.buffer, index)
+        start = self.find_next_token(cfg.buffer, index, end_index, end_report)
         if start < 0:
             return None
-        remains = cfg.buffer[start:]
+        if end_index < 0:
+            end_index = len(cfg.buffer)
+        remains = cfg.buffer[start:end_index]
         if start >= 0 and not self.is_opening_char(cfg.buffer[start]):
-            return self.find_next_key(cfg, start, end_index)
+            return self.find_next_key(cfg, start, end_index, end_report)
         else:
             end = self.find_closing_char(cfg.buffer, start, end_index)
             if end == -1 or (end > end_index and end_index > 0):
@@ -427,6 +429,37 @@ class BindParser(object):
         if not isinstance(section, ConfigSection):
             raise(TypeError("section must be ConfigSection"))
         return self.find_val(section.config, key, section.start+1, section.end)
+
+    def find_values(self, section, key):
+        """ Find key in section and list variable parameters
+
+            :param key: Name to statement to find
+            :returns: List of all found values in form of ConfigSection. First is key itself.
+
+            Returns all sections of keyname. They can be mix of "quoted strings", {nested blocks}
+            or just bare keywords. First key is section of key itself, final section includes ';'.
+            Makes it possible to comment out whole section including terminal character.
+        """
+
+        cfg = section.config
+        index = section.start+1
+        end_index = section.end
+        if end_index > index:
+            end_index -= 1
+        key_start = self.find_key(cfg.buffer, key, index, end_index)
+        key_end = key_start+len(key)-1
+        if key_start < 0 or key_end >= end_index:
+            return None
+        # First value is always just keyword
+        v = ConfigSection(cfg, key, key_start, key_end)
+        values = []
+        while isinstance(v, ConfigSection):
+            values.append(v)
+            if v.value() == ';':
+                break
+            v = self.find_next_val(cfg, key, v.end+1, section.end, end_report=True)
+        return values
+        
 
     def find_options(self):
         """ Helper to find options section in current files
