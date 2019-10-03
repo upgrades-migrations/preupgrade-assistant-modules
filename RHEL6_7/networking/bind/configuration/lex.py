@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-import bind
+import isccfg
 
 path = '/etc/named.conf'
 
@@ -15,7 +15,7 @@ FIX_STATEMENTS = [
 if len(sys.argv)>1:
     path = sys.argv[1]
 
-parser = bind.BindParser(path)
+parser = isccfg.IscConfigParser(path)
 
 def print_section(v):
     print("section {s} contains \"{v}\"".format(s=v.name, v=v.value()))

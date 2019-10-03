@@ -8,7 +8,8 @@ import os
 import re
 #from preupg.script_api import *
 
-from bind import *
+from isccfg import ConfigParseError
+import legacy
 
 #check_applies_to (check_applies="bind")
 #check_rpm_to (check_rpm="", check_bin="python")
@@ -429,9 +430,9 @@ These locations need to be specified by statements in the options section.\n""")
 def main():
     try:
         if len(sys.argv)>1:
-            parser = BindLegacyParser(sys.argv[1])
+            parser = legacy.BindLegacyParser(sys.argv[1])
         else:
-            parser = BindLegacyParser()
+            parser = legacy.BindLegacyParser()
         # need to check also paths of included files
         if not parser.is_config_changed():
             return_with_code(EXIT_PASS)

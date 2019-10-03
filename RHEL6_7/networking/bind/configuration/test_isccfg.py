@@ -2,9 +2,9 @@
 #
 # Tests for bind parsing
 
-import bind
+import isccfg
 
-class MockConfigFile(bind.ConfigFile):
+class MockConfigFile(isccfg.ConfigFile):
 
     def __init__(self, content, path = '/etc/named.conf'):
         # intentionally omitting parent constructor
@@ -117,7 +117,7 @@ def check_in_section(parser, section, key, value):
         :type key: str
         :param value: expected value """
     cfgval = parser.find_val_section(section, key)
-    assert isinstance(cfgval, bind.ConfigSection)
+    assert isinstance(cfgval, isccfg.ConfigSection)
     assert cfgval.value() == value
     return cfgval
 
@@ -126,25 +126,25 @@ def check_in_section(parser, section, key, value):
 # Begin of tests
 
 def test_lookaside_no():
-    parser = bind.BindParser(options_lookaside_no)
+    parser = isccfg.IscConfigParser(options_lookaside_no)
     assert len(parser.FILES_TO_CHECK) == 1
     opt = find_options(parser)
-    assert isinstance(opt, bind.ConfigSection)
+    assert isinstance(opt, isccfg.ConfigSection)
     check_in_section(parser, opt, "dnssec-lookaside", "no")
 
 def test_lookaside_commented():
-    parser = bind.BindParser(options_lookaside_commented)
+    parser = isccfg.IscConfigParser(options_lookaside_commented)
     assert len(parser.FILES_TO_CHECK) == 1
     opt = find_options(parser)
-    assert isinstance(opt, bind.ConfigSection)
+    assert isinstance(opt, isccfg.ConfigSection)
     lookaside = parser.find_val_section(opt, "dnssec-lookaside")
     assert lookaside is None
 
 def test_default():
-    parser = bind.BindParser(named_conf_default)
+    parser = isccfg.IscConfigParser(named_conf_default)
     assert len(parser.FILES_TO_CHECK) == 4
     opt = find_options(parser)
-    assert isinstance(opt, bind.ConfigSection)
+    assert isinstance(opt, isccfg.ConfigSection)
     check_in_section(parser, opt, "directory", '"/var/named"')
     check_in_section(parser, opt, "session-keyfile", '"/run/named/session.key"')
     check_in_section(parser, opt, "allow-query", '{ localhost; }')
@@ -153,11 +153,11 @@ def test_default():
     check_in_section(parser, opt, "dnssec-enable", 'yes')
 
 def test_key_lookaside():
-    parser = bind.BindParser(options_lookaside_manual)
+    parser = isccfg.IscConfigParser(options_lookaside_manual)
     assert len(parser.FILES_TO_CHECK) == 1
     opt = find_options(parser)
     key = parser.find_next_key(opt.config, opt.start+1, opt.end)
-    assert isinstance(key, bind.ConfigSection)
+    assert isinstance(key, isccfg.ConfigSection)
     assert key.value() == 'dnssec-lookaside'
     value = parser.find_next_val(opt.config, None, key.end+1, opt.end)
     assert value.value() == '"."'
@@ -172,10 +172,10 @@ def test_key_lookaside():
 
 def test_key_lookaside_all():
     """ Test getting variable arguments after keyword """
-    parser = bind.BindParser(options_lookaside_manual)
+    parser = isccfg.IscConfigParser(options_lookaside_manual)
     assert len(parser.FILES_TO_CHECK) == 1
     opt = parser.find_options()
-    assert isinstance(opt, bind.ConfigSection)
+    assert isinstance(opt, isccfg.ConfigSection)
     values = parser.find_values(opt, "dnssec-lookaside")
     assert values is not None
     assert len(values) >= 4
