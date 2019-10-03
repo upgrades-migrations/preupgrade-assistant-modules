@@ -6,13 +6,13 @@
 import sys
 import os
 import re
-#from preupg.script_api import *
+from preupg.script_api import *
 
 from isccfg import ConfigParseError
 import legacy
 
-#check_applies_to (check_applies="bind")
-#check_rpm_to (check_rpm="", check_bin="python")
+check_applies_to (check_applies="bind")
+check_rpm_to (check_rpm="", check_bin="python")
 
 #END GENERATED SECTION
 # exit functions are exit_{pass,not_applicable, fixed, fail, etc.}
@@ -54,18 +54,6 @@ section of the Red Hat Enterprise Linux 7 Networking Guide."""
 
 # object used for creating solution text
 sol_text = SolutionText()
-
-# this does not work on python2
-def log_info(msg):
-    print(msg)
-
-def log_debug(msg):
-    log_info(msg)
-    pass
-    
-
-log_slight_risk = log_info
-log_medium_risk = log_info
 
 def return_with_code(code):
     print("Exit code: ", code)
@@ -442,7 +430,7 @@ def main():
         parser.write_fixed_configs_to_disk(result, sol_text)
         # if there was some issue, write a solution text
         if result > EXIT_PASS:
-            #solution_file(sol_text.get_text())
+            solution_file(sol_text.get_text())
             pass
         return_with_code(result)
     except ConfigParseError as e:
