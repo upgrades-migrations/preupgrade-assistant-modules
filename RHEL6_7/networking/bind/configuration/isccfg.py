@@ -41,8 +41,15 @@ class ConfigFile(object):
     def is_modified(self):
         return (self.origina == self.buff)
 
+    def root_section(self):
+        return ConfigSection(self, None, 0, len(self.buffer))
+
 class ConfigSection(object):
     """ Representation of section or key inside single configuration file """
+
+    TYPE_BARE    = 1
+    TYPE_QSTRING = 2
+    TYPE_BLOCK   = 3
 
     def __init__(self, config, name=None, start=None, end=None):
         """
@@ -54,8 +61,53 @@ class ConfigSection(object):
         self.start = start
         self.end = end
 
+    def type(self):
+        if self.config.buffer.startswith('{', self.start):
+            return self.TYPE_BLOCK
+        elif self.config.buffer.startswith('"', self.start):
+            return self.TYPE_QSTRING
+        else:
+            return self.TYPE_BARE
+
     def value(self):
         return self.config.buffer[self.start:self.end+1]
+
+class ConfigVariableSection(ConfigSection):
+    """
+    Representation for key and value with variable parameters
+
+    Intended for view and zone.
+    """
+    def __init__(self, sectionlist, name, zone_class=None):
+        """
+        Creates variable block for zone or view
+
+        :param sectionlist: list of ConfigSection, obtained from IscConfigParser.find_values()
+        """
+        last = next(reversed(sectionlist))
+        first = sectionlist[0]
+        self.config = first.config
+        self.start = first.start
+        self.end = last.end
+        self.values = sectionlist
+        # For optional dns class, like IN or CH
+        self.zone_class = zone_class
+
+    def key(self):
+        if self.zone_class is None:
+            return self.name
+        else:
+            return self.zone_class + '_' ; self.name
+
+    def firstblock(self):
+        """
+        Return first block section in this tool
+        """
+        for section in self.values:
+            if section.type() == ConfigSection.TYPE_BLOCK:
+                return section
+        return None
+
 
 # Main parser class
 class IscConfigParser(object):
@@ -441,15 +493,24 @@ class IscConfigParser(object):
             Makes it possible to comment out whole section including terminal character.
         """
 
-        cfg = section.config
-        index = section.start+1
-        end_index = section.end
-        if end_index > index:
-            end_index -= 1
+        if isinstance(section, ConfigFile):
+            cfg = section
+            index = 0
+            end_index = len(cfg.buffer)
+        elif isinstance(section, ConfigSection):
+            cfg = section.config
+            index = section.start+1
+            end_index = section.end
+            if end_index > index:
+                end_index -= 1
+        else:
+            raise(TypeError('Unexpected type'))
+
         key_start = self.find_key(cfg.buffer, key, index, end_index)
         key_end = key_start+len(key)-1
         if key_start < 0 or key_end >= end_index:
             return None
+
         # First value is always just keyword
         v = ConfigSection(cfg, key, key_start, key_end)
         values = []
@@ -471,6 +532,49 @@ class IscConfigParser(object):
             v = self.find_val(cfg, "options")
             if v is not None:
                 return v
+        return None
+
+    def find_views_file(self, cfg):
+        """
+        Helper searching all views in single file
+
+        :ptype cfg: ConfigFile
+        :returns: triple (viewsection, class, list[sections])
+        """
+        views = {}
+
+        root = cfg.root_section()
+        vl = root
+        while root is not None:
+            vl = self.find_values(root, "view")
+            if vl is not None and len(vl) >= 2:
+                vname = vl[0].value()
+                vclass = None
+                vblock = vl[1]
+                if vblock.type() != ConfigSection.TYPE_BLOCK:
+                    vclass = vblock.value()
+                    vblock = vl[2]
+                variable = ConfigVariableSection(vl, vname, vclass)
+                views[variable.key()] = variable
+                # Skip current view
+                root.start = variable.end+1
+            else:
+                # no more usable views
+                root = None
+
+        return views
+
+    def find_views(self):
+        """ Helper to find view section in current files
+
+            :rtype ConfigSection:
+            There has to be only one view with that name in all included files.
+        """
+        views = {}
+
+        for cfg in self.FILES_TO_CHECK:
+            v = self.find_views_file(cfg)
+            views.update(v)
         return None
 
     #######################################################

@@ -101,6 +101,22 @@ options {
 };
 """)
 
+views_lookaside = MockConfigFile("""
+view "v1" IN {
+    // This is auto
+    dnssec-lookaside auto;
+};
+
+options {
+    dnssec-lookaside no;
+};
+
+view "v2" {
+    # Note no IN
+    dnssec-lookaside "." trust-anchor "dlv.isc.org";
+};
+""")
+
 
 def find_options(parser):
     """ Helper to find options section in parser files
@@ -186,3 +202,34 @@ def test_key_lookaside_all():
     assert values[3].value() == '"dlv.isc.org"'
     assert values[4].value() == ';'
 
+def test_key_views_lookaside():
+    """ Test getting variable arguments for views """
+
+    parser = isccfg.IscConfigParser(views_lookaside)
+    assert len(parser.FILES_TO_CHECK) == 1
+    opt = parser.find_options()
+    assert isinstance(opt, isccfg.ConfigSection)
+    opt_val = parser.find_values(opt, "dnssec-lookaside")
+    assert isinstance(opt_val[1], isccfg.ConfigSection)
+    assert opt_val[1].value() == 'no'
+
+    views = parser.find_views()
+    assert len(views) == 2
+
+    v1 = views['v1']
+    assert isinstance(v1, isccfg.ConfigVariableSection)
+    v1b = v1.firstblock()
+    assert isinstance(v1b, isccfg.ConfigSection)
+    v1_la = find_val(v1b, "dnssec-lookaside")
+    assert isinstance(v1_la, isccfg.ConfigSection)
+    assert v1_la.value() == 'auto'
+
+    v2 = views['v1']
+    assert isinstance(v2, isccfg.ConfigVariableSection)
+    v2b = v2.firstblock()
+    assert isinstance(v2b, isccfg.ConfigSection)
+    v2_la = find_values(v2b, "dnssec-lookaside")
+    assert isinstance(v2_la[1], isccfg.ConfigSection)
+    assert v2_la[1].value() == '"."'
+    assert isinstance(v2_la[3], isccfg.ConfigSection)
+    assert v2_la[3].value() == '"dlv.isc.org"'
