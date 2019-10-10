@@ -72,6 +72,17 @@ class ConfigSection(object):
     def value(self):
         return self.config.buffer[self.start:self.end+1]
 
+    def invalue(self):
+        """
+        Return just inside value of blocks and quoted strings
+        """
+        t = self.type()
+        if t != self.TYPE_BARE:
+            return self.config.buffer[self.start+1:self.end]
+        else:
+            return self.value()
+    pass
+
 class ConfigVariableSection(ConfigSection):
     """
     Representation for key and value with variable parameters
