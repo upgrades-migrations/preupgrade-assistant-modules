@@ -555,62 +555,6 @@ class IscConfigParser(object):
             v = self.find_next_val(cfg, key, v.end+1, section.end, end_report=True)
         return values
         
-
-    def find_options(self):
-        """ Helper to find options section in current files
-
-            :rtype ConfigSection:
-            There has to be only one options in all included files.
-        """
-        for cfg in self.FILES_TO_CHECK:
-            v = self.find_val(cfg, "options")
-            if v is not None:
-                return v
-        return None
-
-    def find_views_file(self, cfg):
-        """
-        Helper searching all views in single file
-
-        :ptype cfg: ConfigFile
-        :returns: triple (viewsection, class, list[sections])
-        """
-        views = {}
-
-        root = cfg.root_section()
-        vl = root
-        while root is not None:
-            vl = self.find_values(root, "view")
-            if vl is not None and len(vl) >= 2:
-                vname = vl[1].invalue()
-                vclass = None
-                vblock = vl[2]
-                if vblock.type() != ConfigSection.TYPE_BLOCK:
-                    vclass = vblock.value()
-                    vblock = vl[3]
-                variable = ConfigVariableSection(vl, vname, vclass)
-                views[variable.key()] = variable
-                # Skip current view
-                root.start = variable.end+1
-            else:
-                # no more usable views
-                root = None
-
-        return views
-
-    def find_views(self):
-        """ Helper to find view section in current files
-
-            :rtype ConfigSection:
-            There has to be only one view with that name in all included files.
-        """
-        views = {}
-
-        for cfg in self.FILES_TO_CHECK:
-            v = self.find_views_file(cfg)
-            views.update(v)
-        return views
-
     #######################################################
     ### CONFIGURATION fixes PART - END
     #######################################################
@@ -687,5 +631,65 @@ class IscConfigParser(object):
     pass
 
 class BindParser(IscConfigParser):
-    """ Legacy fallback to IscParser """
+    """
+    Bind specific specialization IscConfigParser.
+
+    Provides some helpers for classes only used in BIND, not generic isccfg format.
+    """
+
+    def find_options(self):
+        """ Helper to find options section in current files
+
+            :rtype ConfigSection:
+            There has to be only one options in all included files.
+        """
+        for cfg in self.FILES_TO_CHECK:
+            v = self.find_val(cfg, "options")
+            if v is not None:
+                return v
+        return None
+
+    def find_views_file(self, cfg):
+        """
+        Helper searching all views in single file
+
+        :ptype cfg: ConfigFile
+        :returns: triple (viewsection, class, list[sections])
+        """
+        views = {}
+
+        root = cfg.root_section()
+        vl = root
+        while root is not None:
+            vl = self.find_values(root, "view")
+            if vl is not None and len(vl) >= 2:
+                vname = vl[1].invalue()
+                vclass = None
+                vblock = vl[2]
+                if vblock.type() != ConfigSection.TYPE_BLOCK:
+                    vclass = vblock.value()
+                    vblock = vl[3]
+                variable = ConfigVariableSection(vl, vname, vclass)
+                views[variable.key()] = variable
+                # Skip current view
+                root.start = variable.end+1
+            else:
+                # no more usable views
+                root = None
+
+        return views
+
+    def find_views(self):
+        """ Helper to find view section in current files
+
+            :rtype ConfigSection:
+            There has to be only one view with that name in all included files.
+        """
+        views = {}
+
+        for cfg in self.FILES_TO_CHECK:
+            v = self.find_views_file(cfg)
+            views.update(v)
+        return views
+
     pass

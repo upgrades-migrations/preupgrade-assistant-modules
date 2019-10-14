@@ -120,13 +120,6 @@ view "v2" {
 };
 """)
 
-
-def find_options(parser):
-    """ Helper to find options section in parser files
-        :type parser: BindParser
-    """
-    return parser.find_options()
-
 def check_in_section(parser, section, key, value):
     """ Helper to check some section was found
         in configuration section and has expected value
@@ -145,24 +138,24 @@ def check_in_section(parser, section, key, value):
 # Begin of tests
 
 def test_lookaside_no():
-    parser = isccfg.IscConfigParser(options_lookaside_no)
+    parser = isccfg.BindParser(options_lookaside_no)
     assert len(parser.FILES_TO_CHECK) == 1
-    opt = find_options(parser)
+    opt = parser.find_options()
     assert isinstance(opt, isccfg.ConfigSection)
     check_in_section(parser, opt, "dnssec-lookaside", "no")
 
 def test_lookaside_commented():
-    parser = isccfg.IscConfigParser(options_lookaside_commented)
+    parser = isccfg.BindParser(options_lookaside_commented)
     assert len(parser.FILES_TO_CHECK) == 1
-    opt = find_options(parser)
+    opt = parser.find_options()
     assert isinstance(opt, isccfg.ConfigSection)
     lookaside = parser.find_val_section(opt, "dnssec-lookaside")
     assert lookaside is None
 
 def test_default():
-    parser = isccfg.IscConfigParser(named_conf_default)
+    parser = isccfg.BindParser(named_conf_default)
     assert len(parser.FILES_TO_CHECK) == 4
-    opt = find_options(parser)
+    opt = parser.find_options()
     assert isinstance(opt, isccfg.ConfigSection)
     check_in_section(parser, opt, "directory", '"/var/named"')
     check_in_section(parser, opt, "session-keyfile", '"/run/named/session.key"')
@@ -172,9 +165,9 @@ def test_default():
     check_in_section(parser, opt, "dnssec-enable", 'yes')
 
 def test_key_lookaside():
-    parser = isccfg.IscConfigParser(options_lookaside_manual)
+    parser = isccfg.BindParser(options_lookaside_manual)
     assert len(parser.FILES_TO_CHECK) == 1
-    opt = find_options(parser)
+    opt = parser.find_options()
     key = parser.find_next_key(opt.config, opt.start+1, opt.end)
     assert isinstance(key, isccfg.ConfigSection)
     assert key.value() == 'dnssec-lookaside'
@@ -191,7 +184,7 @@ def test_key_lookaside():
 
 def test_key_lookaside_all():
     """ Test getting variable arguments after keyword """
-    parser = isccfg.IscConfigParser(options_lookaside_manual)
+    parser = isccfg.BindParser(options_lookaside_manual)
     assert len(parser.FILES_TO_CHECK) == 1
     opt = parser.find_options()
     assert isinstance(opt, isccfg.ConfigSection)
@@ -208,7 +201,7 @@ def test_key_lookaside_all():
 def test_key_views_lookaside():
     """ Test getting variable arguments for views """
 
-    parser = isccfg.IscConfigParser(views_lookaside)
+    parser = isccfg.BindParser(views_lookaside)
     assert len(parser.FILES_TO_CHECK) == 1
     opt = parser.find_options()
     assert isinstance(opt, isccfg.ConfigSection)
@@ -240,7 +233,7 @@ def test_key_views_lookaside():
 def test_remove_comments():
     """ Test removing comments works as expected """
 
-    parser = isccfg.IscConfigParser(views_lookaside)
+    parser = isccfg.BindParser(views_lookaside)
     assert len(parser.FILES_TO_CHECK) == 1
     cfg = parser.FILES_TO_CHECK[0]
     assert isinstance(cfg, isccfg.ConfigFile)
