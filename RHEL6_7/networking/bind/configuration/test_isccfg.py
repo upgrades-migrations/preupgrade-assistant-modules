@@ -108,6 +108,9 @@ view "v1" IN {
 };
 
 options {
+    /* This is multi
+     * line
+     * comment */
     dnssec-lookaside no;
 };
 
@@ -233,3 +236,18 @@ def test_key_views_lookaside():
     assert v2_la[1].value() == '"."'
     assert isinstance(v2_la[3], isccfg.ConfigSection)
     assert v2_la[3].value() == '"dlv.isc.org"'
+
+def test_remove_comments():
+    """ Test removing comments works as expected """
+
+    parser = isccfg.IscConfigParser(views_lookaside)
+    assert len(parser.FILES_TO_CHECK) == 1
+    cfg = parser.FILES_TO_CHECK[0]
+    assert isinstance(cfg, isccfg.ConfigFile)
+    removed_comments = parser.remove_comments(cfg.buffer)
+    assert len(removed_comments) < len(cfg.buffer)
+    replaced_comments = parser.replace_comments(cfg.buffer)
+    assert len(replaced_comments) == len(cfg.buffer)
+    assert not ('This is auto' in replaced_comments)
+    assert not ('comment' in replaced_comments)
+    assert not ('Note no IN' in replaced_comments)

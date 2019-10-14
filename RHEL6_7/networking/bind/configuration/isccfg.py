@@ -135,6 +135,7 @@ class IscConfigParser(object):
     CHAR_CLOSING = CHAR_DELIM + "})]"
     CHAR_CLOSING_WHITESPACE = CHAR_CLOSING + string.whitespace
     CHAR_KEYWORD = string.ascii_letters + string.digits + '-_'
+    CHAR_STR_OPEN = '"'
 
     def __init__(self, config=None):
         """ Construct parser
@@ -188,17 +189,15 @@ class IscConfigParser(object):
     def is_opening_char(self, c):
          return c in "\"'{(["
 
-    def remove_comments(self, istr):
+    def remove_comments(self, istr, space_replace=False):
         """
         Removes all comments from the given string.
 
         :param istr: input string
-        :return: return
+        :param space_replace When true, replace comments with spaces. Skip them by default.
+        :return: istr without comments
         """
 
-        isCommented = False
-        isBlockComment = False
-        str_open = "\""
         ostr = ""
 
         length = len(istr)
@@ -208,11 +207,12 @@ class IscConfigParser(object):
             if self.is_comment_start(istr, index):
                 index = self.find_end_of_comment(istr,index)
                 if index == -1:
-                    # comment till EOF
-                    break
-                if istr[index] == "\n":
+                    index = length
+                if space_replace:
+                    ostr = ostr.ljust(index)
+                if index < length and istr[index] == "\n":
                     ostr += "\n"
-            elif istr[index] in str_open:
+            elif istr[index] in self.CHAR_STR_OPEN:
                 end_str = self.find_closing_char(istr, index)
                 if end_str == -1:
                     ostr += istr[index:]
@@ -224,6 +224,20 @@ class IscConfigParser(object):
             index += 1
 
         return ostr
+
+    def replace_comments(self, istr):
+        """
+        Replaces all comments by spaces in the given string.
+
+        :param istr: input string
+        :returns: string of the same length with comments replaced
+        """
+        return self.remove_comments(istr, True)
+
+    def remove_comments_config(self, cfg, space_replace=False):
+        config_nocomment = copy.copy(cfg)
+        config_nocomment.buffer = self.remove_comments(config_nocomment.buffer, space_replace)
+        return config_nocomment
 
     def find_next_token(self, istr,index=0, end_index=-1, end_report=False):
         """
