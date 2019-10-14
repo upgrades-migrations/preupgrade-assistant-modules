@@ -219,19 +219,19 @@ def test_key_views_lookaside():
     views = parser.find_views()
     assert len(views) == 2
 
-    v1 = views['v1']
+    v1 = views['IN_v1']
     assert isinstance(v1, isccfg.ConfigVariableSection)
     v1b = v1.firstblock()
     assert isinstance(v1b, isccfg.ConfigSection)
-    v1_la = find_val(v1b, "dnssec-lookaside")
+    v1_la = parser.find_val_section(v1b, "dnssec-lookaside")
     assert isinstance(v1_la, isccfg.ConfigSection)
     assert v1_la.value() == 'auto'
 
-    v2 = views['v1']
+    v2 = views['v2']
     assert isinstance(v2, isccfg.ConfigVariableSection)
     v2b = v2.firstblock()
     assert isinstance(v2b, isccfg.ConfigSection)
-    v2_la = find_values(v2b, "dnssec-lookaside")
+    v2_la = parser.find_values(v2b, "dnssec-lookaside")
     assert isinstance(v2_la[1], isccfg.ConfigSection)
     assert v2_la[1].value() == '"."'
     assert isinstance(v2_la[3], isccfg.ConfigSection)

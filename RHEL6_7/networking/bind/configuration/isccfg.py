@@ -98,6 +98,7 @@ class ConfigVariableSection(ConfigSection):
         last = next(reversed(sectionlist))
         first = sectionlist[0]
         self.config = first.config
+        self.name = name
         self.start = first.start
         self.end = last.end
         self.values = sectionlist
@@ -108,7 +109,7 @@ class ConfigVariableSection(ConfigSection):
         if self.zone_class is None:
             return self.name
         else:
-            return self.zone_class + '_' ; self.name
+            return self.zone_class + '_' + self.name
 
     def firstblock(self):
         """
@@ -573,12 +574,12 @@ class IscConfigParser(object):
         while root is not None:
             vl = self.find_values(root, "view")
             if vl is not None and len(vl) >= 2:
-                vname = vl[0].value()
+                vname = vl[1].invalue()
                 vclass = None
-                vblock = vl[1]
+                vblock = vl[2]
                 if vblock.type() != ConfigSection.TYPE_BLOCK:
                     vclass = vblock.value()
-                    vblock = vl[2]
+                    vblock = vl[3]
                 variable = ConfigVariableSection(vl, vname, vclass)
                 views[variable.key()] = variable
                 # Skip current view
@@ -600,7 +601,7 @@ class IscConfigParser(object):
         for cfg in self.FILES_TO_CHECK:
             v = self.find_views_file(cfg)
             views.update(v)
-        return None
+        return views
 
     #######################################################
     ### CONFIGURATION fixes PART - END
