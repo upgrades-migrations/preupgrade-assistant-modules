@@ -61,6 +61,14 @@ class ConfigSection(object):
         self.start = start
         self.end = end
 
+    def __repr__(self):
+        text = self.config.buffer[self.start:self.end+1]
+        path = self.config.path
+        return 'ConfigSection({path}:{start}-{end}: "{text}")'.format(
+            path=path, start=self.start, end=self.end,
+            text=text
+        )
+
     def type(self):
         if self.config.buffer.startswith('{', self.start):
             return self.TYPE_BLOCK
