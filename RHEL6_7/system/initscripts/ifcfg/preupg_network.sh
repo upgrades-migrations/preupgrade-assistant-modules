@@ -84,6 +84,16 @@ do
            echo "rm -f $orig_conf_file" >> "$preupg_script"
         fi
     fi
+    for prefix in route route6; do
+        orig_conf_file="${conf_dir}/${prefix}-${orig_full_name}"
+        if [ -f "$orig_conf_file" ];then
+           new_conf_file="${temp_conf_dir}/${prefix}-${new_full_name}"
+           cp -p "$orig_conf_file" "$new_conf_file"
+           sed -i "s/${orig_full_name}/${new_full_name}/g" "$new_conf_file"
+           echo "cp -p $new_conf_file $conf_dir" >> "$preupg_script"
+           echo "rm -f $orig_conf_file" >> "$preupg_script"
+        fi
+    done
 
     echo -e "SUBSYSTEM==\"net\", ACTION==\"add\", DRIVERS==\"?*\", $mac_rule, $dev_type_rule, NAME=\"$new_full_name\"\n" >> udev_temp
 
