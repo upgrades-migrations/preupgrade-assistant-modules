@@ -32,7 +32,12 @@ cat /dev/null > udev_temp
 cat /dev/null > "$preupg_script"
 
 echo '#!/bin/bash' >> "$preupg_script"
-echo 'service network stop'  >> "$preupg_script"
+echo 'service NetworkManager status' >> "$preupg_script"
+echo 'NM_STARTED=$?' >> "$preupg_script"
+echo 'service network stop' >> "$preupg_script"
+echo 'if [ $NM_STARTED -eq 0 ]; then' >> "$preupg_script"
+echo '    service NetworkManager stop' >> "$preupg_script"
+echo 'fi' >> "$preupg_script"
 
 echo '#!/bin/bash
 echo "Invalid network configuration detected, stopping upgrade" >&2
@@ -102,7 +107,10 @@ done
 
 mv udev_temp "$temp_conf_dir"
 echo "cp -p $temp_conf_dir/udev_temp /etc/udev/rules.d/70-persistent-net.rules" >> "$preupg_script"
-echo 'service network start'  >> "$preupg_script"
+echo 'service network start' >> "$preupg_script"
+echo 'if [ $NM_STARTED -eq 0 ]; then' >> "$preupg_script"
+echo '    service NetworkManager start' >> "$preupg_script"
+echo 'fi' >> "$preupg_script"
 chmod u+x "$preupg_script"
 
 
