@@ -4,6 +4,15 @@
 
 #END GENERATED SECTION
 
+FILES=$(rpm -ql tuned 2> /dev/null) && HAS_TUNED=1
+VERIFY=$(rpm -qV tuned 2> /dev/null)
+FILES="$FILES $(rpm -ql tuned-profiles-sap 2> /dev/null)"
+VERIFY="$VERIFY $(rpm -qV tuned-profiles-sap 2> /dev/null)"
+FILES="$FILES $(rpm -ql tuned-profiles-sap-hana 2> /dev/null)"
+VERIFY="$VERIFY $(rpm -qV tuned-profiles-sap-hana 2> /dev/null)"
+FILES="$FILES $(rpm -ql tuned-profiles-oracle 2> /dev/null)"
+VERIFY="$VERIFY $(rpm -qV tuned-profiles-oracle 2> /dev/null)"
+
 TUNED_DIR="/etc/tune-profiles/"
 if [[ -d "$TUNED_DIR" ]]; then
     POSTUPGRADE_TUNED_DIR="$VALUE_TMP_PREUPGRADE/postupgrade.d/tuned"
@@ -11,13 +20,58 @@ if [[ -d "$TUNED_DIR" ]]; then
         mkdir -p "$POSTUPGRADE_TUNED_DIR"
     fi
 
+    RES=$RESULT_FAIL
+    if [ -f /etc/tune-profiles/active-profile ]; then
+        ACTIVE_PROFILE=$(cat /etc/tune-profiles/active-profile)
+        case "$ACTIVE_PROFILE" in
+        "default")
+            ACTIVE_PROFILE="balanced"
+            log_medium_risk "Your Tuned profile 'default' is no longer supported, switched to the replacement profile 'balanced'."
+            ;;
+        "throughput-performance" | "latency-performance" | "virtual-guest" | "virtual-host" | \
+        "sap-netweaver" | "sap-hana" | "sap-hana-vmware" | "oracle")
+            RES=$RESULT_PASS
+            ;;
+        "laptop-ac-powersave" | "laptop-battery-powersave" | "server-powersave")
+            log_medium_risk "Your Tuned profile '$ACTIVE_PROFILE' is no longer supported, switched to the replacement profile 'powersave'."
+            ACTIVE_PROFILE="powersave"
+            ;;
+        "enterprise-storage" | "spindown-disk")
+            log_medium_risk "Your Tuned profile '$ACTIVE_PROFILE' is no longer supported, switched to the default Tuned profile."
+            ACTIVE_PROFILE=""
+            ;;
+        *)
+            log_medium_risk "You need to migrate your Tuned profile '$ACTIVE_PROFILE' by hand, switched to the default Tuned profile."
+            ACTIVE_PROFILE=""
+            ;;
+        esac
+        TUNED_CONF_DIR=$VALUE_TMP_PREUPGRADE/cleanconf/etc/tuned
+        mkdir -p $TUNED_CONF_DIR
+        echo $ACTIVE_PROFILE > $TUNED_CONF_DIR/active_profile
+        if [ "$ACTIVE_PROFILE" ]; then
+            echo "manual" > $TUNED_CONF_DIR/profile_mode
+        else
+            echo "auto" > $TUNED_CONF_DIR/profile_mode
+        fi
+    else
+        log_medium_risk "Unable to detect your active Tuned profile, not migrating it."
+    fi
+
+    BACKUP=""
+    if [ "$HAS_TUNED" = 1 ]; then
+        for f in $(ls -d /etc/tune-profiles/*/); do
+            if ! echo "$FILES" | grep -q "$f" || echo "$VERIFY" | grep -q "$f"; then
+                BACKUP="$BACKUP ${f%/}"
+            fi
+        done
+    fi
     sed -i s/POSTUPGRADE_DIR/\$POSTUPGRADE_TUNED_DIR/g solution.txt
-    cp -Rv $TUNED_DIR/* $POSTUPGRADE_TUNED_DIR
-    log_medium_risk "Tuned profiles were detected in the $TUNED_DIR directory. See the tuned-adm and tuned-profiles man pages for more information."
-    exit $RESULT_FAIL
+    if [ "$BACKUP" ]; then
+        cp -Rv -t $POSTUPGRADE_TUNED_DIR $BACKUP
+        log_medium_risk "Customized Tuned profiles were detected in the $TUNED_DIR directory. See the tuned-adm and tuned-profiles man pages for more information."
+        exit $RESULT_FAIL
+    fi
+    exit $RES
 fi
 
 exit $RESULT_NOT_APPLICABLE
-
-
-
