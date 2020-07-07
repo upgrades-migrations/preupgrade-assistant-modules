@@ -18,7 +18,7 @@ the following command to test its consistency:
 slaptest -v -f $cust_confile" >> $SOLUTION_FILE
    echo "It is recommended to use a new directory format of the slapd configuration in Red Hat Enterprise Linux 7. If you want to migrate your slapd configuration to the new format, type:
 slaptest -f $cust_confile -F $confdir
-chown -R ldap:ldap $cust_confdir " >> $SOLUTION_FILE
+chown -R ldap:ldap $confdir " >> $SOLUTION_FILE
    log_medium_risk "A directory format is recommended for the slapd configuration."
    exit_fail
 else
