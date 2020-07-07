@@ -35,10 +35,15 @@ while read line; do
 
   # when a config file is removed by user, rpm -qcV returns string
   # 'missing  c /path/file' instead of usual output
-
-  fflags=$(rpm -q --qf '[%{filenames}: %{fileflags}\n]' -f ${flname} | grep "^${flname}:" | cut -d ":" -f 2)
-  [ $[ $fflags & 16 ] -eq 16 ] && \
-    noreplace_files+=("${flname}")
+  for fflags in $(rpm -q --qf '[%{filenames}: %{fileflags}\n]' -f ${flname} | grep "^${flname}:" | cut -d ":" -f 2)
+    do
+      # Only the 1 << 4 b (== 16) matters here. That is the RPMFILE_NOREPLACE
+      # flag. So mask the other bits.
+      if [ $[ $fflags & 16 ] -eq 16 ]; then
+        noreplace_files+=("${flname}")
+        break
+      fi
+    done
 
 done < $VALUE_CONFIGCHANGED
 
