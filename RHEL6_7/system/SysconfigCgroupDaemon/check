@@ -41,8 +41,14 @@ def cgroup_daemon():
 	found = False
 	for root, dirs, files in os.walk('/etc/sysconfig'):
 		for filename in files:
-			with open(root+"/"+filename, "r") as f:
-				data = f.read()
+			try:
+				with open(root+"/"+filename, "r") as f:
+					data = f.read()
+			except IOError as e:
+				if e.errno in [errno.ENOENT, errno.EMLINK, errno.ELOOP]:
+					# skip dead symlinks
+					continue
+				raise e
 			if cgroup_re.search(data):
 				found = True
 				log_slight_risk("The " + filename + " file mentions CGROUP_DAEMON.")
