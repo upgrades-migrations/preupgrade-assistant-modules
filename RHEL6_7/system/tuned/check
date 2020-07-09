@@ -6,18 +6,13 @@
 
 check_pkg() {
   is_pkg_installed "$1" || return 1
-  is_dist_native "$1" && return 0
-  log_info "The $1 is installed but not signed by Red Hat. Skipping"
-  return 1
+  is_dist_native "$1" || return 1
+  return 0
 }
-
-check_pkg "tuned"
-HAS_TUNED=$?
 
 FILES=""
 VERIFY=""
 for pkg in tuned tuned-profiles-{sap,sap-hana,oracle}; do
-    echo "$pkg"
     check_pkg "$pkg" || continue
     FILES="$FILES $(rpm -ql "$pkg" 2> /dev/null)"
     VERIFY="$VERIFY $(rpm -qV "$pkg" 2> /dev/null)"
@@ -68,13 +63,16 @@ if [[ -d "$TUNED_DIR" ]]; then
     fi
 
     BACKUP_LIST=""
-    if [ "$HAS_TUNED" = 1 ]; then
-        for f in $(ls -d /etc/tune-profiles/*/); do
-            if ! echo "$FILES" | grep -q "$f" || echo "$VERIFY" | grep -q "$f"; then
-                BACKUP_LIST="$BACKUP_LIST ${f%/}"
-            fi
-        done
-    fi
+    for f in $(ls -d /etc/tune-profiles/*/); do
+        if ! echo "$FILES" | grep -q "$f" || echo "$VERIFY" | grep -q "$f"; then
+            BACKUP_LIST="$BACKUP_LIST ${f%/}"
+        fi
+    done
+
+    # copy the post-upgrade script
+    cp -a "zz_tuned_post.sh" "$POSTUPGRADE_DIR"
+    chmod +x "$POSTUPGRADE_DIR/zz_tuned_post.sh"
+
     sed -i "s|TUNED_BACKUP_DIR|$TUNED_BACKUP_DIR|g" solution.txt
     if [ "$BACKUP_LIST" ]; then
         cp -a -t $TUNED_BACKUP_DIR $BACKUP_LIST
@@ -84,4 +82,5 @@ if [[ -d "$TUNED_DIR" ]]; then
     exit $RES
 fi
 
+log_debug "The $TUNED_DIR dir doesn't exist. Nothing to do."
 exit $RESULT_NOT_APPLICABLE
