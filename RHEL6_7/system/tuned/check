@@ -4,20 +4,30 @@
 
 #END GENERATED SECTION
 
-FILES=$(rpm -ql tuned 2> /dev/null) && HAS_TUNED=1
-VERIFY=$(rpm -qV tuned 2> /dev/null)
-FILES="$FILES $(rpm -ql tuned-profiles-sap 2> /dev/null)"
-VERIFY="$VERIFY $(rpm -qV tuned-profiles-sap 2> /dev/null)"
-FILES="$FILES $(rpm -ql tuned-profiles-sap-hana 2> /dev/null)"
-VERIFY="$VERIFY $(rpm -qV tuned-profiles-sap-hana 2> /dev/null)"
-FILES="$FILES $(rpm -ql tuned-profiles-oracle 2> /dev/null)"
-VERIFY="$VERIFY $(rpm -qV tuned-profiles-oracle 2> /dev/null)"
+check_pkg() {
+  is_pkg_installed "$1" || return 1
+  is_dist_native "$1" && return 0
+  log_info "The $1 is installed but not signed by Red Hat. Skipping"
+  return 1
+}
+
+check_pkg "tuned"
+HAS_TUNED=$?
+
+FILES=""
+VERIFY=""
+for pkg in tuned tuned-profiles-{sap,sap-hana,oracle}; do
+    echo "$pkg"
+    check_pkg "$pkg" || continue
+    FILES="$FILES $(rpm -ql "$pkg" 2> /dev/null)"
+    VERIFY="$VERIFY $(rpm -qV "$pkg" 2> /dev/null)"
+done
 
 TUNED_DIR="/etc/tune-profiles/"
 if [[ -d "$TUNED_DIR" ]]; then
-    POSTUPGRADE_TUNED_DIR="$VALUE_TMP_PREUPGRADE/postupgrade.d/tuned"
-    if [[ ! -d "$POSTUPGRADE_TUNED_DIR" ]]; then
-        mkdir -p "$POSTUPGRADE_TUNED_DIR"
+    TUNED_BACKUP_DIR="$VALUE_TMP_PREUPGRADE/backup/tuned"
+    if [[ ! -d "$TUNED_BACKUP_DIR" ]]; then
+        mkdir -p "$TUNED_BACKUP_DIR"
     fi
 
     RES=$RESULT_FAIL
@@ -57,17 +67,17 @@ if [[ -d "$TUNED_DIR" ]]; then
         log_medium_risk "Unable to detect your active Tuned profile, not migrating it."
     fi
 
-    BACKUP=""
+    BACKUP_LIST=""
     if [ "$HAS_TUNED" = 1 ]; then
         for f in $(ls -d /etc/tune-profiles/*/); do
             if ! echo "$FILES" | grep -q "$f" || echo "$VERIFY" | grep -q "$f"; then
-                BACKUP="$BACKUP ${f%/}"
+                BACKUP_LIST="$BACKUP_LIST ${f%/}"
             fi
         done
     fi
-    sed -i s/POSTUPGRADE_DIR/\$POSTUPGRADE_TUNED_DIR/g solution.txt
-    if [ "$BACKUP" ]; then
-        cp -Rv -t $POSTUPGRADE_TUNED_DIR $BACKUP
+    sed -i "s|TUNED_BACKUP_DIR|$TUNED_BACKUP_DIR|g" solution.txt
+    if [ "$BACKUP_LIST" ]; then
+        cp -a -t $TUNED_BACKUP_DIR $BACKUP_LIST
         log_medium_risk "Customized Tuned profiles were detected in the $TUNED_DIR directory. See the tuned-adm and tuned-profiles man pages for more information."
         exit $RESULT_FAIL
     fi

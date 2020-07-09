@@ -1,4 +1,4 @@
-The module stores the custom 'tuned' profiles, which are located in the /etc/tune-profiles/ directory, to POSTUPGRADE_DIR.
-
-After the upgrade to Red Hat Enterprise Linux 7, the profiles can be migrated manually with the help of the 'tuned-man' and 'tuned-profiles' commands to the /etc/tuned/ directory.
+After the upgrade to Red Hat Enterprise Linux (RHEL) 7, the profiles can be migrated manually with the help of the 'tuned-man' and 'tuned-profiles' commands to the /etc/tuned/ directory.
+It is recommended to execute the "tuned-adm recommend" command after the upgrade on the RHEL 7 system. If the output differs from the active profile, reconsider change of the active profile to the recommended one.
+Customized and third party tuned profiles are backed up in 'TUNED_BACKUP_DIR'.
 For more information about 'tuned', see [link:http://docs.fedoraproject.org/en-US/Fedora/20/html/Power_Management_Guide/tuned.html].
