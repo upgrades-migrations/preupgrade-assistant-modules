@@ -21,9 +21,7 @@ done
 TUNED_DIR="/etc/tune-profiles/"
 if [[ -d "$TUNED_DIR" ]]; then
     TUNED_BACKUP_DIR="$VALUE_TMP_PREUPGRADE/backup/tuned"
-    if [[ ! -d "$TUNED_BACKUP_DIR" ]]; then
-        mkdir -p "$TUNED_BACKUP_DIR"
-    fi
+    mkdir -p "$TUNED_BACKUP_DIR"
 
     RES=$RESULT_FAIL
     if [ -f /etc/tune-profiles/active-profile ]; then

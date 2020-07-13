@@ -22,7 +22,7 @@ fi
 
 
 ACTIVE_PROFILE=$(cat "/etc/tuned/active_profile")
-if [ "$ACTIVE_PROFILE" != "$REC_PROFILE" ]; then
+if [ "$ACTIVE_PROFILE" -a "$ACTIVE_PROFILE" != "$REC_PROFILE" ]; then
     msg="Warning: The recommended tuned profile '$REC_PROFILE' is different"
     msg+=" from the active one '$ACTIVE_PROFILE'. Consider the change of the"
     msg+=" profile."
