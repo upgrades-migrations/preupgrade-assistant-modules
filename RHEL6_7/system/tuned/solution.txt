@@ -1,4 +1,3 @@
-After the upgrade to Red Hat Enterprise Linux (RHEL) 7, the profiles can be migrated manually with the help of the 'tuned-man' and 'tuned-profiles' commands to the /etc/tuned/ directory.
-It is recommended to execute the "tuned-adm recommend" command after the upgrade on the RHEL 7 system. If the output differs from the active profile, reconsider change of the active profile to the recommended one.
+After the upgrade to Red Hat Enterprise Linux (RHEL) 7, the profiles can be migrated manually to the /etc/tuned/ directory with the help of the 'tuned' and 'tuned-profiles' manual pages and 'tuned' documentation.
 Customized and third party tuned profiles are backed up in 'TUNED_BACKUP_DIR'.
-For more information about 'tuned', see [link:http://docs.fedoraproject.org/en-US/Fedora/20/html/Power_Management_Guide/tuned.html].
+For more information about 'tuned', see [link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html-single/performance_tuning_guide/index#chap-Red_Hat_Enterprise_Linux-Performance_Tuning_Guide-Tuned].
