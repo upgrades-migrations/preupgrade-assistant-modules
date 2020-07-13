@@ -67,9 +67,13 @@ if [[ -d "$TUNED_DIR" ]]; then
         fi
     done
 
-    # copy the post-upgrade script
-    cp -a "zz_tuned_post.sh" "$POSTUPGRADE_DIR"
-    chmod +x "$POSTUPGRADE_DIR/zz_tuned_post.sh"
+    if [ "$RES" != "$RESULT_PASS" ]; then
+        # copy the post-upgrade script (in case of $RESULT_PASS, in this phase
+        # of the check, there is no reason for the postupgrade seatbelt here,
+        # in such case do not do anything)
+        cp -a "zz_tuned_post.sh" "$POSTUPGRADE_DIR"
+        chmod +x "$POSTUPGRADE_DIR/zz_tuned_post.sh"
+    fi
 
     sed -i "s|TUNED_BACKUP_DIR|$TUNED_BACKUP_DIR|g" solution.txt
     if [ "$BACKUP_LIST" ]; then
