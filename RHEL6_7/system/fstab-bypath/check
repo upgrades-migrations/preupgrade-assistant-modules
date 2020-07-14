@@ -1,0 +1,13 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+
+grep -Ev "^\s*#" /etc/fstab | awk '{print $1}' | grep -Eq '^\s*/dev/disk/by-path'
+if [ $? -eq 0 ]; then
+    log_extreme_risk "Some devices in /etc/fstab are specified using 'by-path'"
+    exit_fail
+fi
+
+exit_pass

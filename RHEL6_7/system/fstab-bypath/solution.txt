@@ -1,0 +1,3 @@
+When specifying a device "by-path" (instead of by UUID, LABEL or /dev/<dev> for example) in /etc/fstab or in kernel parameters, the upgraded machine will likely fail to boot after the upgrade because the by-path nodes have changed between RHEL6 and RHEL7.
+
+Change the specification of affected devices in /etc/fstab and run the `preupg` command again.
