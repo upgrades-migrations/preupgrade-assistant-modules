@@ -6,8 +6,10 @@
 import sys
 import os
 import re
-from collections import namedtuple
 from preupg.script_api import *
+
+from isccfg import ConfigParseError
+import legacy
 
 check_applies_to (check_applies="bind")
 check_rpm_to (check_rpm="", check_bin="python")
@@ -16,11 +18,6 @@ check_rpm_to (check_rpm="", check_bin="python")
 # exit functions are exit_{pass,not_applicable, fixed, fail, etc.}
 # logging functions are log_{error, warning, info, etc.}
 # for logging in-place risk use functions log_{extreme, high, medium, slight}_risk
-ConfFile = namedtuple("ConfFile", ["path", "buffer"])
-CONFIG_FILE = "/etc/named.conf"
-FILES_TO_CHECK = []
-
-FIXED_CONFIGS = {}
 
 # Exit codes
 EXIT_NOT_APPLICABLE = 0
@@ -58,263 +55,10 @@ section of the Red Hat Enterprise Linux 7 Networking Guide."""
 # object used for creating solution text
 sol_text = SolutionText()
 
-###########################################################
-### function for parsing of config files
-###########################################################
-def is_comment_start(istr, index=0):
-    if istr[index] == "#" or (
-            index+1 < len(istr) and istr[index:index+2] in ["//", "/*"]):
-        return True
-    return False
+def return_with_code(code):
+    print("Exit code: ", code)
+    return code
 
-def find_end_of_comment(istr, index=0):
-    """
-    Returns index where the comment ends.
-
-    :param istr: input string
-    :param index: begin search from the index; from the start by default
-
-    Support usual comments till the end of line (//, #) and block comment
-    like (/* comment */). In case that index is outside of the string or end
-    of the comment is not found, return -1.
-
-    In case of block comment, returned index is position of slash after star.
-    """
-    length = len(istr)
-
-    if index >= length or index < 0:
-        return -1
-
-    if istr[index] == "#" or istr[index:].startswith("//"):
-        return istr.find("\n", index)
-
-    if index+2 < length and istr[index:index+2] == "/*":
-        res = istr.find("*/", index+2)
-        if res != -1:
-            return res + 1
-
-    return -1
-
-def is_opening_char(c):
-     return c in "\"'{(["
-
-def find_next_token(istr,index=0, end_index=-1):
-    """
-    Return index of another interesting token or -1 when there is not next.
-
-    :param istr: input string
-    :param index: begin search from the index; from the start by default
-    :param end_index: stop searching at the end_index or end of the string
-
-    In case that initial index contains already some token, skip to another.
-    But when searching starts on whitespace or beginning of the comment,
-    choose the first one.
-
-    The function would be confusing in case of brackets, but content between
-    brackets is not evaulated as new tokens.
-    E.g.:
-
-    "find { me };"      : 5
-    " me"               : 1
-    "find /* me */ me " : 13
-    "/* me */ me"       : 9
-    "me;"               : 2
-    "{ me }; me"        : 6
-    "{ me }  me"        : 8
-    "me }  me"          : 3
-    "}} me"             : 1
-    "me"                : -1
-    "{ me } "           : -1
-    """
-    length = len(istr)
-    if length < end_index or end_index < 0:
-        end_index = length
-
-    if index >= end_index or index < 0:
-        return -1
-
-    #skip to the end of the current token
-    if is_opening_char(istr[index]):
-        index2 = find_closing_char(istr, index)
-        if index2 == -1:
-            return -1
-        index = index2 +1;
-    elif is_comment_start(istr, index):
-        index2 = find_end_of_comment(istr, index)
-        if index2 == -1:
-            return -1
-        index = index2 +1
-    elif istr[index] not in "\n\t ;})]":
-        # so we have to skip to the end of the current token
-        index += 1
-        while index < end_index:
-            if (istr[index] in "\n\t ;})]"
-                    or is_comment_start(istr, index)
-                    or is_opening_char(istr[index])):
-                break
-            index += 1
-    elif istr[index] in ";)]}":
-        index += 1
-
-    # find next token (can be already under the current index)
-    while index < end_index:
-        if is_comment_start(istr, index):
-            index = find_end_of_comment(istr, index)
-            if index == -1:
-                break
-        elif is_opening_char(istr[index]) or istr[index] not in "\t\n ":
-            return index
-        index += 1
-    return -1
-
-
-def find_closing_char(istr, index=0):
-    """
-    Returns index of equivalent closing character.
-
-    :param istr: input string
-
-    It's similar to the "find" method that returns index of the first character
-    of the searched character or -1. But in this function the corresponding
-    closing character is looked up, ignoring characters inside strings
-    and comments. E.g. for
-        "(hello (world) /* ) */ ), he would say"
-    index of the third ")" is returned.
-    """
-    important_chars = { #TODO: should be that rather global var?
-        "{" : "}",
-        "(" : ")",
-        "[" : "]",
-        "\"" : "\"",
-        }
-    length = len(istr)
-
-    if length < 2:
-        return -1
-
-    if index >= length or index < 0:
-        return -1
-
-    closing_char = important_chars.get(istr[index], None)
-    if closing_char is None:
-        return -1
-
-    isString = istr[index] in "\""
-    index += 1
-    curr_c = ""
-    while index < length:
-        curr_c = istr[index]
-        if is_comment_start(istr, index) and not isString:
-            index = find_end_of_comment(istr, index)
-            if index == -1:
-                return -1
-        elif not isString and is_opening_char(curr_c):
-            deep_close = find_closing_char(istr[index:])
-            if deep_close == -1:
-                break
-            index += deep_close
-        elif curr_c == closing_char:
-            return index
-        index += 1
-
-    return -1
-
-def remove_comments(istr):
-    """
-    Removes all comments from the given string.
-
-    :param istr: input string
-    :return: return
-    """
-
-    isCommented = False
-    isBlockComment = False
-    str_open = "\""
-    ostr = ""
-
-    length = len(istr)
-    index = 0
-
-    while index < length:
-        if is_comment_start(istr, index):
-            index = find_end_of_comment(istr,index)
-            if index == -1:
-                # comment till EOF
-                break
-            if istr[index] == "\n":
-                ostr += "\n"
-        elif istr[index] in str_open:
-            end_str = find_closing_char(istr, index)
-            if end_str == -1:
-                ostr += istr[index:]
-                break
-            ostr += istr[index:end_str+1]
-            index = end_str
-        else:
-            ostr += istr[index]
-        index += 1
-
-    return ostr
-
-def find_key(istr, key, index=0, end_index=-1):
-    """
-    Return index of the key or -1.
-
-    :param istr: input string; it could be whole file or content of a section
-    :param key: name of the searched key in the current scope
-    :param index: start searching from the index
-    :param end_index: stop searching at the end_index or end of the string
-
-    Funtion is not recursive. Searched key has to be in the current scope.
-    Attention:
-
-    In case that input string contains data outside of section by mistake,
-    the closing character is ignored and the key outside of scope could be
-    found. Example of such wrong input could be:
-          key1 "val"
-          key2 { key-ignored "val-ignored" };
-        };
-        controls { ... };
-    In this case, the key "controls" is outside of original scope. But for this
-    cases you can set end_index to value, where searching should end. In case
-    you set end_index higher then length of the string, end_index will be
-    automatically corrected to the end of the input string.
-    """
-    length = len(istr)
-    keylen = len(key)
-    notFirstKey = False
-
-    if length < end_index or end_index < 0:
-        end_index = length
-
-    if index >= end_index or index < 0:
-        return -1
-
-    while index != -1:
-        if istr.startswith(key, index):
-            if index+keylen < end_index and istr[index+keylen] in "\n\t {;":
-                # key has been found
-                return index
-
-        while notFirstKey and index != -1 and istr[index] != ";":
-            index = find_next_token(istr, index)
-        index = find_next_token(istr, index)
-
-    return -1
-
-def find_val_bounds_of_key(config, key, index=0, end_index=-1):
-    """
-    Return indexes of beginning and end of the value of the key.
-
-    Otherwise return pair -1, -1.
-    """
-    index = find_next_token(config, find_key(config, key, index, end_index))
-    if index == -1 or config[index] not in "\"{":
-        return -1, -1
-    close_index = find_closing_char(config, index)
-    if close_index == -1 or (close_index > end_index and end_index > 0):
-        return -1, -1
-    return index, close_index
 
 #######################################################
 ### CONFIGURATION CHECKS PART - BEGIN
@@ -332,7 +76,7 @@ def register_check(check):
     return check
 
 
-def run_checks(files_to_check):
+def run_checks(parser):
     """
     Runs all available checks on the files loaded into the files_to_check list.
     """
@@ -340,19 +84,19 @@ def run_checks(files_to_check):
 
     for check in CONFIG_CHECKS:
         log_info("Running check: \"" + check.__name__ + "\"")
-        for fpath, buff in FILES_TO_CHECK:
-            log_info("checking: \"" + fpath + "\"")
-            result = check(fpath, buff)
+        for cfg in parser.FILES_TO_CHECK:
+            #log_info("checking: \"{path}\"".format(path=cfg.path))
+            result = check(cfg.path, cfg.buffer)
             if result > gl_result:
                 gl_result = result
 
     log_info("Running check: \"check_empty_zones_complex\"")
-    result = check_empty_zones_complex()
+    result = check_empty_zones_complex(parser)
     if result > gl_result:
         gl_result = result
 
     log_info("Running check: \"check_default_runtime_dir\"")
-    result = check_default_runtime_dir()
+    result = check_default_runtime_dir(parser)
     if result > gl_result:
         gl_result = result
 
@@ -380,8 +124,8 @@ def check_tcp_listen_queue(file_path, buff):
     for match in match_iter:
         try:
             number = int(match.group(1))
-        except ValueError:
-            log_error("Value \"" + match.group(1) + "\" cannot be converted")
+        except ValueError as e:
+            raise(ConfigParseError("Value \"" + match.group(1) + "\" cannot be converted"), e)
             return EXIT_ERROR
         # the new default and minimum value is "10"
         if number > 0 and number < 10:
@@ -489,7 +233,7 @@ Use one of the following solutions:
 # These checks can not be run as the rest, as they need to check
 # all configuration files at once.
 
-def check_empty_zones_complex():
+def check_empty_zones_complex(parser):
     """
     Check if there are any zones defined that are now included in empty zones.
     """
@@ -563,8 +307,8 @@ def check_empty_zones_complex():
 
     # Create a global config
     configuration = ""
-    for fpath, buff in FILES_TO_CHECK:
-        configuration += buff + "\n"
+    for cfg in parser.FILES_TO_CHECK:
+        configuration += cfg.buffer + "\n"
 
     ez_disable_pattern = re.compile("empty-zones-enable\s+no")
     # Check if empty zones are not disabled globally
@@ -602,43 +346,47 @@ with a built-in empty zone. Use one of the following solutions:
     return status
 
 
-def check_default_runtime_dir():
+def check_default_runtime_dir(parser):
     """
     Check if there are any statements needed for the /var/run -> /run move in 'options'.
     """
     status = EXIT_PASS
+    FIX_STATEMENTS = [
+        ("pid-file", '"/run/named/named.pid"'),
+        ("session-keyfile", '"/run/named/session.key"'),
+        ('dnssec-lookaside', 'no'),
+    ]
 
     # find configuration file with the options section
-    config_file = config_content = ""
-    opt_sec_start = opt_sec_end = -1
-    for fpath, fcontent in FILES_TO_CHECK:
-        opt_sec_start, opt_sec_end = find_val_bounds_of_key(fcontent, "options")
-        if opt_sec_start >= 0:
-            config_file = fpath
-            config_content = fcontent
-            break
+    opt = None
+    for cfg in parser.FILES_TO_CHECK:
+        fpath = cfg.path
+        opt_find = parser.find_val(cfg, "options")
+        if opt_find != None:
+            opt = opt_find
+            log_info("Parsing file {path}, start {name} at {start}".format(path=fpath, name=opt.name, start=opt.start))
+            for (key, val) in FIX_STATEMENTS:
+                ret = parser.fix_statement(cfg, opt, key, val)
+                if ret is False:
+                    log_slight_risk("The \"%s\" statement cannot be fixed in the "
+                                    "BIND9 configuration automatically." % key)
+                    status = EXIT_FAIL
+                    break
+                else:
+                    if cfg.status == EXIT_PASS:
+                        log_info("The %s statement does not require change" % (key,))
+                    else:
+                        
+                        log_info("The %s statement has been set to the expected value: %s"
+                             % (key, val))
+                    if status < EXIT_FIXED:
+                        status = EXIT_FIXED
 
-    if -1 in [opt_sec_start, opt_sec_end]:
+    if not opt:
         # unexpected error when BIND is used and works correctly
-        log_error("The options statement has not been found or the configuration "
-                  "is broken.")
-        return EXIT_ERROR
+        raise(ConfigParseError("The options statement has not been found "
+                               "or the configuration is broken."))
 
-    for (key, val) in [("pid-file", '"/run/named/named.pid"'),
-                       ("session-keyfile", '"/run/named/session.key"')]:
-        val_start, val_end = find_val_bounds_of_key(config_content, key,
-                opt_sec_start +1, opt_sec_end)
-        if -1 in [val_start, val_end] or val != config_content[val_start:val_end+1]:
-            ret = fix_statement(config_file, "options", key, val)
-            if ret is False:
-                log_slight_risk("The \"%s\" statement cannot be fixed in the "
-                                "BIND9 configuration automatically." % key)
-                status = EXIT_FAIL
-            else:
-                log_info("The %s statement has been set to the expected value: %s"
-                         % (key, val))
-                if status < EXIT_FIXED:
-                    status = EXIT_FIXED
     if status == EXIT_PASS:
         return status
 
@@ -667,225 +415,27 @@ These locations need to be specified by statements in the options section.\n""")
     return status
 
 
-#######################################################
-### CONFIGURATION CHECKS PART - END
-#######################################################
-### CONFIGURATION fixes PART - BEGIN
-#######################################################
-def change_val(config, section, key, val):
-    """
-    Change value of key inside the section.
-
-    val has to include all characters, including even curly brackets or quotes.
-    Return modified string or None.
-    """
-    index = find_key(config, section)
-    if index == -1:
-        return None
-
-    # find boundaries of the section
-    index = find_next_token(config, index)
-    if index == -1 or config[index] != "{":
-        # that's really unexpected situation - maybe wrong config file
-        return None
-    end_index = find_closing_char(config, index)
-    if end_index == -1 or config[end_index] != "}":
-        # invalid config file?
-        return None
-
-    # find boundaries of value
-    index, end_index = find_val_bounds_of_key(config, key, index+1, end_index)
-    if -1 in [index, end_index] or config[index] != "\"":
-        return None
-
-    return config[:index] + val + config[end_index+1:]
-
-def add_keyval(config, section, key, val):
-    """
-    Add key with value to the section.
-
-    val has to include all characters, including even curly brackets or quotes.
-    Return modified string or None.
-    """
-    index = find_key(config, section)
-    if index == -1:
-        return None
-
-    # find end of the section
-    index = find_next_token(config, index)
-    if index == -1 or config[index] != "{":
-        # that's really unexpected situation - maybe wrong config file
-        return None
-    index = find_closing_char(config, index)
-    if index == -1 or config[index] != "}":
-        # invalid config file?
-        return None
-
-    new_config = "%s\n\t%s %s;\n%s" % (config[:index], key, val, config[index:])
-    return new_config
-
-def fix_statement(confile, section, key, val):
-    """Add or change statement into the section of the config file."""
-    try:
-        config = FIXED_CONFIGS[confile]
-    except KeyError:
-        with open(confile, "r") as f:
-            config = f.read()
-
-    fixed_config = change_val(config, section, key, val)
-    if fixed_config is None:
-        fixed_config = add_keyval(config, section, key, val)
-    if fixed_config is None:
-        return False
-
-    FIXED_CONFIGS[confile] = fixed_config
-    return True
-
-
-#######################################################
-### CONFIGURATION fixes PART - END
-#######################################################
-
-def write_fixed_configs_to_disk(result):
-    """
-    Writes fixed configs in the respective directories.
-    """
-    if result > EXIT_FIXED:
-        output_dir = os.path.join(VALUE_TMP_PREUPGRADE, "dirtyconf")
-        sol_text.add_solution("The configuration files could not be fixed completely as there are still some issues that need a review.")
-    else:
-        output_dir = os.path.join(VALUE_TMP_PREUPGRADE, "cleanconf")
-        sol_text.add_solution("The configuration files have been completely fixed.")
-
-    for path, buff in FIXED_CONFIGS.iteritems():
-        curr_path = os.path.join(output_dir, path[1:])
-
-        # create dirs to make sure they exist
-        try:
-            os.makedirs(os.path.dirname(curr_path))
-        except OSError as e:
-            # if the dir already exist (errno 17), pass
-            if e.errno == 17:
-                pass
-            else:
-                raise e
-
-        with open(curr_path, "w") as f:
-            f.write(buff)
-        msg = "Written the fixed config file to '" + curr_path + "'"
-        log_info(msg)
-        sol_text.add_solution(msg)
-
-def is_config_changed():
-    """
-    Checks if the configuration files changed.
-    """
-    with open(VALUE_ALLCHANGED, "r") as f:
-        files = f.read()
-        for fpath, buff in FILES_TO_CHECK:
-            found = re.findall(fpath, files)
-            if found:
-                return True
-    return False
-
-
-def return_with_code(code):
-    if code == EXIT_FAIL:
-        exit_fail()
-    elif code == EXIT_FIXED:
-        exit_fixed()
-    elif code == EXIT_NOT_APPLICABLE:
-        exit_not_applicable()
-    elif code == EXIT_PASS:
-        exit_pass()
-    elif code == EXIT_INFORMATIONAL:
-        exit_informational()
-    else:
-        exit_error()
-
-
-def check_user(uid=0):
-    """
-    Checks if the effective user ID is the one passed as an argument.
-    """
-    if os.geteuid() != uid:
-        sys.stdout.write("Needs to be root.\n")
-        log_error("The script needs to be run under root.")
-        exit_error()
-
-
-def is_file_loaded(path=""):
-    """
-    Checks if the file with a given 'path' is already loaded in FILES_TO_CHECK.
-    """
-    for f in FILES_TO_CHECK:
-        if f.path == path:
-            return True
-    return False
-
-
-def load_included_files():
-    """
-    Finds the configuration files that are included in some configuration
-    file, reads it, closes and adds into the FILES_TO_CHECK list.
-    """
-    #TODO: use parser instead of regexp
-    pattern = re.compile("include\s*\"(.+?)\"\s*;")
-    # find includes in all files
-    for ch_file in FILES_TO_CHECK:
-        includes = re.findall(pattern, ch_file.buffer)
-        for include in includes:
-            # don't include already loaded files -> prevent loops
-            if is_file_loaded(include):
-                continue
-            try:
-                f = open(include, 'r')
-            except IOError:
-                log_error("Cannot open the configuration file: \"" + include +
-                          "\"" + "included by \"" + ch_file.path + "\"")
-                exit_error()
-            else:
-                log_info("Include statement found in \"" + ch_file.path + "\": " +
-                         "loading file \"" + include + "\"")
-                filtered_string = remove_comments(f.read())
-                f.close()
-                FILES_TO_CHECK.append(ConfFile(buffer=filtered_string,
-                                               path=include))
-
-
-def load_main_config():
-    """
-    Loads main CONFIG_FILE.
-    """
-    try:
-        f = open(CONFIG_FILE, 'r')
-    except IOError:
-        log_error(
-            "Cannot open the configuration file: \"" + CONFIG_FILE + "\"")
-        exit_error()
-    else:
-        log_info("Loading the configuration file: \"" + CONFIG_FILE + "\"")
-        filtered_string = remove_comments(f.read())
-        f.close()
-        FILES_TO_CHECK.append(ConfFile(buffer=filtered_string,
-                                       path=CONFIG_FILE))
-
-
 def main():
-    check_user()
-    load_main_config()
-    load_included_files()
-    # need to check also paths of included files
-    if not is_config_changed():
-        return_with_code(EXIT_PASS)
-    result = run_checks(FILES_TO_CHECK)
-    # write the config into the respective dir
-    write_fixed_configs_to_disk(result)
-    # if there was some issue, write a solution text
-    if result > EXIT_PASS:
-        solution_file(sol_text.get_text())
-    return_with_code(result)
-
+    try:
+        if len(sys.argv)>1:
+            parser = legacy.BindLegacyParser(sys.argv[1])
+        else:
+            parser = legacy.BindLegacyParser()
+        # need to check also paths of included files
+        if not parser.is_config_changed():
+            return_with_code(EXIT_PASS)
+        result = run_checks(parser)
+        # write the config into the respective dir
+        # FIXME: this should copy original permissions from source file!
+        parser.write_fixed_configs_to_disk(result, sol_text)
+        # if there was some issue, write a solution text
+        if result > EXIT_PASS:
+            solution_file(sol_text.get_text())
+            pass
+        return_with_code(result)
+    except ConfigParseError as e:
+        print(e)
+        return_with_code(EXIT_FAIL)
 
 if __name__ == "__main__":
     main()
