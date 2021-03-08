@@ -18,25 +18,15 @@ efibootmgr || {
 # rpm which is removed during the upgrade
 efibin_path="/boot/efi/EFI/redhat/grub.efi"
 eficonf_path="/boot/efi/EFI/redhat/grub.conf"
-if [ -e "$efibin_path" ] ; then
-    # now we are for sure on the original system, as the binary is not removed
-    # backup these files
-    log_info "Backing up EFI files."
-    cp -a ${efibin_path}{,.preupg}
-    # back up the file only in case there is not any other backup
-    # - the backup can be created by redhat-upgrade-tool
-    [ -e "${eficonf_path}.preupg" ] || cp -a ${eficonf_path}{.preupg,}
-else
-    # restore the files from the backup
-    log_info "Restoring EFI files."
-    cp -a ${efibin_path}{.preupg,}
-    # we do not want to apply the backup of the configuration file,
-    # as the backup will not contain probably working configuration; however,
-    # in case the configuration file is already missing, it could be in some
-    # rare cases better than nothing
-    [ -e "$eficonf_path" ] || cp -a ${eficonf_path}{.preupg,}
-fi
 
+# restore the files from the backup
+log_info "Restoring EFI files."
+cp -a ${efibin_path}{.preupg,}
+# we do not want to apply the backup of the configuration file,
+# as the backup will not contain probably working configuration; however,
+# in case the configuration file is already missing, it could be in some
+# rare cases better than nothing
+[ -e "$eficonf_path" ] || cp -a ${eficonf_path}{.preupg,}
 
 
 # e.g.: BootCurrent: 0001
