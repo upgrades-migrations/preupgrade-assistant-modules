@@ -25,16 +25,14 @@ if [ -e "$efibin_path" ] ; then
     cp -a ${efibin_path}{,.preupg}
     # back up the file only in case there is not any other backup
     # - the backup can be created by redhat-upgrade-tool
-    [ -e "${eficonf_path}.preupg" ] || cp -a ${eficonf_path}{.preupg,}
+    [ -e "${eficonf_path}.preupg" ] || cp -a ${eficonf_path}{,.preupg}
 else
-    # restore the files from the backup
-    log_info "Restoring EFI files."
-    cp -a ${efibin_path}{.preupg,}
-    # we do not want to apply the backup of the configuration file,
-    # as the backup will not contain probably working configuration; however,
-    # in case the configuration file is already missing, it could be in some
-    # rare cases better than nothing
-    [ -e "$eficonf_path" ] || cp -a ${eficonf_path}{.preupg,}
+    # This is not expected at all, but let's call it a lock for a seatbelt
+    # - The script is applied only when EFI is detected; however it's possible
+    #   the system could be deployed already broken and still working by
+    #   a miracle (unsupported of course, but why not to prevent more damage?)
+    log_error "Cannot find the $eficonf_path file but EFI has been detected. Cannot proceed the upgrade."
+    exit 1
 fi
 
 

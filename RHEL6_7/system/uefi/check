@@ -24,10 +24,10 @@ command -v efibootmgr >/dev/null || {
 }
 
 # create pre-upgrade and post-upgrade scripts
-cp -a "efibootorder_fix.sh" "$PREUPGRADE_SCRIPT_DIR/"
-cp -a "efibootorder_fix.sh" "$POSTUPGRADE_DIR/"
-chmod +x "$PREUPGRADE_SCRIPT_DIR/efibootorder_fix.sh"
-chmod +x "$POSTUPGRADE_DIR/efibootorder_fix.sh"
+cp -a "efibootorder_fix_pre.sh" "$PREUPGRADE_SCRIPT_DIR/"
+cp -a "efibootorder_fix_post.sh" "$POSTUPGRADE_DIR/"
+chmod +x "$PREUPGRADE_SCRIPT_DIR/efibootorder_fix_pre.sh"
+chmod +x "$POSTUPGRADE_DIR/efibootorder_fix_post.sh"
 
 log_medium_risk "The Legacy GRUB has to be migrated to GRUB 2 after the upgrade manually"
 exit_fail
